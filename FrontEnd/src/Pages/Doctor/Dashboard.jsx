@@ -110,11 +110,11 @@ const DoctorDashboard = () => {
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
-            <div className="flex items-center">
+            <div className="w-full flex">
               <Logo />
               {/* Mobile menu button */}
               <button
-                className="relative top-1 right-[-8rem] md:hidden"
+                className="relative top-1 md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 <svg
@@ -141,7 +141,7 @@ const DoctorDashboard = () => {
             <div
               className={`${
                 mobileMenuOpen ? "flex" : "hidden"
-              } md:flex justify-end items-center gap-2 md:gap-4 w-full flex-col md:flex-row absolute md:relative top-16 md:top-0 left-0 md:left-auto bg-white md:bg-transparent w-full md:w-auto p-4 md:p-0 shadow-md md:shadow-none z-10`}
+              } md:flex justify-end items-center gap-2 md:gap-4 w-full flex-col md:flex-row absolute md:relative top-16 md:top-0 left-0 md:left-auto bg-white md:bg-transparent md:w-auto p-4 md:p-0 shadow-md md:shadow-none z-10`}
             >
               <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full md:w-auto">
                 LogOut

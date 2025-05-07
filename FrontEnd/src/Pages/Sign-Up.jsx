@@ -1,28 +1,45 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import SignUp_Image from "../assets/SignUp_image.png";
+import { UserDataContext } from "../Context/UserContext";
 
 const SignUp = () => {
+  const { user, setUser } = useContext(UserDataContext);
   const [signUpType, setSignUpType] = useState("patient");
-  const [fullName, setFullName] = useState("");
+  const [fullName, setfullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+  }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({
-      signUpType,
+    if (password != confirmPassword) {
+      return console.log("password dose'nt match..");
+    }
+    setUser({
       fullName,
       email,
       password,
-      confirmPassword,
-      agreeToTerms,
     });
+    // console.log({
+    //   signUpType,
+    //   fullName: {
+    //     firstname,
+    //     lastname,
+    //   },
+    //   email,
+    //   password,
+    //   confirmPassword,
+    //   agreeToTerms,
+    // });
+    navigate(`/${signUpType}-Profile-Setup`);
   };
 
   return (
@@ -72,30 +89,36 @@ const SignUp = () => {
         >
           {/* Full Name */}
           <div>
-            <label htmlFor="fullName" className="block text-gray-700 mb-1">
+            <label
+              htmlFor="fullname"
+              className="block text-gray-700 mb-1 font-semibold"
+            >
               Full Name
             </label>
             <input
-              id="fullName"
+              id="fullname"
               type="text"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your full name"
+              placeholder="Enter your Full name"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) => setfullName(e.target.value)}
               required
             />
           </div>
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-gray-700 mb-1">
-              Email or Phone Number
+            <label
+              htmlFor="email"
+              className="block text-gray-700 mb-1 font-semibold"
+            >
+              Email
             </label>
             <input
               id="email"
-              type="text"
+              type="email"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email or phone"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -104,7 +127,10 @@ const SignUp = () => {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-gray-700 mb-1 font-semibold"
+            >
               Password
             </label>
             <div className="relative">
@@ -184,7 +210,7 @@ const SignUp = () => {
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-gray-700 mb-1"
+              className="block text-gray-700 mb-1 font-semibold"
             >
               Confirm Password
             </label>
