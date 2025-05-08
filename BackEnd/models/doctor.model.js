@@ -17,7 +17,6 @@ const doctorSchema = mongoose.Schema({
   password: {
     type: String,
     required: true,
-    unique: true,
     minlength: [8, "password must be 8 character long"],
   },
   basicInfo: {
