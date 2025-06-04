@@ -2,44 +2,50 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import SignUp_Image from "../assets/SignUp_image.png";
-import { UserDataContext } from "../Context/UserContext";
+import { PatientDataContext } from "../Context/PatientContext";
+import { DoctorDataContext } from "../Context/DoctorContext";
+import axios from "axios";
 
 const SignUp = () => {
-  const { user, setUser } = useContext(UserDataContext);
   const [signUpType, setSignUpType] = useState("patient");
-  const [fullName, setfullName] = useState("");
+  const [fullname, setfullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  // const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-  }, [user]);
 
-  const handleSubmit = (e) => {
+  const { patient, setpatient } = useContext(PatientDataContext);
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password != confirmPassword) {
-      return console.log("password dose'nt match..");
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/${signUpType}s/checkemail`,
+      { email }
+    );
+    if (response.data == "Email Exist") {
+      return alert("Email Exists");
+    } else {
+      if (password != confirmPassword) {
+        return console.log("password dose'nt match..");
+      }
+      if (signUpType == "patient")
+        setpatient({
+          fullname,
+          email,
+          password,
+        });
+      if (signUpType == "doctor")
+        setDoctor({
+          fullname,
+          email,
+          password,
+        });
+      navigate(`/${signUpType}-Profile-Setup`);
     }
-    setUser({
-      fullName,
-      email,
-      password,
-    });
-    // console.log({
-    //   signUpType,
-    //   fullName: {
-    //     firstname,
-    //     lastname,
-    //   },
-    //   email,
-    //   password,
-    //   confirmPassword,
-    //   agreeToTerms,
-    // });
-    navigate(`/${signUpType}-Profile-Setup`);
   };
 
   return (
@@ -100,8 +106,8 @@ const SignUp = () => {
               type="text"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your Full name"
-              value={fullName}
-              onChange={(e) => setfullName(e.target.value)}
+              value={fullname}
+              onChange={(e) => setfullname(e.target.value)}
               required
             />
           </div>
@@ -287,7 +293,7 @@ const SignUp = () => {
           </div>
 
           {/* Terms */}
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <input
               id="terms"
               type="checkbox"
@@ -306,12 +312,11 @@ const SignUp = () => {
                 Privacy Policy
               </Link>
             </label>
-          </div>
+          </div> */}
 
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md transition duration-200"
-            disabled={!agreeToTerms}
           >
             Sign Up
           </button>

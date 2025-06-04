@@ -14,10 +14,14 @@ const doctorSchema = mongoose.Schema({
     unique: true,
     minlength: [8, "email must be 8 character long"],
   },
+  profileImage: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,
     minlength: [8, "password must be 8 character long"],
+    select: false,
   },
   basicInfo: {
     dateOfBirth: {
@@ -31,6 +35,7 @@ const doctorSchema = mongoose.Schema({
     phoneNumber: {
       type: String,
       required: true,
+      minlength: [8, "password must be 8 character long"],
     },
   },
   professionalDetails: {
@@ -46,6 +51,14 @@ const doctorSchema = mongoose.Schema({
       type: String,
       required: true,
     },
+    checkupfee: {
+      type: Number,
+      required: true,
+    },
+    AverageCheckupTime: {
+      type: Number,
+      required: true,
+    },
   },
   clinicInfo: {
     clinicName: {
@@ -57,10 +70,33 @@ const doctorSchema = mongoose.Schema({
       required: true,
     },
     consultationHours: {
-      consultationStartTime: {},
-      consultationEndTime: {
-        type: String,
-        required: true,
+      Monday: {
+        StartTime: String,
+        EndTime: String,
+      },
+      Tuesday: {
+        StartTime: String,
+        EndTime: String,
+      },
+      Wednesday: {
+        StartTime: String,
+        EndTime: String,
+      },
+      Thursday: {
+        StartTime: String,
+        EndTime: String,
+      },
+      Friday: {
+        StartTime: String,
+        EndTime: String,
+      },
+      Saturday: {
+        StartTime: String,
+        EndTime: String,
+      },
+      Sunday: {
+        StartTime: String,
+        EndTime: String,
       },
     },
   },

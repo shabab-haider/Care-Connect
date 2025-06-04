@@ -3,14 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import signIn_image from "../assets/signIn_Image.png";
 import Logo from "../assets/Logo.png";
 import axios from "axios";
-import UserContext, { UserDataContext } from "../Context/UserContext";
+import { PatientDataContext } from "../Context/PatientContext";
+import { DoctorDataContext } from "../Context/DoctorContext";
 
 const SignIn = () => {
   const [loginType, setLoginType] = useState("patient");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const { user, setUser } = useContext(UserDataContext);
+  const { patient, setpatient } = useContext(PatientDataContext);
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -20,8 +22,14 @@ const SignIn = () => {
       `${import.meta.env.VITE_BASE_URL}/${loginType}s/login`,
       data
     );
+
     if (response.status === 200) {
-      setUser(response.data.loginType);
+      if (loginType == "patient") {
+        setpatient(response.data.patient);
+      }
+      if (loginType == "doctor") {
+        setDoctor(response.data.doctor);
+      }
       localStorage.setItem("token", response.data.token);
       navigate(`/${loginType}-dashboard`);
     }
@@ -140,7 +148,7 @@ const SignIn = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-6">
+            {/* <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -156,12 +164,12 @@ const SignIn = () => {
                   Remember me
                 </label>
               </div>
-              {/* <div>
+              <div>
                                 <Link to="/forgot-password" className="text-sm text-blue-500 hover:text-blue-700">
                                     Forgot password?
                                 </Link>
-                            </div> */}
-            </div>
+                            </div>
+            </div> */}
           </div>
 
           <button

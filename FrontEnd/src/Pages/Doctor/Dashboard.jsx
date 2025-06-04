@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../../Components/Logo";
+import Avatar from "../../Components/Avatar";
+import { Bell, Cross, LogOut, Menu, Settings } from "lucide-react";
 
 const DoctorDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const [screenSize, setScreenSize] = useState(window.innerWidth);
   // Mock data for the dashboard
   const pendingRequests = [
     {
@@ -110,87 +112,73 @@ const DoctorDashboard = () => {
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
-            <div className="w-full flex">
+            {/* Logo */}
+            <div>
               <Logo />
-              {/* Mobile menu button */}
-              <button
-                className="relative top-1 md:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-gray-700"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d={
-                      mobileMenuOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
-                  />
-                </svg>
-              </button>
             </div>
 
-            <div
-              className={`${
-                mobileMenuOpen ? "flex" : "hidden"
-              } md:flex justify-end items-center gap-2 md:gap-4 w-full flex-col md:flex-row absolute md:relative top-16 md:top-0 left-0 md:left-auto bg-white md:bg-transparent md:w-auto p-4 md:p-0 shadow-md md:shadow-none z-10`}
-            >
-              <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full md:w-auto">
-                LogOut
-              </button>
-              <div className="relative">
-                <button className="relative p-1">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-gray-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
-                  </svg>
-                  <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+            {screenSize > 767 ? (
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/logout"
+                  className="bg-red-600 p-2 font-semibold rounded text-white"
+                >
+                  Logout
+                </Link>
+                <Link to="/doctor-notifications" className="relative">
+                  <Bell color="black" size={27} />
+                  <span className="absolute bottom-3 left-3 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
                     3
                   </span>
+                </Link>
+                <div className="pb-1">
+                  <Link to="/doctor-profile">
+                  <Avatar />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="text-gray-700"
+                >
+                  {mobileMenuOpen ? (
+                    <div className="text-3xl font-semibold mb-3 mr-2">x</div>
+                  ) : (
+                    <Menu color="black" size={27} />
+                  )}
                 </button>
               </div>
-              <div className="flex items-center justify-center w-full md:w-auto">
-                <img
-                  src="data:image/png;base64,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"
-                  alt="Dr. Syed Shabab"
-                  className="h-8 w-8 rounded-full mr-2"
-                />
-                <span className="text-gray-800 font-medium mr-1">
-                  Dr. Syed Shabab
-                </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
+            )}
           </div>
+
+          {/* Mobile Menu Links */}
+          {mobileMenuOpen && (
+            <div className="w-[50vw] absolute top-12 right-0 flex flex-col gap-3 md:hidden mt-2 p-4 bg-white shadow-md rounded z-10">
+              <Link
+                to="/doctor-notifications"
+                className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                <Bell color="#6b7280" size={20} className="mr-3" />
+                Notifications
+              </Link>
+              <Link
+                to="/patient-profile"
+                className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                <Settings color="#6b7280" size={20} className="mr-3" />
+                Settings
+              </Link>
+              <Link
+                to="/logout"
+                className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                <LogOut color="#6b7280" size={20} className="mr-3" />
+                Logout
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
@@ -290,7 +278,7 @@ const DoctorDashboard = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="hidden md:bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Quick Actions
               </h3>
@@ -319,7 +307,7 @@ const DoctorDashboard = () => {
                 </li>
                 <li>
                   <Link
-                    to="/settings"
+                    to="/doctor-profile"
                     className="flex items-center text-gray-700 hover:text-blue-500"
                   >
                     <svg

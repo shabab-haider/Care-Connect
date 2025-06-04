@@ -23,3 +23,16 @@ module.exports.CreatePatient = async ({
   });
   return Patient;
 };
+
+module.exports.UpdatePatient = async ({ id, fullname, email, phoneNumber, profileImage }) => {
+  const patient = await PatientModel.findById(id);
+  if (!patient) {
+    throw new Error("patient not found");
+  }
+  if (fullname !== undefined) patient.fullname = fullname;
+  if (email !== undefined) patient.email = email;
+  if (phoneNumber !== undefined) patient.phoneNumber = phoneNumber;
+  if (profileImage !== undefined) patient.profileImage = profileImage;
+  await patient.save();
+  return patient;
+};

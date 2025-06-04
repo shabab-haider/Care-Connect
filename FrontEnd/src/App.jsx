@@ -19,9 +19,11 @@ import DoctorSearch from "./Pages/Patient/DoctorSearch";
 import PatientNotifications from "./Pages/Patient/Notifications";
 import AIChatbot from "./Pages/Patient/AiChatbot";
 import DoctorNotifications from "./Pages/Doctor/Notifications";
-import ProfileProtectedWrapper from "./Pages/ProfileProtectedWrapper";
+import PatientProfileProtectedWrapper from "./Pages/Patient/ProfileProtectedWrapper";
+import DoctorProfileProtectedWrapper from "./Pages/Doctor/ProfileProtectedWrapper";
 import PatientProtectedWrapper from "./Pages/Patient/PatientProtectedWrapper";
 import DoctorProtectedWrapper from "./Pages/Doctor/DoctorProtectedWrapper";
+import Logout from "./Pages/Logout";
 const App = () => {
   return (
     <>
@@ -30,28 +32,64 @@ const App = () => {
         <Route path="sign-in" element={<SignIn />} />
         {/* <Route path="forgot-password" element={<ForgotPassword />} /> */}
         <Route path="sign-up" element={<SignUp />} />
+        <Route path="logout" element={<Logout />} />
         {/* Patient Routes */}
         <Route
           path="Patient-Profile-Setup"
           element={
-            <ProfileProtectedWrapper>
+            <PatientProfileProtectedWrapper>
               <PatientProfileSetup />
-            </ProfileProtectedWrapper>
+            </PatientProfileProtectedWrapper>
           }
         />
         <Route
-          path="Patient-dashboard"
+          path="patient-dashboard"
           element={
             <PatientProtectedWrapper>
               <PatientDashboard />
             </PatientProtectedWrapper>
           }
         />
-        <Route path="ai-chatbot" element={<AIChatbot />} />
-        <Route path="book-appointment" element={<AppointmentBooking />} />
-        <Route path="find-doctors" element={<DoctorSearch />} />
-        <Route path="settings" element={<PatientProfile />} />
-        <Route path="PatientNotifications" element={<PatientNotifications />} />
+        <Route
+          path="ai-chatbot"
+          element={
+            <PatientProtectedWrapper>
+              <AIChatbot />
+            </PatientProtectedWrapper>
+          }
+        />
+        <Route
+          path="book-appointment"
+          element={
+            <PatientProtectedWrapper>
+              <AppointmentBooking />
+            </PatientProtectedWrapper>
+          }
+        />
+        <Route
+          path="find-doctors"
+          element={
+            <PatientProtectedWrapper>
+              <DoctorSearch />
+            </PatientProtectedWrapper>
+          }
+        />
+        <Route
+          path="patient-profile"
+          element={
+            <PatientProtectedWrapper>
+              <PatientProfile />
+            </PatientProtectedWrapper>
+          }
+        />
+        <Route
+          path="patient-notifications"
+          element={
+            <PatientProtectedWrapper>
+              <PatientNotifications />
+            </PatientProtectedWrapper>
+          }
+        />
         {/* Doctor Routes */}
         <Route
           path="doctor-dashboard"
@@ -64,16 +102,51 @@ const App = () => {
         <Route
           path="doctor-Profile-Setup"
           element={
-            <ProfileProtectedWrapper>
+            <DoctorProfileProtectedWrapper>
               <DoctorProfileSetup />
-            </ProfileProtectedWrapper>
+            </DoctorProfileProtectedWrapper>
           }
         />
-        <Route path="doctorProfile" element={<DoctorProfile />} />
-        <Route path="patient-list" element={<PatientsList />} />
-        <Route path="add-patient" element={<AddPatient />} />
-        <Route path="patient-details" element={<PatientDetails />} />
-        <Route path="doctorNotifications" element={<DoctorNotifications />} />
+        <Route
+          path="doctor-profile"
+          element={
+            <DoctorProtectedWrapper>
+              <DoctorProfile />
+            </DoctorProtectedWrapper>
+          }
+        />
+        <Route
+          path="patient-list"
+          element={
+            <DoctorProtectedWrapper>
+              <PatientsList />
+            </DoctorProtectedWrapper>
+          }
+        />
+        <Route
+          path="add-patient"
+          element={
+            <DoctorProtectedWrapper>
+              <AddPatient />
+            </DoctorProtectedWrapper>
+          }
+        />
+        <Route
+          path="patient-details"
+          element={
+            <DoctorProtectedWrapper>
+              <PatientDetails />
+            </DoctorProtectedWrapper>
+          }
+        />
+        <Route
+          path="doctor-notifications"
+          element={
+            <DoctorProtectedWrapper>
+              <DoctorNotifications />
+            </DoctorProtectedWrapper>
+          }
+        />
       </Routes>
 
       {/* <Home /> */}

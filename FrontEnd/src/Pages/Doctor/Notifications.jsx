@@ -190,7 +190,6 @@ const DoctorNotifications = () => {
               to="/doctor-profile"
               className="flex items-center text-gray-600 hover:text-gray-800"
             >
-              <span className="mr-2 hidden sm:inline">Dr. Syed Shabab</span>
               <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

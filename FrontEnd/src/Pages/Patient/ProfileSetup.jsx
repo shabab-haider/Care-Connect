@@ -1,22 +1,22 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../Components/Logo";
-import { UserDataContext } from "../../Context/UserContext";
+import { PatientDataContext } from "../../Context/PatientContext";
 import axios from "axios";
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserDataContext);
-  const [fullName, setFullName] = useState(user.fullName);
+  const { patient, setpatient } = useContext(PatientDataContext);
+  const [fullName, setFullName] = useState(patient.fullName);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   // const [newData, setNewData] = useState({});
-  const prev = user;
+  const prev = patient;
   useEffect(() => {
-    console.log(user);
-  }, [user]);
+    
+  }, [patient]);
 
   const handleImageUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -39,20 +39,20 @@ const ProfileSetup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userData = {
+    const patientData = {
       ...prev,
       ...{ dateOfBirth, gender, phoneNumber, profileImage },
     };
     const response = await axios.post(
       `${import.meta.env.VITE_BASE_URL}/Patients/register`,
-      userData
+      patientData
     );
-    console.log(response);
+    
     if (response.status === 200) {
-      setUser(response.data);
+      setpatient(response.data.patient);
       const token = response.data.token;
       localStorage.setItem("token", token);
-      navigate("/Patient-dashboard");
+      navigate("/patient-dashboard");
     }
   };
 

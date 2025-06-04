@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import Logo from "../../Components/Logo";
 import Avatar from "../../Components/Avatar";
 import PatientHeader from "../../Components/PatientHeader";
-import defaultProfile from "/Images/DefaultProfile.jpeg"; 
 
 const AppointmentBooking = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,151 +161,93 @@ const AppointmentBooking = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
-        <div className="h-[88vh] w-screen flex flex-col md:flex-row gap-8 justify-around">
+        <div className="h-[88vh] w-screen flex flex-col md:flex-row gap-8">
           {/* Left Column - Doctor Selection */}
-          <div className="w-full md:w-1/4">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6 flex flex-col items-center">
-              <div className="relative mb-4">
-                <img
-                  src={defaultProfile}
-                  alt=""
-                  className="w-32 h-32 rounded-full object-cover"
+          <div className="h-full  w-[50vw] bg-red md:w-1/2">
+            {/* Search Bar - visible on all screens */}
+            <div className="mb-6">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Search doctors by name or specialty"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              
-              <h2 className="text-xl font-bold text-gray-800 mb-1">
-                Dr. 
-              </h2>
-              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4">
-                Doctor
-              </span>
-              <div className="w-full space-y-3 mb-6">
-                <div className="flex items-center text-gray-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <span>email</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  <span>phoneNumber</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <span>location</span>
-                </div>
-              </div>
-              {/* <div className="grid grid-cols-3 gap-4 w-full">
-                <div className="bg-blue-50 p-3 rounded-lg text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-500 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            </div>
+
+            {/* Doctor List */}
+            <div className="space-y-4">
+              {filteredDoctors.map((doctor) => (
+                <div
+                  key={doctor.id}
+                  className="border border-gray-200 rounded-lg overflow-hidden"
+                >
+                  <div className="p-4">
+                    <div className="flex items-center mb-3">
+                      <img
+                        src={doctor.image || "/placeholder.svg"}
+                        alt={doctor.name}
+                        className="w-12 h-12 rounded-full mr-4 object-cover"
                       />
-                    </svg>
-                    <span className="text-blue-700 font-bold">
-                      {doctorData.stats.patients}
-                    </span>
+                      <div>
+                        <h3 className="text-base font-semibold">
+                          {doctor.name}
+                        </h3>
+                        <p className="text-blue-500 text-sm">
+                          {doctor.specialty}
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {doctor.experience} years experience
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center mb-3">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={`h-4 w-4 ${
+                            i < Math.floor(doctor.rating)
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                      <span className="ml-1 text-gray-600 text-sm">
+                        {doctor.rating}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-600">Patients</span>
+                  <button
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 text-sm font-medium transition duration-200"
+                    onClick={() => handleDoctorSelect(doctor)}
+                  >
+                    Book Appointment
+                  </button>
                 </div>
-                <div className="bg-blue-50 p-3 rounded-lg text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-500 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="text-blue-700 font-bold">
-                      {doctorData.stats.years}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-600">Years</span>
-                </div>
-                <div className="bg-blue-50 p-3 rounded-lg text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-500 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                      />
-                    </svg>
-                    <span className="text-blue-700 font-bold">
-                      {doctorData.stats.rating}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-600">Rating</span>
-                </div>
-              </div> */}
+              ))}
             </div>
           </div>
 

@@ -1,15 +1,15 @@
 import React, { useContext, useEffect } from "react";
-import { UserDataContext } from "../Context/UserContext";
+import { PatientDataContext } from "../../Context/PatientContext";
 import { useNavigate } from "react-router-dom";
 
 const ProfileProtectedWrapper = ({ children }) => {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserDataContext);
+  const { patient, setpatient } = useContext(PatientDataContext);
   useEffect(() => {
-    if (Object.keys(user).length === 0) {
+    if (Object.keys(patient).length === 0) {
       navigate("/sign-up");
     }
-  }, [user]);
+  }, [patient]);
   return <>{children}</>;
 };
 

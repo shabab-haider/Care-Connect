@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../../Components/Logo";
+import Avatar from "../../Components/Avatar";
 
 const Notifications = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Mock notification data
   const [notifications, setNotifications] = useState([
@@ -111,38 +111,14 @@ const Notifications = () => {
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            {/* Mobile menu button */}
-            <button
-              className="mr-4 md:hidden"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-gray-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
-                />
-              </svg>
-            </button>
+          <div>
             <Logo />
           </div>
 
           <div className="flex justify-end items-center space-x-4">
             <div className="relative">
               <Link
-                to="/doctor-notifications"
+                to="/patient-notifications"
                 className="text-gray-600 hover:text-gray-800"
               >
                 <svg
@@ -167,26 +143,10 @@ const Notifications = () => {
               </Link>
             </div>
             <Link
-              to="/doctor-profile"
+              to="/patient-dashboard"
               className="flex items-center text-gray-600 hover:text-gray-800"
             >
-              <span className="mr-2 hidden sm:inline">Dr. Syed Shabab</span>
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </div>
+              <Avatar />
             </Link>
           </div>
         </div>
@@ -194,97 +154,28 @@ const Notifications = () => {
 
       {/* Main Content */}
       <div className="flex min-h-[calc(100vh-64px)]">
-        {/* Sidebar - Hidden on mobile, shown when sidebarOpen is true */}
-        <div
-          className={`${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } fixed md:relative md:translate-x-0 z-20 w-64 bg-white border-r border-gray-200 h-full transition-transform duration-300 ease-in-out`}
-        >
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-6">
-              Notifications
-            </h2>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  to="/notifications"
-                  className="flex items-center px-4 py-2 text-blue-600 bg-blue-50 rounded-md"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-3"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
-                  </svg>
-                  All Notifications
-                </Link>
-              </li>
-              <li className="md:hidden mt-4">
-                <Link
-                  to="/dashboard"
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-3 text-gray-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                    />
-                  </svg>
-                  Dashboard
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Overlay for mobile sidebar */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          ></div>
-        )}
-
         {/* Notification Content */}
         <div className="flex-1 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-3 sm:mb-0">
               Notifications
             </h1>
-            <div className="flex flex-wrap gap-2 sm:gap-4">
+            <div className="flex flex-wrap gap-4 sm:gap-4">
               <button
                 onClick={markAllAsRead}
-                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                className="text-gray-600 hover:text-blue-600 text-sm font-medium"
               >
                 Mark all as read
               </button>
               <button
                 onClick={clearAll}
-                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                className="text-gray-600 hover:text-blue-600 text-sm font-medium"
               >
                 Clear all
               </button>
               <button
                 onClick={() => window.history.back()}
-                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                className="text-gray-600 hover:text-blue-600 text-sm font-medium"
               >
                 Back
               </button>

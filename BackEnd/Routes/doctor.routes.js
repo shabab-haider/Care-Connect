@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require("express-validator");
 const doctorController = require("../controllers/doctor.controller");
 const authMiddleware = require("../Middlewares/Auth.middleware");
+const doctorModel = require("../models/doctor.model");
 
 router.post(
   "/register",
@@ -34,5 +35,11 @@ router.get(
   authMiddleware.doctorAuth,
   doctorController.getDoctorDashboard
 );
+
+router.post("/checkemail", doctorController.checkEmail);
+
+router.post("/update",doctorController.updateDoctor)
+
+router.get("/getdoctors", doctorController.getDoctors)
 
 module.exports = router;

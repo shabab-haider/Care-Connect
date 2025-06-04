@@ -18,6 +18,7 @@ const PatientSchema = mongoose.Schema({
     type: String,
     required: true,
     minlength: [8, "password must be 8 character long"],
+    select: false,
   },
   dateOfBirth: {
     type: String,
@@ -31,7 +32,7 @@ const PatientSchema = mongoose.Schema({
 
   phoneNumber: {
     type: Number,
-    minlength: [11, "Phone number must be 11 digitd"],
+    minlength: [10, "Phone number must be 10 digits"],
     required: true,
   },
   profileImage: {

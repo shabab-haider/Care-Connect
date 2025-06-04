@@ -10,7 +10,7 @@ module.exports.registerDoctor = async function (req, res) {
     return res.status(400).json({ errors: err.array() });
   }
   let {
-    fullName,
+    fullname,
     email,
     password,
     basicInfo,
@@ -19,7 +19,7 @@ module.exports.registerDoctor = async function (req, res) {
   } = req.body;
   const hash = await doctorModel.hashPassword(password);
   const doctor = await doctorService.Createdoctor({
-    fullname: fullName,
+    fullname,
     email,
     password: hash,
     basicInfo,
@@ -38,7 +38,7 @@ module.exports.loginDoctor = async function (req, res) {
     return res.status(422).json({ errors: err.array() });
   }
   let { email, password } = req.body;
-  const doctor = await doctorModel.findOne({ email });
+  const doctor = await doctorModel.findOne({ email }).select("+password");
   if (!doctor) {
     return res.status(401).json({ Error: "Invalid Credentials" });
   }
@@ -53,4 +53,60 @@ module.exports.loginDoctor = async function (req, res) {
 
 module.exports.getDoctorDashboard = function (req, res) {
   res.status(200).json({ doctor: req.doctor });
+};
+
+module.exports.checkEmail = async function (req, res) {
+  try {
+    const doctor = await doctorModel.findOne({ email: req.body.email });
+    if (doctor) {
+      res.send("Email Exist");
+    } else {
+      res.send("Email does not exist");
+    }
+  } catch (error) {
+    res.status(500).send("Server error");
+  }
+};
+
+module.exports.updateDoctor = async function (req, res) {
+  console.log(req.body);
+  let {
+    id,
+    fullname,
+    email,
+    profileImage,
+    basicInfo: { phoneNumber },
+    clinicInfo: { clinicAddress, clinicName, consultationHours },
+    professionalDetails: { checkupfee, licenseNumber, specialty },
+  } = req.body;
+  try {
+    const updatedDoctor = await doctorService.UpdateDoctor({
+      id,
+      fullname,
+      email,
+      profileImage,
+      basicInfo: { phoneNumber },
+      clinicInfo: { clinicAddress, clinicName, consultationHours },
+      professionalDetails: { checkupfee, licenseNumber, specialty },
+    });
+    res.status(200).json({
+      message: "Doctor updated successfully",
+      doctor: updatedDoctor,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to update Doctor", details: error.message });
+  }
+};
+
+module.exports.getDoctors = async function (req, res) {
+  try {
+    const doctors = await doctorModel.find();
+    res.status(200).json({ doctors: doctors });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to find Doctors", details: error.message });
+  }
 };

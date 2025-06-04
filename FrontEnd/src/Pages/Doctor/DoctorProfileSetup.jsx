@@ -1,19 +1,21 @@
 import { useState, useEffect, useContext } from "react";
 import Logo from "../../Components/Logo";
-import { UserDataContext } from "../../Context/UserContext";
+import { DoctorDataContext } from "../../Context/DoctorContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const DoctorProfileSetup = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserDataContext);
-  const prev = user;
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
+  const [time, setTime] = useState();
+  const [timeSetting, setTimeSetting] = useState(false);
+  const prev = doctor;
   // Form sections state
   const [activeSection, setActiveSection] = useState("basic");
   const [progress, setProgress] = useState(33); // Start with 33% for first section
 
   // Basic Information
-  const [fullName, setFullName] = useState(user.fullName);
+  const [fullname, setfullname] = useState(doctor.fullname);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -22,20 +24,87 @@ const DoctorProfileSetup = () => {
   const [specialty, setSpecialty] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
   const [yearsOfExperience, setYearsOfExperience] = useState("");
+  const [checkupfee, setCheckupfee] = useState("");
+  const [AverageCheckupTime, setAverageCheckupTime] = useState("");
 
   // Clinic Information
   const [clinicName, setClinicName] = useState("");
   const [clinicAddress, setClinicAddress] = useState("");
-  const [consultationStartTime, setConsultationStartTime] = useState("");
-  const [consultationEndTime, setConsultationEndTime] = useState("");
+
+  //Consultation Times
+  const [MondayconsultationStartTime, setMondayConsultationStartTime] =
+    useState("");
+  const [MondayconsultationEndTime, setMondayConsultationEndTime] =
+    useState("");
+  const [TuesdayconsultationStartTime, setTuesdayConsultationStartTime] =
+    useState("");
+  const [TuesdayconsultationEndTime, setTuesdayConsultationEndTime] =
+    useState("");
+  const [WednesdayconsultationStartTime, setWednesdayConsultationStartTime] =
+    useState("");
+  const [WednesdayconsultationEndTime, setWednesdayConsultationEndTime] =
+    useState("");
+  const [ThursdayconsultationStartTime, setThursdayConsultationStartTime] =
+    useState("");
+  const [ThursdayconsultationEndTime, setThursdayConsultationEndTime] =
+    useState("");
+  const [FridayconsultationStartTime, setFridayConsultationStartTime] =
+    useState("");
+  const [FridayconsultationEndTime, setFridayConsultationEndTime] =
+    useState("");
+  const [SaturdayconsultationStartTime, setSaturdayConsultationStartTime] =
+    useState("");
+  const [SaturdayconsultationEndTime, setSaturdayConsultationEndTime] =
+    useState("");
+  const [SundayconsultationStartTime, setSundayConsultationStartTime] =
+    useState("");
+  const [SundayconsultationEndTime, setSundayConsultationEndTime] =
+    useState("");
+
+  const consultationHours = {
+    Monday: {
+      StartTime: MondayconsultationStartTime,
+      EndTime: MondayconsultationEndTime,
+    },
+    Tuesday: {
+      StartTime: TuesdayconsultationStartTime,
+      EndTime: TuesdayconsultationEndTime,
+    },
+    Wednesday: {
+      StartTime: WednesdayconsultationStartTime,
+      EndTime: WednesdayconsultationEndTime,
+    },
+    Thursday: {
+      StartTime: ThursdayconsultationStartTime,
+      EndTime: ThursdayconsultationEndTime,
+    },
+    Friday: {
+      StartTime: FridayconsultationStartTime,
+      EndTime: FridayconsultationEndTime,
+    },
+    Saturday: {
+      StartTime: SaturdayconsultationStartTime,
+      EndTime: SaturdayconsultationEndTime,
+    },
+    Sunday: {
+      StartTime: SundayconsultationStartTime,
+      EndTime: SundayconsultationEndTime,
+    },
+  };
 
   const basicDetails = { dateOfBirth, gender, phoneNumber };
   const clinicInfo = {
     clinicName,
     clinicAddress,
-    consultationHours: { consultationStartTime, consultationEndTime },
+    consultationHours,
   };
-  const professionalDetails = { specialty, licenseNumber, yearsOfExperience };
+  const professionalDetails = {
+    specialty,
+    licenseNumber,
+    yearsOfExperience,
+    checkupfee,
+    AverageCheckupTime,
+  };
 
   // Handle section change
   const handleSectionChange = (section) => {
@@ -57,7 +126,7 @@ const DoctorProfileSetup = () => {
       doctorData
     );
     if (response.status === 200) {
-      setUser(response.data.doctor);
+      setDoctor(response.data.doctor);
       localStorage.setItem("token", response.data.token);
       navigate("/Doctor-Dashboard");
     }
@@ -132,16 +201,16 @@ const DoctorProfileSetup = () => {
                   {/* Full Name */}
                   <div>
                     <label
-                      htmlFor="fullName"
+                      htmlFor="fullname"
                       className="block text-gray-700 mb-2"
                     >
                       Full Name
                     </label>
                     <input
-                      id="fullName"
+                      id="fullname"
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={fullName}
+                      value={fullname}
                       disabled
                       required
                     />
@@ -263,7 +332,7 @@ const DoctorProfileSetup = () => {
                     className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition duration-200"
                     onClick={() => {
                       if (
-                        !fullName ||
+                        !fullname ||
                         !dateOfBirth ||
                         !gender ||
                         !phoneNumber
@@ -384,9 +453,8 @@ const DoctorProfileSetup = () => {
                       </div>
                     </div>
                   </div>
-
                   {/* Years of Experience */}
-                  <div className="md:col-span-2">
+                  <div className="relative">
                     <label
                       htmlFor="yearsOfExperience"
                       className="block text-gray-700 mb-2"
@@ -401,6 +469,47 @@ const DoctorProfileSetup = () => {
                       value={yearsOfExperience}
                       onChange={(e) => {
                         setYearsOfExperience(e.target.value);
+                      }}
+                      required
+                    />
+                  </div>
+                  {/* Checkup fee */}
+                  <div className="relative">
+                    <label
+                      htmlFor="Checkupfee"
+                      className="block text-gray-700 mb-2"
+                    >
+                      Checkup fee
+                    </label>
+                    <input
+                      id="Checkupfee"
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Years of experience"
+                      value={checkupfee}
+                      onChange={(e) => {
+                        setCheckupfee(e.target.value);
+                      }}
+                      required
+                    />
+                  </div>
+                  {/* Average chekup time
+                   */}
+                  <div className="relative">
+                    <label
+                      htmlFor="AverageCheckupTime"
+                      className="block text-gray-700 mb-2"
+                    >
+                      Average Chekup Time <small>(In minutes)</small>
+                    </label>
+                    <input
+                      id="AverageCheckupTime"
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Average Chekup Time In Minutes"
+                      value={AverageCheckupTime}
+                      onChange={(e) => {
+                        setAverageCheckupTime(e.target.value);
                       }}
                       required
                     />
@@ -525,29 +634,154 @@ const DoctorProfileSetup = () => {
                   {/* Consultation Hours */}
                   <div>
                     <label className="block text-gray-700 mb-2">
-                      Consultation Hours
+                      Consultation Details
                     </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
+                    <div className="flex flex-col gap-3">
+                      <div className=" grid grid-cols-3 gap-4 ">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Monday
+                        </span>
                         <input
                           type="time"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={consultationStartTime}
+                          value={MondayconsultationStartTime}
                           onChange={(e) => {
-                            setConsultationStartTime(e.target.value);
+                            setMondayConsultationStartTime(e.target.value);
                           }}
-                          required
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={MondayconsultationEndTime}
+                          onChange={(e) => {
+                            setMondayConsultationEndTime(e.target.value);
+                          }}
                         />
                       </div>
-                      <div className="relative">
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Tuesday
+                        </span>
                         <input
                           type="time"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={consultationEndTime}
+                          value={TuesdayconsultationStartTime}
                           onChange={(e) => {
-                            setConsultationEndTime(e.target.value);
+                            setTuesdayConsultationStartTime(e.target.value);
                           }}
-                          required
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={TuesdayconsultationEndTime}
+                          onChange={(e) => {
+                            setTuesdayConsultationEndTime(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Wednesday
+                        </span>
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={WednesdayconsultationStartTime}
+                          onChange={(e) => {
+                            setWednesdayConsultationStartTime(e.target.value);
+                          }}
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={WednesdayconsultationEndTime}
+                          onChange={(e) => {
+                            setWednesdayConsultationEndTime(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Thursday
+                        </span>
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={ThursdayconsultationStartTime}
+                          onChange={(e) => {
+                            setThursdayConsultationStartTime(e.target.value);
+                          }}
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={ThursdayconsultationEndTime}
+                          onChange={(e) => {
+                            setThursdayConsultationEndTime(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Friday
+                        </span>
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={FridayconsultationStartTime}
+                          onChange={(e) => {
+                            setFridayConsultationStartTime(e.target.value);
+                          }}
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={FridayconsultationEndTime}
+                          onChange={(e) => {
+                            setFridayConsultationEndTime(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Saturday
+                        </span>
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={SaturdayconsultationStartTime}
+                          onChange={(e) => {
+                            setSaturdayConsultationStartTime(e.target.value);
+                          }}
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={SaturdayconsultationEndTime}
+                          onChange={(e) => {
+                            setSaturdayConsultationEndTime(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="px-4 py-2 rounded border text-lg">
+                          Sunday
+                        </span>
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={SundayconsultationStartTime}
+                          onChange={(e) => {
+                            setSundayConsultationStartTime(e.target.value);
+                          }}
+                        />
+                        <input
+                          type="time"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={SundayconsultationEndTime}
+                          onChange={(e) => {
+                            setSundayConsultationEndTime(e.target.value);
+                          }}
                         />
                       </div>
                     </div>
