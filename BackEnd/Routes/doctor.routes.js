@@ -38,8 +38,12 @@ router.get(
 
 router.post("/checkemail", doctorController.checkEmail);
 
-router.post("/update",doctorController.updateDoctor)
+router.post("/update", doctorController.updateDoctor);
 
-router.get("/getdoctors", doctorController.getDoctors)
+router.get("/getdoctors", doctorController.getDoctors);
+
+router.post("/finddoctor", doctorController.findDoctor);
+
+router.get("/:doctorId/:day/:date", doctorController.getSlots);
 
 module.exports = router;

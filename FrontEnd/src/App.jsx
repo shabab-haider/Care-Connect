@@ -59,7 +59,7 @@ const App = () => {
           }
         />
         <Route
-          path="book-appointment"
+          path="book-appointment/:doctorId"
           element={
             <PatientProtectedWrapper>
               <AppointmentBooking />

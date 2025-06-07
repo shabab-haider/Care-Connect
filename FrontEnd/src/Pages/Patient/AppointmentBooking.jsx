@@ -1,93 +1,77 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import Logo from "../../Components/Logo";
-import Avatar from "../../Components/Avatar";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import defaultProfile from "/Images/DefaultProfile.jpeg";
+import axios from "axios";
+import {
+  ChevronLeft,
+  Calendar,
+  Clock,
+  User,
+  MapPin,
+  Phone,
+  Mail,
+} from "lucide-react";
 import PatientHeader from "../../Components/PatientHeader";
-import defaultProfile from "/Images/DefaultProfile.jpeg"; 
 
 const AppointmentBooking = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState({
-    id: 1,
-    name: "Dr. Sarah Johnson",
-    specialty: "Cardiologist",
-    experience: 15,
-    rating: 4.8,
-    image: "/placeholder.svg",
-  });
-  const [selectedDate, setSelectedDate] = useState(new Date(2024, 1, 15)); // February 15, 2024
-  const [selectedTime, setSelectedTime] = useState("10:00 AM");
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 1)); // February 2024
+  const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const doctorId = params.doctorId;
+  const [selectedDoctor, setSelectedDoctor] = useState({});
 
-  // Mock data for doctors
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      specialty: "Cardiologist",
-      experience: 15,
-      rating: 4.8,
-      image: "/placeholder.svg",
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      specialty: "Neurologist",
-      experience: 12,
-      rating: 4.9,
-      image: "/placeholder.svg",
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Williams",
-      specialty: "Pediatrician",
-      experience: 10,
-      rating: 4.7,
-      image: "/placeholder.svg",
-    },
-  ];
+  useEffect(() => {
+    const findDoctor = async () => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/doctors/finddoctor`,
+          {
+            _id: doctorId,
+          }
+        );
+        if (response.status === 200) {
+          setSelectedDoctor(response.data.doctor);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching doctor:", error);
+        setLoading(false);
+      }
+    };
+    findDoctor();
+  }, [doctorId]);
 
-  // Mock data for available time slots
-  const timeSlots = [
-    "09:00 AM",
-    "09:30 AM",
-    "10:00 AM",
-    "10:30 AM",
-    "11:00 AM",
-    "11:30 AM",
-    "02:00 PM",
-    "02:30 PM",
-    "03:00 PM",
-    "03:30 PM",
-    "04:00 PM",
-    "04:30 PM",
-  ];
+  // Get current date and upcoming week
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState("");
 
-  // Generate calendar days for the current month
-  const generateCalendarDays = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    const days = [];
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, month, i));
+  // Generate upcoming 7 days starting from today
+  const getUpcomingWeek = () => {
+    const week = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      week.push(date);
     }
-
-    return days;
+    return week;
   };
 
-  const calendarDays = generateCalendarDays();
+  const upcomingWeek = getUpcomingWeek();
 
-  // Handle doctor selection
-  const handleDoctorSelect = (doctor) => {
-    setSelectedDoctor(doctor);
-    setCurrentStep(2);
+  // Available time slots
+  const [timeSlots, setTimeSlots] = useState([]);
+
+  const handleSlots = async (doctorId, day, date) => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_BASE_URL}/doctors/${doctorId}/${day}/${date}`
+    );
+    setTimeSlots(response.data.slots);
   };
 
   // Handle date selection
   const handleDateSelect = (date) => {
     setSelectedDate(date);
+    setSelectedTime(""); // Reset time when date changes
   };
 
   // Handle time selection
@@ -97,33 +81,34 @@ const AppointmentBooking = () => {
 
   // Handle confirm appointment
   const handleConfirmAppointment = () => {
-    // In a real app, this would submit the appointment to the backend
+    if (!selectedTime) {
+      alert("Please select a time slot");
+      return;
+    }
+
     console.log("Appointment confirmed:", {
-      selectedDoctor,
-      selectedDate,
-      selectedTime,
+      doctor: selectedDoctor,
+      date: selectedDate,
+      time: selectedTime,
     });
-    setCurrentStep(3);
-  };
 
-  // Navigate to previous month
-  const goToPreviousMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
-    );
-  };
-
-  // Navigate to next month
-  const goToNextMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
-    );
+    // Here you would typically send the appointment data to your backend
+    alert("Appointment booked successfully!");
   };
 
   // Format date for display
   const formatDate = (date) => {
-    if (!date) return "";
     return new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    }).format(date);
+  };
+
+  // Format full date for display
+  const formatFullDate = (date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
       month: "long",
       day: "numeric",
       year: "numeric",
@@ -145,346 +130,215 @@ const AppointmentBooking = () => {
     return time === selectedTime;
   };
 
-  // Get day of week headers
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  // Check if date is today
+  const isToday = (date) => {
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
 
-  // Filter doctors based on search query
-  const filteredDoctors = doctors.filter(
-    (doctor) =>
-      doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading doctor information...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <PatientHeader />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="h-[88vh] w-screen flex flex-col md:flex-row gap-8 justify-around">
-          {/* Left Column - Doctor Selection */}
-          <div className="w-full md:w-1/4">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6 flex flex-col items-center">
-              <div className="relative mb-4">
-                <img
-                  src={defaultProfile}
-                  alt=""
-                  className="w-32 h-32 rounded-full object-cover"
-                />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Doctor Information - Left Column */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+              <div className="text-center mb-6">
+                <div className="relative inline-block">
+                  <img
+                    src={selectedDoctor.profileImage || defaultProfile}
+                    alt={`Dr. ${selectedDoctor.fullname}`}
+                    className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto border-4 border-gray-100"
+                  />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mt-4">
+                  Dr. {selectedDoctor.fullname}
+                </h2>
+                <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full mt-2">
+                  {selectedDoctor.specialization || "Doctor"}
+                </span>
               </div>
-              
-              <h2 className="text-xl font-bold text-gray-800 mb-1">
-                Dr. 
-              </h2>
-              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4">
-                Doctor
-              </span>
-              <div className="w-full space-y-3 mb-6">
-                <div className="flex items-center text-gray-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <span>email</span>
+
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Mail className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-gray-600 break-all">
+                      {selectedDoctor.email}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  <span>phoneNumber</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <span>location</span>
-                </div>
+
+                {selectedDoctor.basicInfo?.phoneNumber && (
+                  <div className="flex items-start space-x-3">
+                    <Phone className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-gray-600">
+                        {selectedDoctor.basicInfo.phoneNumber}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedDoctor.clinicInfo?.clinicAddress && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-gray-600">
+                        {selectedDoctor.clinicInfo.clinicAddress}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-              {/* <div className="grid grid-cols-3 gap-4 w-full">
-                <div className="bg-blue-50 p-3 rounded-lg text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-500 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    <span className="text-blue-700 font-bold">
-                      {doctorData.stats.patients}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-600">Patients</span>
-                </div>
-                <div className="bg-blue-50 p-3 rounded-lg text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-500 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="text-blue-700 font-bold">
-                      {doctorData.stats.years}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-600">Years</span>
-                </div>
-                <div className="bg-blue-50 p-3 rounded-lg text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-500 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                      />
-                    </svg>
-                    <span className="text-blue-700 font-bold">
-                      {doctorData.stats.rating}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-600">Rating</span>
-                </div>
-              </div> */}
             </div>
           </div>
 
-          {/* Right Column - Date & Time Selection */}
-          <div className="h-full overflow-auto w-[50vw] md:w-1/2">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-6">Select Date & Time</h2>
+          {/* Appointment Booking - Right Column */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                <Calendar className="h-5 w-5 mr-2" />
+                Select Date & Time
+              </h3>
 
-              {/* Month Navigation */}
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-base font-medium">
-                  {new Intl.DateTimeFormat("en-US", {
-                    month: "long",
-                    year: "numeric",
-                  }).format(currentMonth)}
-                </h3>
-                <div className="flex space-x-2">
-                  <button
-                    className="p-1 rounded hover:bg-gray-100"
-                    onClick={goToPreviousMonth}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    className="p-1 rounded hover:bg-gray-100"
-                    onClick={goToNextMonth}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Calendar */}
-              <div className="mb-6">
-                {/* Days of Week */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
-                  {daysOfWeek.map((day) => (
-                    <div
-                      key={day}
-                      className="text-center text-xs text-gray-500 py-1"
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Calendar Days */}
-                <div className="grid grid-cols-7 gap-1">
-                  {calendarDays.map((date, index) => (
+              {/* Date Selection - Upcoming Week */}
+              <div className="mb-8">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">
+                  Choose a Date (Next 7 Days)
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  {upcomingWeek.map((date, index) => (
                     <button
                       key={index}
-                      className={`h-8 w-8 mx-auto rounded-full flex items-center justify-center text-sm ${
+                      className={`p-3 rounded-lg border-2 transition-all duration-200 ${
                         isDateSelected(date)
-                          ? "bg-blue-500 text-white"
-                          : "hover:bg-gray-100 text-gray-700"
-                      }`}
-                      onClick={() => handleDateSelect(date)}
+                          ? "border-blue-500 bg-blue-50 text-blue-700"
+                          : "border-gray-200 hover:border-gray-300 text-gray-700"
+                      } ${isToday(date) ? "ring-2 ring-blue-200" : ""}`}
+                      onClick={() => {
+                        handleDateSelect(date);
+                        if (date) {
+                          const day = date.toLocaleDateString("en-US", {
+                            weekday: "long",
+                          });
+                          handleSlots(doctorId, day, date.getDate());
+                        }
+                      }}
                     >
-                      {date.getDate()}
+                      <div className="text-center">
+                        <div className="text-xs font-medium text-gray-500 mb-1">
+                          {date.toLocaleDateString("en-US", {
+                            weekday: "short",
+                          })}
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {date.getDate()}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {date.toLocaleDateString("en-US", { month: "short" })}
+                        </div>
+                        {isToday(date) && (
+                          <div className="text-xs text-blue-600 font-medium mt-1">
+                            Today
+                          </div>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Time Slots */}
-              <h3 className="text-base font-medium mb-4">
-                Available Time Slots
-              </h3>
-              <div className="grid grid-cols-4 gap-2 mb-6">
-                {timeSlots.map((time) => (
-                  <button
-                    key={time}
-                    className={`py-2 px-1 rounded text-center text-sm ${
-                      isTimeSelected(time)
-                        ? "bg-blue-500 text-white"
-                        : "border border-gray-300 hover:border-blue-500 text-gray-700"
-                    }`}
-                    onClick={() => handleTimeSelect(time)}
-                  >
-                    {time}
-                  </button>
-                ))}
-              </div>
-
-              {/* Selected Appointment Details */}
-              <div className="mt-8 border-t pt-6">
-                <h3 className="text-base font-medium mb-4">
-                  Selected Appointment Details
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-500 mr-3"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                    <span className="text-sm">
-                      {selectedDoctor.name} - {selectedDoctor.specialty}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-500 mr-3"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="text-sm">{formatDate(selectedDate)}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-500 mr-3"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span className="text-sm">{selectedTime}</span>
+              {/* Time Selection */}
+              {!selectedDate ? (
+                <div className="text-gray-500 mb-4">
+                  Please select a date to see time slots.
+                </div>
+              ) : (
+                <div className="mb-8">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <Clock className="h-5 w-5 mr-2" />
+                    Available Time Slots
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {timeSlots && timeSlots.length > 0 ? (
+                      timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${
+                            isTimeSelected(time)
+                              ? "border-blue-500 bg-blue-500 text-white"
+                              : "border-gray-200 hover:border-blue-300 text-gray-700 hover:bg-blue-50"
+                          }`}
+                          onClick={() => handleTimeSelect(time)}
+                        >
+                          <div className="font-medium">{time}</div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center text-gray-500 py-6">
+                        No slots available for this date.
+                      </div>
+                    )}
                   </div>
                 </div>
+              )}
+              {selectedTime && (
+                <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">
+                    Appointment Summary
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <User className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">
+                        Dr. {selectedDoctor.fullname}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">
+                        {formatFullDate(selectedDate)}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">{selectedTime}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                <button
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded text-sm font-medium transition duration-200 mt-6"
-                  onClick={handleConfirmAppointment}
-                >
-                  Confirm Appointment
-                </button>
-              </div>
+              {/* Confirm Button */}
+              <button
+                className={`w-full py-4 px-6 rounded-lg font-medium transition-all duration-200 ${
+                  selectedTime && selectedDate
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
+                    : "hidden"
+                }`}
+                onClick={handleConfirmAppointment}
+                disabled={!selectedTime}
+              >
+                Confirm Appointment
+              </button>
             </div>
           </div>
         </div>

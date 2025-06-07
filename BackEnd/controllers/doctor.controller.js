@@ -1,8 +1,10 @@
 const { validationResult } = require("express-validator");
 const doctorService = require("../Services/doctor.service");
 const doctorModel = require("../models/doctor.model");
+const appointmentModel = require("../models/appointments.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const generateTimeSlots = require("../Utils/genrateTimeslots");
 
 module.exports.registerDoctor = async function (req, res) {
   const err = validationResult(req);
@@ -108,5 +110,45 @@ module.exports.getDoctors = async function (req, res) {
     res
       .status(500)
       .json({ error: "Failed to find Doctors", details: error.message });
+  }
+};
+
+module.exports.findDoctor = async function (req, res) {
+  const { _id } = req.body;
+  try {
+    const doctor = await doctorModel.findById({ _id });
+    res.status(200).json({ doctor: doctor });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to find Doctors", details: error.message });
+  }
+};
+
+module.exports.getSlots = async function (req, res) {
+  const { doctorId, day, date } = req.params;
+  const doctor = await doctorModel.findById(doctorId);
+  const consultationTime = doctor.clinicInfo.consultationHours[day];
+  const AverageTime = doctor.professionalDetails.AverageCheckupTime;
+  try {
+    const allSlots = generateTimeSlots(
+      consultationTime.StartTime,
+      consultationTime.EndTime,
+      AverageTime
+    );
+
+    const appointments = await appointmentModel.find({
+      doctorId,
+      appointmentDate: date,
+      status: "booked" || "pending",
+    });
+    const bookedTimes = appointments.map((a) => a.appointmentTime);
+
+    const availableSlots = allSlots.filter(
+      (slot) => !bookedTimes.includes(slot)
+    );
+    res.json({ slots: availableSlots, bookedSlots: bookedTimes });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
   }
 };

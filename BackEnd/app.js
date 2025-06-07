@@ -6,6 +6,7 @@ const connectToDB = require("./config/db.config");
 connectToDB();
 const patientsRoutes = require("./Routes/patients.routes");
 const doctorRoutes = require("./Routes/doctor.routes");
+const appointmentRoutes = require("./Routes/appointment.routes");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/patients", patientsRoutes);
 app.use("/doctors", doctorRoutes);
+app.use("/appointments", appointmentRoutes);
 
 app.get("/", (req, res) => {
   res.send("home");

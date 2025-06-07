@@ -504,7 +504,7 @@ const DoctorSearch = () => {
                   </div> */}
 
                   <Link
-                    to={`/book-appointment/:${doctor._id}`}
+                    to={`/book-appointment/${doctor._id}`}
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded text-center transition duration-200"
                   >
                     Book Appointment
