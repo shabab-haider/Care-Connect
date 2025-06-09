@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import signIn_image from "../assets/signIn_Image.png";
@@ -18,20 +19,25 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = { email, password };
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/${loginType}s/login`,
-      data
-    );
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/${loginType}s/login`,
+        data
+      );
 
-    if (response.status === 200) {
-      if (loginType == "patient") {
-        setpatient(response.data.patient);
+      if (response.status === 200) {
+        if (loginType == "patient") {
+          setpatient(response.data.patient);
+        }
+        if (loginType == "doctor") {
+          setDoctor(response.data.doctor);
+        }
+        localStorage.setItem("token", response.data.token);
+        toast.success("LoggedIn Sucessfully");
+        navigate(`/${loginType}-dashboard`);
       }
-      if (loginType == "doctor") {
-        setDoctor(response.data.doctor);
-      }
-      localStorage.setItem("token", response.data.token);
-      navigate(`/${loginType}-dashboard`);
+    } catch (error) {
+      toast.error("Invalid Carenditials");
     }
   };
 

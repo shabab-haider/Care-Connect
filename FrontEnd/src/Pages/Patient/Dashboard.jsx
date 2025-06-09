@@ -204,9 +204,9 @@ const PatientDashboard = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-                Welcome back, {patient.fullname}
+                Welcome, {patient.fullname}
               </h1>
-              <p className="text-gray-600">Wednesday, February 19, 2025</p>
+              {/* <p className="text-gray-600">Wednesday, February 19, 2025</p> */}
             </div>
           </div>
 
@@ -301,7 +301,7 @@ const PatientDashboard = () => {
           </div>
 
           {/* Find a Doctor Section */}
-          <div>
+          {/* <div>
             <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
               Find a Doctor
             </h2>
@@ -349,7 +349,7 @@ const PatientDashboard = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </main>
       </div>
 

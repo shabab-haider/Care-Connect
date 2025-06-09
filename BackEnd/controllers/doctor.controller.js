@@ -140,14 +140,14 @@ module.exports.getSlots = async function (req, res) {
     const appointments = await appointmentModel.find({
       doctorId,
       appointmentDate: date,
-      status: "booked" || "pending",
+      status: { $in: ["approved", "pending"] },
     });
-    const bookedTimes = appointments.map((a) => a.appointmentTime);
+    const bookedAppointments = appointments.map((a) => a.appointmentTime);
 
     const availableSlots = allSlots.filter(
-      (slot) => !bookedTimes.includes(slot)
+      (slot) => !bookedAppointments.includes(slot)
     );
-    res.json({ slots: availableSlots, bookedSlots: bookedTimes });
+    res.json({ slots: availableSlots, bookedSlots: bookedAppointments });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error });
   }

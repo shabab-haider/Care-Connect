@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import defaultProfile from "/Images/DefaultProfile.jpeg";
 import axios from "axios";
 import {
@@ -12,12 +13,19 @@ import {
   Mail,
 } from "lucide-react";
 import PatientHeader from "../../Components/PatientHeader";
+import { PatientDataContext } from "../../Context/PatientContext";
 
 const AppointmentBooking = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const params = useParams();
   const doctorId = params.doctorId;
+  const [update, setUpdate] = useState(0);
   const [selectedDoctor, setSelectedDoctor] = useState({});
+  const [date, setDate] = useState("");
+  const [day, setDay] = useState("");
+
+  const { patient, setpatient } = useContext(PatientDataContext);
 
   useEffect(() => {
     const findDoctor = async () => {
@@ -40,6 +48,16 @@ const AppointmentBooking = () => {
     findDoctor();
   }, [doctorId]);
 
+  useEffect(() => {
+    const handleSlots = async () => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/doctors/${doctorId}/${day}/${date}`
+      );
+      setTimeSlots(response.data.slots);
+    };
+    handleSlots();
+  }, [update]);
+
   // Get current date and upcoming week
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(null);
@@ -61,13 +79,6 @@ const AppointmentBooking = () => {
   // Available time slots
   const [timeSlots, setTimeSlots] = useState([]);
 
-  const handleSlots = async (doctorId, day, date) => {
-    const response = await axios.get(
-      `${import.meta.env.VITE_BASE_URL}/doctors/${doctorId}/${day}/${date}`
-    );
-    setTimeSlots(response.data.slots);
-  };
-
   // Handle date selection
   const handleDateSelect = (date) => {
     setSelectedDate(date);
@@ -79,23 +90,6 @@ const AppointmentBooking = () => {
     setSelectedTime(time);
   };
 
-  // Handle confirm appointment
-  const handleConfirmAppointment = () => {
-    if (!selectedTime) {
-      alert("Please select a time slot");
-      return;
-    }
-
-    console.log("Appointment confirmed:", {
-      doctor: selectedDoctor,
-      date: selectedDate,
-      time: selectedTime,
-    });
-
-    // Here you would typically send the appointment data to your backend
-    alert("Appointment booked successfully!");
-  };
-
   // Format date for display
   const formatDate = (date) => {
     return new Intl.DateTimeFormat("en-US", {
@@ -103,6 +97,34 @@ const AppointmentBooking = () => {
       month: "short",
       day: "numeric",
     }).format(date);
+  };
+
+  // Handle confirm appointment
+  const handleConfirmAppointment = async () => {
+    if (!selectedTime) {
+      alert("Please select a time slot");
+      return;
+    }
+
+    const isoDate = selectedDate.toISOString().split("T")[0];
+
+    const appointmentData = {
+      doctorId,
+      patientId: patient._id,
+      appointmentDate: isoDate,
+      appointmentTime: selectedTime,
+    };
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/appointments/request`,
+      appointmentData
+    );
+    if (response.status == 201) {
+      setUpdate(update + 1);
+    }
+    console.log("Appointment confirmed:", appointmentData);
+
+    // Here you would typically send the appointment data to your backend
+    toast.success("Appointment booked successfully!");
   };
 
   // Format full date for display
@@ -237,10 +259,13 @@ const AppointmentBooking = () => {
                       onClick={() => {
                         handleDateSelect(date);
                         if (date) {
-                          const day = date.toLocaleDateString("en-US", {
-                            weekday: "long",
-                          });
-                          handleSlots(doctorId, day, date.getDate());
+                          setDay(
+                            date.toLocaleDateString("en-US", {
+                              weekday: "long",
+                            })
+                          );
+                          setDate(date.toISOString().split("T")[0]);
+                          setUpdate(update + 1);
                         }
                       }}
                     >
