@@ -36,14 +36,4 @@ router.get(
   doctorController.getDoctorDashboard
 );
 
-router.post("/checkemail", doctorController.checkEmail);
-
-router.post("/update", doctorController.updateDoctor);
-
-router.get("/getdoctors", doctorController.getDoctors);
-
-router.post("/finddoctor", doctorController.findDoctor);
-
-router.get("/:doctorId/:day/:date", doctorController.getSlots);
-
 module.exports = router;

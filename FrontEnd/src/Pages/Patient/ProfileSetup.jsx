@@ -7,7 +7,8 @@ import axios from "axios";
 const ProfileSetup = () => {
   const navigate = useNavigate();
   const { patient, setpatient } = useContext(PatientDataContext);
-  const [fullName, setFullName] = useState(patient.fullName);
+  console.log(patient)
+  const [fullName, setFullName] = useState(patient.fullname);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");

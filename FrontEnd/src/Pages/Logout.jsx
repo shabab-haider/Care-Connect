@@ -14,7 +14,7 @@ const Logout = () => {
   const token = localStorage.getItem("token");
   useEffect(() => {
     if (!token) {
-      navigate("/");
+      navigate("/sign-in");
       return;
     }
   }, [token]);

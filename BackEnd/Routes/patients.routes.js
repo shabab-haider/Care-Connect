@@ -36,22 +36,7 @@ router.get(
   PatientController.getPatientDashboard
 );
 
-router.post(
-  "/update",
-  [
-    body("id").notEmpty().withMessage("Patient ID is required"),
-    body("email").isEmail().withMessage("invalid Email"),
-    body("fullname")
-      .isLength({ min: 3 })
-      .withMessage("fullname must be 3 charaters long"),
-    body("phoneNumber")
-      .isLength({ min: 10 })
-      .withMessage("phoneNumber must be 10 charaters long"),
-  ],
-  PatientController.updatePatient
-);
 
-router.post("/checkemail", PatientController.checkEmail);
 
 
 module.exports = router;

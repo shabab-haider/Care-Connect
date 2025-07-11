@@ -16,6 +16,7 @@ const doctorSchema = mongoose.Schema({
   },
   profileImage: {
     type: String,
+    default:""
   },
   password: {
     type: String,

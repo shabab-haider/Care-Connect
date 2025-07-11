@@ -8,8 +8,9 @@ module.exports.registerPatient = async function (req, res) {
   if (!err.isEmpty) {
     return res.status(400).json({ errors: err.array() });
   }
+  console.log(req.body)
   let {
-    fullName,
+    fullname,
     email,
     password,
     dateOfBirth,
@@ -19,7 +20,7 @@ module.exports.registerPatient = async function (req, res) {
   } = req.body;
   const hash = await PatientModel.hashPassword(password);
   const Patient = await PatientServices.CreatePatient({
-    fullname: fullName,
+    fullname,
     email,
     password: hash,
     dateOfBirth,
@@ -55,42 +56,6 @@ module.exports.getPatientDashboard = function (req, res) {
   res.status(200).json({ Patient: req.Patient });
 };
 
-module.exports.updatePatient = async function (req, res) {
-  const err = validationResult(req);
-  if (!err.isEmpty()) {
-    return res.status(400).json({ errors: err.array() });
-  }
-  const { id, fullname, email, phoneNumber, profileImage } = req.body;
-  try {
-    const updatedPatient = await PatientServices.UpdatePatient({
-      id,
-      fullname,
-      email,
-      phoneNumber,
-      profileImage,
-    });
-    res
-      .status(200)
-      .json({
-        message: "Patient updated successfully",
-        Patient: updatedPatient,
-      });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Failed to update Patient", details: error.message });
-  }
-};
 
-module.exports.checkEmail = async function (req, res) {
-  try {
-    const patient = await PatientModel.findOne({ email: req.body.email });
-    if (patient) {
-      res.send("Email Exist");
-    } else {
-      res.send("Email does not exist");
-    }
-  } catch (error) {
-    res.status(500).send("Server error");
-  }
-};
+
+
