@@ -6,11 +6,13 @@ import PatientContext from "./Context/PatientContext";
 import DoctorContext from "./Context/DoctorContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RouteTracker from "./Components/RouteTracker";
 
 createRoot(document.getElementById("root")).render(
   <DoctorContext>
     <PatientContext>
       <BrowserRouter>
+      <RouteTracker />
         <App />
         <ToastContainer position="top-right" autoClose={3000} />
       </BrowserRouter>

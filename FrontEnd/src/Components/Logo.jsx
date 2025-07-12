@@ -7,10 +7,10 @@ const Logo = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-2">
+      <div className="container mx-auto">
         <div className="flex items-center">
           <img src={Logo_img} alt="Logo" className="h-6 w-6" />
-          <span className="ml-2 pt-1 text-xl font-bold text-gray-800 whitespace-nowrap">
+          <span className="ml-2 pt-1 text-2xl font-bold text-blue-600 whitespace-nowrap">
             Care Connect
           </span>
         </div>

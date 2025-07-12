@@ -15,13 +15,19 @@ import DoctorProfileProtectedWrapper from "./Pages/Doctor/ProfileProtectedWrappe
 import PatientProtectedWrapper from "./Pages/Patient/PatientProtectedWrapper";
 import DoctorProtectedWrapper from "./Pages/Doctor/DoctorProtectedWrapper";
 import Logout from "./Pages/Logout";
+import Login from "./Pages/Login";
+import PatientSignup from "./Pages/Patient/PatientSignup";
+import DoctorSignup from "./Pages/Doctor/DoctorSignup";
 
 const App = () => {
   return (
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="logout" element={<Logout />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/patient-signup" element={<PatientSignup />} />
+        <Route path="/doctor-signup" element={<DoctorSignup />} />
         {/* Patient Routes */}
         <Route
           path="Patient-Profile-Setup"
