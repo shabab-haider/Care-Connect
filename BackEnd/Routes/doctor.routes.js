@@ -8,16 +8,17 @@ const doctorModel = require("../models/doctor.model");
 router.post(
   "/register",
   [
-    body("email").isEmail().withMessage("wrong email"),
-    body("fullname")
+    body("email").isEmail().withMessage("Invalid email format"),
+    body("firstName")
       .isLength({ min: 3 })
-      .withMessage("firtname must be 3 characters long"),
-    body("Password")
+      .withMessage("First name must be at least 3 characters"),
+    body("password")
       .isLength({ min: 8 })
-      .withMessage("password must be 8 characters long"),
+      .withMessage("Password must be at least 8 characters"),
   ],
   doctorController.registerDoctor
 );
+
 
 router.post(
   "/login",

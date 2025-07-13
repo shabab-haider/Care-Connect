@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useContext, useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -14,13 +14,18 @@ import {
   Clock,
   Heart,
   ArrowLeft,
-} from "lucide-react"
-import { Link } from "react-router-dom"
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import LogoAndBack from "../../Components/LogoAndBack";
+import axios from "axios";
+import { DoctorDataContext } from "../../Context/DoctorContext";
 
 const DoctorSignup = () => {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
+  const navigate = useNavigate();
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     // Personal Info
     firstName: "",
@@ -50,12 +55,7 @@ const DoctorSignup = () => {
     clinicCloseTime: "",
     appointmentsPerDay: "",
     avgAppointmentTime: "",
-    breakStartTime: "",
-    breakEndTime: "",
-    hasBreak: false,
-
-    agreeToTerms: false,
-  })
+  });
 
   const specializations = [
     "General Physician",
@@ -70,101 +70,76 @@ const DoctorSignup = () => {
     "Pediatrician",
     "Neurologist",
     "Urologist",
-  ]
+  ];
 
-  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
-    })
-  }
+    });
+  };
 
   const handleDayToggle = (day) => {
     const updatedDays = formData.availableDays.includes(day)
       ? formData.availableDays.filter((d) => d !== day)
-      : [...formData.availableDays, day]
+      : [...formData.availableDays, day];
 
     setFormData({
       ...formData,
       availableDays: updatedDays,
-    })
-  }
+    });
+  };
 
-  // Calculate estimated appointment times
-  const calculateAppointmentSchedule = () => {
-    if (!formData.clinicOpenTime || !formData.clinicCloseTime || !formData.avgAppointmentTime) {
-      return null
-    }
-
-    const openTime = new Date(`2024-01-01 ${formData.clinicOpenTime}`)
-    const closeTime = new Date(`2024-01-01 ${formData.clinicCloseTime}`)
-    const appointmentDuration = Number.parseInt(formData.avgAppointmentTime)
-
-    let breakDuration = 0
-    if (formData.hasBreak && formData.breakStartTime && formData.breakEndTime) {
-      const breakStart = new Date(`2024-01-01 ${formData.breakStartTime}`)
-      const breakEnd = new Date(`2024-01-01 ${formData.breakEndTime}`)
-      breakDuration = (breakEnd - breakStart) / (1000 * 60) // in minutes
-    }
-
-    const totalWorkingMinutes = (closeTime - openTime) / (1000 * 60) - breakDuration
-    const maxAppointments = Math.floor(totalWorkingMinutes / appointmentDuration)
-
-    return {
-      firstAppointment: formData.clinicOpenTime,
-      lastAppointment: new Date(closeTime.getTime() - appointmentDuration * 60000).toLocaleTimeString("en-US", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      maxAppointments,
-      totalWorkingHours: Math.floor(totalWorkingMinutes / 60),
-    }
-  }
-
-  const scheduleInfo = calculateAppointmentSchedule()
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!")
-      return
+      alert("Passwords don't match!");
+      return;
     }
-    console.log("Doctor signup:", formData)
-    // Handle signup logic here
-  }
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/doctors/register`,
+      formData
+    );
+    if (response.status == "201") {
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      const doctorDetails = response.data.doctor;
+      setDoctor(doctorDetails);
+      navigate("/doctor-dashboard");
+    }
+  };
 
   const nextStep = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1)
-  }
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
+  };
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1)
-  }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-8 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* Back to Home */}
-        <div className="mb-6">
-          <Link to="/" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
-        </div>
-
         {/* Signup Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 border">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <Heart className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-2xl font-bold text-blue-600">Care Connect</h1>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Join as Healthcare Provider</h2>
+            <LogoAndBack />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Join as Healthcare Provider
+            </h2>
             <p className="text-gray-600">Create your professional profile</p>
           </div>
 
@@ -172,19 +147,39 @@ const DoctorSignup = () => {
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center space-x-4">
               <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}
+                className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                  currentStep >= 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
               >
                 1
               </div>
-              <div className={`w-16 h-1 ${currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"}`}></div>
               <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}
+                className={`w-16 h-1 ${
+                  currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"
+                }`}
+              ></div>
+              <div
+                className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                  currentStep >= 2
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
               >
                 2
               </div>
-              <div className={`w-16 h-1 ${currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"}`}></div>
               <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 3 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}
+                className={`w-16 h-1 ${
+                  currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"
+                }`}
+              ></div>
+              <div
+                className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                  currentStep >= 3
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
               >
                 3
               </div>
@@ -195,12 +190,16 @@ const DoctorSignup = () => {
             {/* Step 1: Personal Information */}
             {currentStep === 1 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Personal Information</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Personal Information
+                </h3>
 
                 {/* Name Fields */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      First Name
+                    </label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <input
@@ -215,7 +214,9 @@ const DoctorSignup = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Last Name
+                    </label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <input
@@ -234,7 +235,9 @@ const DoctorSignup = () => {
                 {/* Email & Phone */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <input
@@ -249,7 +252,9 @@ const DoctorSignup = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <input
@@ -268,7 +273,9 @@ const DoctorSignup = () => {
                 {/* Password Fields */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Password
+                    </label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <input
@@ -285,12 +292,18 @@ const DoctorSignup = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Confirm Password
+                    </label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <input
@@ -304,10 +317,16 @@ const DoctorSignup = () => {
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -318,12 +337,16 @@ const DoctorSignup = () => {
             {/* Step 2: Professional Information */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Professional Information</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Professional Information
+                </h3>
 
                 {/* Specialization & Experience */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Specialization
+                    </label>
                     <div className="relative">
                       <Stethoscope className="absolute  left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <select
@@ -343,7 +366,9 @@ const DoctorSignup = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Years of Experience
+                    </label>
                     <input
                       type="number"
                       name="experience"
@@ -360,7 +385,9 @@ const DoctorSignup = () => {
                 {/* Qualification & Registration */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Qualification</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Qualification
+                    </label>
                     <input
                       type="text"
                       name="qualification"
@@ -372,7 +399,9 @@ const DoctorSignup = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Medical Registration Number</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Medical Registration Number
+                    </label>
                     <input
                       type="text"
                       name="registrationNumber"
@@ -387,7 +416,9 @@ const DoctorSignup = () => {
 
                 {/* Clinic Information */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Clinic/Hospital Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Clinic/Hospital Name
+                  </label>
                   <input
                     type="text"
                     name="clinicName"
@@ -401,7 +432,9 @@ const DoctorSignup = () => {
 
                 {/* Address */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                     <textarea
@@ -419,7 +452,9 @@ const DoctorSignup = () => {
                 {/* City, State, Pincode */}
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      City
+                    </label>
                     <input
                       type="text"
                       name="city"
@@ -431,7 +466,9 @@ const DoctorSignup = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      State
+                    </label>
                     <input
                       type="text"
                       name="state"
@@ -443,7 +480,9 @@ const DoctorSignup = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pincode
+                    </label>
                     <input
                       type="text"
                       name="pincode"
@@ -458,7 +497,9 @@ const DoctorSignup = () => {
 
                 {/* Consultation Fee */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Consultation Fee (₹)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Consultation Fee (₹)
+                  </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
@@ -479,11 +520,15 @@ const DoctorSignup = () => {
             {/* Step 3: Availability & Schedule */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Availability & Schedule</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Availability & Schedule
+                </h3>
 
                 {/* Available Days */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Available Days</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Available Days
+                  </label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {daysOfWeek.map((day) => (
                       <button
@@ -510,7 +555,9 @@ const DoctorSignup = () => {
                   </h4>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Opening Time</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Opening Time
+                      </label>
                       <input
                         type="time"
                         name="clinicOpenTime"
@@ -519,10 +566,14 @@ const DoctorSignup = () => {
                         className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">When your clinic opens (first token time)</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        When your clinic opens (first token time)
+                      </p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Closing Time</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Closing Time
+                      </label>
                       <input
                         type="time"
                         name="clinicCloseTime"
@@ -531,17 +582,19 @@ const DoctorSignup = () => {
                         className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">When your clinic closes (last appointment)</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        When your clinic closes (last appointment)
+                      </p>
                     </div>
                   </div>
                 </div>
 
-               
-
                 {/* Appointment Settings */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Average Appointment Time</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Average Appointment Time
+                    </label>
                     <div className="relative">
                       <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <select
@@ -560,10 +613,14 @@ const DoctorSignup = () => {
                         <option value="60">60 minutes</option>
                       </select>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Time allocated per patient consultation</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Time allocated per patient consultation
+                    </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Appointments per Day</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Maximum Appointments per Day
+                    </label>
                     <input
                       type="number"
                       name="appointmentsPerDay"
@@ -575,45 +632,11 @@ const DoctorSignup = () => {
                       max="50"
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">Maximum patients you can see per day</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Maximum patients you can see per day
+                    </p>
                   </div>
                 </div>
-
-                {/* Schedule Preview */}
-                {scheduleInfo && (
-                  <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <Clock className="h-5 w-5 mr-2 text-green-600" />
-                      Schedule Preview
-                    </h4>
-                    <div className="grid md:grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-700">
-                          <span className="font-medium">First Token Time:</span> {scheduleInfo.firstAppointment}
-                        </p>
-                        <p className="text-gray-700">
-                          <span className="font-medium">Last Token Time:</span> {scheduleInfo.lastAppointment}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-700">
-                          <span className="font-medium">Max Appointments:</span> {scheduleInfo.maxAppointments} per day
-                        </p>
-                        <p className="text-gray-700">
-                          <span className="font-medium">Working Hours:</span> {scheduleInfo.totalWorkingHours} hours
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 p-3 bg-green-100 rounded-lg">
-                      <p className="text-sm text-green-800">
-                        <strong>Patient Experience:</strong> Patients will see estimated appointment times like "10:30
-                        AM - 10:45 AM" when booking with you.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                
               </div>
             )}
 
@@ -652,7 +675,10 @@ const DoctorSignup = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link
+                to="/login"
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Sign in here
               </Link>
             </p>
@@ -660,7 +686,7 @@ const DoctorSignup = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DoctorSignup
+export default DoctorSignup;

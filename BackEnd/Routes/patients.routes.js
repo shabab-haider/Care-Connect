@@ -36,7 +36,4 @@ router.get(
   PatientController.getPatientDashboard
 );
 
-
-
-
 module.exports = router;

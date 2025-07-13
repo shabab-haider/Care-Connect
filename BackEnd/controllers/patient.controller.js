@@ -8,7 +8,6 @@ module.exports.registerPatient = async function (req, res) {
   if (!err.isEmpty) {
     return res.status(400).json({ errors: err.array() });
   }
-  console.log(req.body)
   let {
     fullname,
     email,

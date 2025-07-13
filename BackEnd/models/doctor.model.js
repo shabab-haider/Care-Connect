@@ -3,103 +3,52 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const doctorSchema = mongoose.Schema({
-  fullname: {
+  fullName: {
     type: String,
     required: true,
-    minlength: [3, "Firstname must be 3 characters long"],
+    minlength: [3, "Full name must be at least 3 characters"],
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    minlength: [8, "email must be 8 character long"],
+    minlength: [8, "Email must be at least 8 characters"],
   },
   profileImage: {
     type: String,
-    default:""
+    default:
+      "https://res.cloudinary.com/di9ljccil/image/upload/v1752328111/default-avatar-photo-placeholder-profile-icon-vector_nlejsr.jpg",
   },
   password: {
     type: String,
     required: true,
-    minlength: [8, "password must be 8 character long"],
+    minlength: [8, "Password must be at least 8 characters"],
     select: false,
   },
-  basicInfo: {
-    dateOfBirth: {
-      type: String,
-      required: true,
-    },
-    gender: {
-      type: String,
-      required: true,
-    },
-    phoneNumber: {
-      type: String,
-      required: true,
-      minlength: [8, "password must be 8 character long"],
-    },
+  phone: {
+    type: String,
+    required: true,
   },
+
   professionalDetails: {
-    specialty: {
-      type: String,
-      required: true,
-    },
-    licenseNumber: {
-      type: String,
-      required: true,
-    },
-    yearsOfExperience: {
-      type: String,
-      required: true,
-    },
-    checkupfee: {
-      type: Number,
-      required: true,
-    },
-    AverageCheckupTime: {
-      type: Number,
-      required: true,
-    },
+    specialization: { type: String, required: true },
+    experience: { type: String, required: true },
+    qualification: { type: String, required: true },
+    registrationNumber: { type: String, required: true },
+    consultationFee: { type: Number, required: true },
+    avgAppointmentTime: { type: Number, required: true },
   },
+
   clinicInfo: {
-    clinicName: {
-      type: String,
-      required: true,
-    },
-    clinicAddress: {
-      type: String,
-      required: true,
-    },
-    consultationHours: {
-      Monday: {
-        StartTime: String,
-        EndTime: String,
-      },
-      Tuesday: {
-        StartTime: String,
-        EndTime: String,
-      },
-      Wednesday: {
-        StartTime: String,
-        EndTime: String,
-      },
-      Thursday: {
-        StartTime: String,
-        EndTime: String,
-      },
-      Friday: {
-        StartTime: String,
-        EndTime: String,
-      },
-      Saturday: {
-        StartTime: String,
-        EndTime: String,
-      },
-      Sunday: {
-        StartTime: String,
-        EndTime: String,
-      },
-    },
+    clinicName: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    pincode: { type: String, required: true },
+    availableDays: { type: [String], required: true },
+    clinicOpenTime: { type: String, required: true },
+    clinicCloseTime: { type: String, required: true },
+    appointmentsPerDay: { type: Number, required: true },
   },
 });
 
@@ -118,4 +67,4 @@ doctorSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-module.exports = mongoose.model("doctor", doctorSchema);
+module.exports = mongoose.model("Doctor", doctorSchema);

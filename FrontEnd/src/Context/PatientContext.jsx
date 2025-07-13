@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 export const PatientDataContext = createContext();
 
 const PatientContext = ({ children }) => {
-  const [patient, setpatient] = useState(() => {
+  const [patient, setPatient] = useState(() => {
     const storedpatient = localStorage.getItem("patient");
     return storedpatient ? JSON.parse(storedpatient) : null;
   });
@@ -13,7 +13,7 @@ const PatientContext = ({ children }) => {
   }, [patient]);
   return (
     <>
-      <PatientDataContext.Provider value={{ patient, setpatient }}>
+      <PatientDataContext.Provider value={{ patient, setPatient }}>
         {children}
       </PatientDataContext.Provider>
     </>

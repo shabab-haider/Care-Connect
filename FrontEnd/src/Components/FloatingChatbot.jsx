@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { MessageCircle, X, Send, Bot, User } from "lucide-react"
+import { useState, useRef, useEffect } from "react";
+import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import Logo_img from "../assets/Logo.png"
 
 // Doctor specialties mapping
 const symptomToDoctorMap = {
@@ -63,10 +64,10 @@ const symptomToDoctorMap = {
   "child fever": "Pediatrician",
   baby: "Pediatrician",
   infant: "Pediatrician",
-}
+};
 
 const FloatingChatbot = () => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -74,42 +75,50 @@ const FloatingChatbot = () => {
       sender: "bot",
       timestamp: new Date(),
     },
-  ])
-  const [inputText, setInputText] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
-  const messagesEndRef = useRef(null)
+  ]);
+  const [inputText, setInputText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // Function to analyze symptoms and suggest doctor
   const analyzeSymptomsAndSuggestDoctor = (userInput) => {
-    const input = userInput.toLowerCase().trim()
+    const input = userInput.toLowerCase().trim();
 
     // Handle greetings first
-    const greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening", "greetings"]
-    const isGreeting = greetings.some((greeting) => input.includes(greeting))
+    const greetings = [
+      "hello",
+      "hi",
+      "hey",
+      "good morning",
+      "good afternoon",
+      "good evening",
+      "greetings",
+    ];
+    const isGreeting = greetings.some((greeting) => input.includes(greeting));
 
     if (isGreeting) {
-      return "Hello! Welcome to Care Connect. I'm here to help you find the right doctor based on your symptoms. Please describe any symptoms you're experiencing, and I'll suggest which specialist you should consult."
+      return "Hello! Welcome to Care Connect. I'm here to help you find the right doctor based on your symptoms. Please describe any symptoms you're experiencing, and I'll suggest which specialist you should consult.";
     }
 
     // Handle thank you messages
-    const thankYouWords = ["thank you", "thanks", "thank u", "thx"]
-    const isThankYou = thankYouWords.some((thanks) => input.includes(thanks))
+    const thankYouWords = ["thank you", "thanks", "thank u", "thx"];
+    const isThankYou = thankYouWords.some((thanks) => input.includes(thanks));
 
     if (isThankYou) {
-      return "You're welcome! I'm glad I could help. If you have any other symptoms or health concerns, feel free to ask. Take care and get well soon!"
+      return "You're welcome! I'm glad I could help. If you have any other symptoms or health concerns, feel free to ask. Take care and get well soon!";
     }
 
     // Handle goodbye messages
-    const goodbyes = ["bye", "goodbye", "see you", "take care"]
-    const isGoodbye = goodbyes.some((goodbye) => input.includes(goodbye))
+    const goodbyes = ["bye", "goodbye", "see you", "take care"];
+    const isGoodbye = goodbyes.some((goodbye) => input.includes(goodbye));
 
     if (isGoodbye) {
-      return "Goodbye! Take care of your health. Remember to book an appointment with the recommended doctor. Feel free to come back anytime if you need medical guidance!"
+      return "Goodbye! Take care of your health. Remember to book an appointment with the recommended doctor. Feel free to come back anytime if you need medical guidance!";
     }
 
     // Check if input contains medical-related keywords
@@ -157,38 +166,42 @@ const FloatingChatbot = () => {
       "nose",
       "throat",
       "heart",
-    ]
+    ];
 
-    const containsMedicalKeyword = medicalKeywords.some((keyword) => input.includes(keyword))
+    const containsMedicalKeyword = medicalKeywords.some((keyword) =>
+      input.includes(keyword)
+    );
 
     if (!containsMedicalKeyword) {
-      return "I apologize, but I can only help with medical symptoms and doctor recommendations. Please describe any symptoms you're experiencing (like pain, fever, cough, etc.), and I'll suggest the appropriate doctor to consult. For example, you can say 'I have chest pain' or 'I'm feeling dizzy'."
+      return "I apologize, but I can only help with medical symptoms and doctor recommendations. Please describe any symptoms you're experiencing (like pain, fever, cough, etc.), and I'll suggest the appropriate doctor to consult. For example, you can say 'I have chest pain' or 'I'm feeling dizzy'.";
     }
 
     // Find matching symptoms (rest of the function remains the same)
-    const matchedDoctors = new Set()
+    const matchedDoctors = new Set();
 
     for (const [symptom, doctor] of Object.entries(symptomToDoctorMap)) {
       if (input.includes(symptom.toLowerCase())) {
-        matchedDoctors.add(doctor)
+        matchedDoctors.add(doctor);
       }
     }
 
     if (matchedDoctors.size > 0) {
-      const doctors = Array.from(matchedDoctors)
+      const doctors = Array.from(matchedDoctors);
       if (doctors.length === 1) {
-        return `Based on your symptoms, I recommend consulting a **${doctors[0]}**. They specialize in treating conditions related to your symptoms. Please book an appointment for proper diagnosis and treatment.`
+        return `Based on your symptoms, I recommend consulting a **${doctors[0]}**. They specialize in treating conditions related to your symptoms. Please book an appointment for proper diagnosis and treatment.`;
       } else {
-        return `Based on your symptoms, you may need to consult one of these specialists: **${doctors.join(", ")}**. I recommend starting with a **General Physician** who can examine you and refer you to the appropriate specialist if needed.`
+        return `Based on your symptoms, you may need to consult one of these specialists: **${doctors.join(
+          ", "
+        )}**. I recommend starting with a **General Physician** who can examine you and refer you to the appropriate specialist if needed.`;
       }
     } else {
-      return "Based on your description, I recommend consulting a **General Physician** first. They can perform an initial examination and refer you to a specialist if needed. If you have specific symptoms like chest pain, skin issues, or joint problems, please mention them for more targeted recommendations."
+      return "Based on your description, I recommend consulting a **General Physician** first. They can perform an initial examination and refer you to a specialist if needed. If you have specific symptoms like chest pain, skin issues, or joint problems, please mention them for more targeted recommendations.";
     }
-  }
+  };
 
   // Handle sending message
   const handleSendMessage = async () => {
-    if (!inputText.trim()) return
+    if (!inputText.trim()) return;
 
     // Add user message
     const userMessage = {
@@ -196,35 +209,35 @@ const FloatingChatbot = () => {
       text: inputText,
       sender: "user",
       timestamp: new Date(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setInputText("")
-    setIsTyping(true)
+    setMessages((prev) => [...prev, userMessage]);
+    setInputText("");
+    setIsTyping(true);
 
     // Simulate bot thinking time
     setTimeout(() => {
-      const botResponse = analyzeSymptomsAndSuggestDoctor(inputText)
+      const botResponse = analyzeSymptomsAndSuggestDoctor(inputText);
 
       const botMessage = {
         id: Date.now() + 1,
         text: botResponse,
         sender: "bot",
         timestamp: new Date(),
-      }
+      };
 
-      setMessages((prev) => [...prev, botMessage])
-      setIsTyping(false)
-    }, 1500)
-  }
+      setMessages((prev) => [...prev, botMessage]);
+      setIsTyping(false);
+    }, 1500);
+  };
 
   // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+      e.preventDefault();
+      handleSendMessage();
     }
-  }
+  };
 
   return (
     <>
@@ -233,9 +246,9 @@ const FloatingChatbot = () => {
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+            className="bg-transparent border border-blue-700  text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
           >
-            <MessageCircle className="h-6 w-6" />
+            <img src={Logo_img} alt="Logo" className="h-8 w-8" />
           </button>
         )}
 
@@ -248,7 +261,10 @@ const FloatingChatbot = () => {
                 <Bot className="h-5 w-5" />
                 <span className="font-semibold">Medical Assistant</span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="hover:bg-blue-700 p-1 rounded">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-blue-700 p-1 rounded"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -256,20 +272,35 @@ const FloatingChatbot = () => {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={message.id}
+                  className={`flex ${
+                    message.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
                     className={`max-w-xs p-3 rounded-lg ${
-                      message.sender === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800"
+                      message.sender === "user"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-800"
                     }`}
                   >
                     <div className="flex items-start space-x-2">
-                      {message.sender === "bot" && <Bot className="h-4 w-4 mt-0.5 text-blue-600" />}
-                      {message.sender === "user" && <User className="h-4 w-4 mt-0.5 text-white" />}
+                      {message.sender === "bot" && (
+                        <Bot className="h-4 w-4 mt-0.5 text-blue-600" />
+                      )}
+                      {message.sender === "user" && (
+                        <User className="h-4 w-4 mt-0.5 text-white" />
+                      )}
                       <div className="text-sm">
                         {message.text
                           .split("**")
                           .map((part, index) =>
-                            index % 2 === 1 ? <strong key={index}>{part}</strong> : <span key={index}>{part}</span>,
+                            index % 2 === 1 ? (
+                              <strong key={index}>{part}</strong>
+                            ) : (
+                              <span key={index}>{part}</span>
+                            )
                           )}
                       </div>
                     </div>
@@ -320,13 +351,15 @@ const FloatingChatbot = () => {
                   <Send className="h-4 w-4" />
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">Describe your symptoms for doctor recommendations</p>
+              <p className="text-xs text-gray-500 mt-2">
+                Describe your symptoms for doctor recommendations
+              </p>
             </div>
           </div>
         )}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default FloatingChatbot
+export default FloatingChatbot;

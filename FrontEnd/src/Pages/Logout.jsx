@@ -4,17 +4,17 @@ import { PatientDataContext } from "../Context/PatientContext";
 import DoctorContext, { DoctorDataContext } from "../Context/DoctorContext";
 
 const Logout = () => {
-  const { patient, setpatient } = useContext(PatientDataContext);
+  const { patient, setPatient } = useContext(PatientDataContext);
   const { doctor, setDoctor } = useContext(DoctorDataContext);
   const navigate = useNavigate();
 
   localStorage.clear();
-  setpatient({});
+  setPatient({});
   setDoctor({});
   const token = localStorage.getItem("token");
   useEffect(() => {
     if (!token) {
-      navigate("/sign-in");
+      navigate("/login");
       return;
     }
   }, [token]);

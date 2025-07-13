@@ -37,6 +37,8 @@ const PatientSchema = mongoose.Schema({
   },
   profileImage: {
     type: String,
+    default:
+      "https://res.cloudinary.com/di9ljccil/image/upload/v1752328111/default-avatar-photo-placeholder-profile-icon-vector_nlejsr.jpg",
   },
 });
 

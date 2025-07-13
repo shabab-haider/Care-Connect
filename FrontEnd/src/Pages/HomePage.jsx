@@ -80,7 +80,7 @@ const HomePage = () => {
                   Get Started as Patient
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-                <Link to="/doctor-signup" className="bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-xl text-lg font-semibold transition-all">
+                <Link to="/doctor-signup" className="bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-xl text-lg font-semibold transition-all text-center">
                   Join as Doctor
                 </Link>
               </div>
