@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  padding: o;
+  margin: o;
+  box-sizing: border-box;
+  ;
+}
+
+html {
+  scroll-behavior:smooth;
+}
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  display: none;
+}
