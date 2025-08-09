@@ -42,6 +42,7 @@ const DoctorSignup = () => {
 
     // Practice Info
     clinicName: "",
+    about: "",
     address: "",
     city: "",
     state: "",
@@ -428,6 +429,21 @@ const DoctorSignup = () => {
                     required
                   />
                 </div>
+                {/* About */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    About
+                  </label>
+                  <input
+                    type="text"
+                    name="about"
+                    value={formData.about}
+                    onChange={handleInputChange}
+                    className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Clinic or hospital name"
+                    required
+                  />
+                </div>
 
                 {/* Address */}
                 <div>
@@ -497,7 +513,7 @@ const DoctorSignup = () => {
                 {/* Consultation Fee */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Consultation Fee (₹)
+                    Consultation Fee (Rs)
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />

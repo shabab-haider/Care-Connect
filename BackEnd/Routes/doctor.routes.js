@@ -37,4 +37,9 @@ router.get(
   doctorController.getDoctorDashboard
 );
 
+router.get("/all", doctorController.getAllDoctors);
+
+
 module.exports = router;
+
+

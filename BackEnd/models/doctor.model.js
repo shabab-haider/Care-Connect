@@ -29,6 +29,10 @@ const doctorSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  about: {
+    type: String,
+  },
+
 
   professionalDetails: {
     specialization: { type: String, required: true },

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -14,34 +14,11 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import LogoAndBack from "../../Components/LogoAndBack";
+import axios from 'axios'
 
 const FindDoctor = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSpecialization, setSelectedSpecialization] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
-  const [selectedAvailability, setSelectedAvailability] = useState("");
-  const [minFee, setMinFee] = useState("");
-  const [maxFee, setMaxFee] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
 
-  // Doctor specializations
-  const specializations = [
-    "Cardiology",
-    "Dermatology",
-    "Endocrinology",
-    "Gastroenterology",
-    "Neurology",
-    "Obstetrics & Gynecology",
-    "Oncology",
-    "Pediatrics",
-    "Psychiatry",
-    "Surgery",
-    "Other",
-  ];
-
-  // Sample doctor data matching your schema
-  const doctorsData = [
+  const [doctorsData, setDoctorsData] = useState([
     {
       _id: "1",
       fullName: "Dr. Sarah Johnson",
@@ -67,267 +44,45 @@ const FindDoctor = () => {
         clinicCloseTime: "17:00",
         appointmentsPerDay: 16,
       },
-      rating: 4.9,
-      reviews: 245,
-      verified: true,
-      availability: "Today",
-      nextSlot: "2:30 PM",
       about:
         "Experienced cardiologist specializing in heart disease prevention and treatment.",
-      languages: ["English", "Spanish"],
     },
-    {
-      _id: "2",
-      fullName: "Dr. Michael Chen",
-      email: "michael.chen@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 456-7890",
-      professionalDetails: {
-        specialization: "Dermatology",
-        experience: "8",
-        qualification: "MBBS, MD Dermatology",
-        registrationNumber: "MED23456",
-        consultationFee: 600,
-        avgAppointmentTime: 20,
-      },
-      clinicInfo: {
-        clinicName: "Skin Care Clinic",
-        address: "456 Health Ave, Midtown",
-        city: "Los Angeles",
-        state: "California",
-        pincode: "90210",
-        availableDays: ["Monday", "Wednesday", "Friday", "Saturday"],
-        clinicOpenTime: "10:00",
-        clinicCloseTime: "18:00",
-        appointmentsPerDay: 20,
-      },
-      rating: 4.7,
-      reviews: 189,
-      verified: true,
-      availability: "Tomorrow",
-      nextSlot: "10:00 AM",
-      about:
-        "Specialist in skin disorders, acne treatment, and cosmetic dermatology.",
-      languages: ["English", "Mandarin"],
-    },
-    {
-      _id: "3",
-      fullName: "Dr. Emily Davis",
-      email: "emily.davis@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 321-0987",
-      professionalDetails: {
-        specialization: "Pediatrics",
-        experience: "15",
-        qualification: "MBBS, MD Pediatrics",
-        registrationNumber: "MED34567",
-        consultationFee: 500,
-        avgAppointmentTime: 25,
-      },
-      clinicInfo: {
-        clinicName: "Children's Hospital",
-        address: "789 Kids St, Uptown",
-        city: "Chicago",
-        state: "Illinois",
-        pincode: "60601",
-        availableDays: [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        clinicOpenTime: "08:00",
-        clinicCloseTime: "16:00",
-        appointmentsPerDay: 18,
-      },
-      rating: 4.8,
-      reviews: 312,
-      verified: true,
-      availability: "Today",
-      nextSlot: "4:15 PM",
-      about:
-        "Dedicated pediatrician with expertise in child healthcare and development.",
-      languages: ["English", "French"],
-    },
-    {
-      _id: "4",
-      fullName: "Dr. Robert Wilson",
-      email: "robert.wilson@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 654-3210",
-      professionalDetails: {
-        specialization: "Neurology",
-        experience: "20",
-        qualification: "MBBS, DM Neurology",
-        registrationNumber: "MED45678",
-        consultationFee: 1200,
-        avgAppointmentTime: 45,
-      },
-      clinicInfo: {
-        clinicName: "Brain & Spine Center",
-        address: "321 Neuro Ave, Medical District",
-        city: "Houston",
-        state: "Texas",
-        pincode: "77001",
-        availableDays: ["Monday", "Tuesday", "Thursday", "Friday"],
-        clinicOpenTime: "09:00",
-        clinicCloseTime: "17:00",
-        appointmentsPerDay: 12,
-      },
-      rating: 4.9,
-      reviews: 428,
-      verified: true,
-      availability: "Next Week",
-      nextSlot: "Mon 9:00 AM",
-      about:
-        "Leading neurologist specializing in brain disorders and neurological conditions.",
-      languages: ["English"],
-    },
-    {
-      _id: "5",
-      fullName: "Dr. Lisa Anderson",
-      email: "lisa.anderson@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 789-0123",
-      professionalDetails: {
-        specialization: "Obstetrics & Gynecology",
-        experience: "10",
-        qualification: "MBBS, MS OBG",
-        registrationNumber: "MED56789",
-        consultationFee: 700,
-        avgAppointmentTime: 30,
-      },
-      clinicInfo: {
-        clinicName: "Women's Health Clinic",
-        address: "654 Women St, Healthcare Plaza",
-        city: "Phoenix",
-        state: "Arizona",
-        pincode: "85001",
-        availableDays: ["Monday", "Tuesday", "Wednesday", "Friday", "Saturday"],
-        clinicOpenTime: "08:30",
-        clinicCloseTime: "16:30",
-        appointmentsPerDay: 15,
-      },
-      rating: 4.6,
-      reviews: 156,
-      verified: true,
-      availability: "Tomorrow",
-      nextSlot: "11:30 AM",
-      about:
-        "Experienced gynecologist providing comprehensive women's healthcare services.",
-      languages: ["English", "Hindi"],
-    },
-    {
-      _id: "6",
-      fullName: "Dr. James Brown",
-      email: "james.brown@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 012-3456",
-      professionalDetails: {
-        specialization: "Gastroenterology",
-        experience: "14",
-        qualification: "MBBS, DM Gastroenterology",
-        registrationNumber: "MED67890",
-        consultationFee: 900,
-        avgAppointmentTime: 35,
-      },
-      clinicInfo: {
-        clinicName: "Digestive Care Center",
-        address: "987 Gastro Blvd, Medical Complex",
-        city: "Philadelphia",
-        state: "Pennsylvania",
-        pincode: "19101",
-        availableDays: ["Monday", "Wednesday", "Thursday", "Friday"],
-        clinicOpenTime: "10:00",
-        clinicCloseTime: "18:00",
-        appointmentsPerDay: 14,
-      },
-      rating: 4.5,
-      reviews: 203,
-      verified: true,
-      availability: "Today",
-      nextSlot: "3:45 PM",
-      about:
-        "Specialist in digestive system disorders and gastrointestinal diseases.",
-      languages: ["English"],
-    },
-    {
-      _id: "7",
-      fullName: "Dr. Maria Garcia",
-      email: "maria.garcia@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 345-6789",
-      professionalDetails: {
-        specialization: "Endocrinology",
-        experience: "9",
-        qualification: "MBBS, DM Endocrinology",
-        registrationNumber: "MED78901",
-        consultationFee: 750,
-        avgAppointmentTime: 30,
-      },
-      clinicInfo: {
-        clinicName: "Hormone Health Center",
-        address: "147 Endo St, Wellness District",
-        city: "San Diego",
-        state: "California",
-        pincode: "92101",
-        availableDays: [
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        clinicOpenTime: "09:00",
-        clinicCloseTime: "17:00",
-        appointmentsPerDay: 16,
-      },
-      rating: 4.7,
-      reviews: 134,
-      verified: true,
-      availability: "Tomorrow",
-      nextSlot: "2:00 PM",
-      about:
-        "Endocrinologist specializing in diabetes, thyroid, and hormonal disorders.",
-      languages: ["English", "Spanish"],
-    },
-    {
-      _id: "8",
-      fullName: "Dr. David Lee",
-      email: "david.lee@careconnect.com",
-      profileImage: "/placeholder.svg?height=120&width=120",
-      phone: "+1 (555) 567-8901",
-      professionalDetails: {
-        specialization: "Psychiatry",
-        experience: "11",
-        qualification: "MBBS, MD Psychiatry",
-        registrationNumber: "MED89012",
-        consultationFee: 650,
-        avgAppointmentTime: 50,
-      },
-      clinicInfo: {
-        clinicName: "Mental Health Clinic",
-        address: "258 Mind St, Therapy Plaza",
-        city: "Dallas",
-        state: "Texas",
-        pincode: "75201",
-        availableDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        clinicOpenTime: "09:00",
-        clinicCloseTime: "17:00",
-        appointmentsPerDay: 10,
-      },
-      rating: 4.8,
-      reviews: 267,
-      verified: true,
-      availability: "Today",
-      nextSlot: "5:30 PM",
-      about:
-        "Psychiatrist specializing in mental health, anxiety, and depression treatment.",
-      languages: ["English", "Korean"],
-    },
+  ]);
+  useEffect(() => {
+    const getDoctor = async () => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/doctors/all`
+      );
+      setDoctorsData(response.data);
+    }
+    getDoctor()
+  }, []);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSpecialization, setSelectedSpecialization] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [selectedAvailability, setSelectedAvailability] = useState("");
+  const [minFee, setMinFee] = useState("");
+  const [maxFee, setMaxFee] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+  // Doctor specializations
+  const specializations = [
+    "Cardiology",
+    "Dermatology",
+    "Endocrinology",
+    "Gastroenterology",
+    "Neurology",
+    "Obstetrics & Gynecology",
+    "Oncology",
+    "Pediatrics",
+    "Psychiatry",
+    "Surgery",
+    "Other",
   ];
+
+  
 
   // Filter doctors based on search criteria
   const getFilteredDoctors = () => {
@@ -434,9 +189,7 @@ const FindDoctor = () => {
                   <h3 className="text-2xl font-bold text-gray-900">
                     {doctor.fullName}
                   </h3>
-                  {doctor.verified && (
-                    <CheckCircle className="h-6 w-6 text-blue-600" />
-                  )}
+                  
                 </div>
                 <p className="text-blue-600 font-medium mb-2">
                   {doctor.professionalDetails.specialization}
@@ -448,30 +201,15 @@ const FindDoctor = () => {
                   Reg. No: {doctor.professionalDetails.registrationNumber}
                 </p>
                 <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                    <span className="font-medium">{doctor.rating}</span>
-                    <span className="text-gray-500 ml-1">
-                      ({doctor.reviews} reviews)
-                    </span>
-                  </div>
+                  
                   <div className="flex items-center text-gray-600">
                     <User className="h-4 w-4 mr-1" />
                     <span>
-                      {doctor.professionalDetails.experience} years exp
+                      {doctor.professionalDetails.experience} years experience
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                  {doctor.languages.map((lang, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-sm"
-                    >
-                      {lang}
-                    </span>
-                  ))}
-                </div>
+                
               </div>
             </div>
 
@@ -531,14 +269,6 @@ const FindDoctor = () => {
                       appointment
                     </span>
                   </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-gray-500 mr-2" />
-                    <span>Available {doctor.availability}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-gray-500 mr-2" />
-                    <span>Next slot: {doctor.nextSlot}</span>
-                  </div>
                 </div>
                 <div className="mt-3">
                   <p className="text-sm font-medium text-gray-700 mb-2">
@@ -585,16 +315,6 @@ const FindDoctor = () => {
       {/* Header */}
       <div className="px-6 py-2 bg-white shadow-sm border-b sticky top-0 z-40">
         <LogoAndBack />
-        <div className="flex items-center justify-between mt-2">
-          <h1 className="text-xl font-bold text-gray-900">Find Doctors</h1>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="lg:hidden flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            <SlidersHorizontal className="h-4 w-4 mr-2" />
-            Filters
-          </button>
-        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -741,9 +461,18 @@ const FindDoctor = () => {
           <div className="flex-1">
             {/* Results Header */}
             <div className="mb-6">
+              <div className="flex items-center justify-between mt-2">
               <h2 className="text-2xl font-bold text-gray-900">
                 {filteredDoctors.length} Doctors Found
               </h2>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
+                >
+                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  Filters
+                </button>
+              </div>
               <p className="text-gray-600">
                 {selectedSpecialization &&
                   `Specializing in ${selectedSpecialization}`}
@@ -775,9 +504,6 @@ const FindDoctor = () => {
                           <h3 className="text-xl font-bold text-gray-900">
                             {doctor.fullName}
                           </h3>
-                          {doctor.verified && (
-                            <CheckCircle className="h-5 w-5 text-blue-600" />
-                          )}
                         </div>
                         <p className="text-blue-600 font-medium mb-2">
                           {doctor.professionalDetails.specialization}
@@ -787,13 +513,6 @@ const FindDoctor = () => {
                         </p>
 
                         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-4">
-                          <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                            <span className="font-medium">{doctor.rating}</span>
-                            <span className="text-gray-500 ml-1">
-                              ({doctor.reviews})
-                            </span>
-                          </div>
                           <div className="flex items-center text-gray-600">
                             <Stethoscope className="h-4 w-4 mr-1" />
                             <span>
@@ -809,19 +528,15 @@ const FindDoctor = () => {
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm mb-3">
-                          <div className="flex items-center text-green-600">
-                            <Clock className="h-4 w-4 mr-1" />
-                            <span>Available {doctor.availability}</span>
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            <span>Next: {doctor.nextSlot}</span>
-                          </div>
-                          <div className="flex items-center text-purple-600 font-medium">
-                            <DollarSign className="h-4 w-4 mr-1" />
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-sm mb-3">
+                          <div className="font-medium">
                             <span>
-                              ₹{doctor.professionalDetails.consultationFee}
+                              Consultation fee:
+                            </span>
+                          </div>
+                          <div className="text-green-600 font-medium">
+                            <span>
+                              {doctor.professionalDetails.consultationFee} Rs
                             </span>
                           </div>
                         </div>

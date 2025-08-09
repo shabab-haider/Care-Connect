@@ -9,7 +9,7 @@ module.exports.registerDoctor = async function (req, res) {
   if (!err.isEmpty()) {
     return res.status(400).json({ errors: err.array() });
   }
-
+console.log(req.body)
   try {
     const {
       firstName,
@@ -25,6 +25,7 @@ module.exports.registerDoctor = async function (req, res) {
       consultationFee,
       avgAppointmentTime,
       clinicName,
+      about,
       address,
       city,
       state,
@@ -57,6 +58,7 @@ module.exports.registerDoctor = async function (req, res) {
       email,
       password: hashedPassword,
       phone,
+      about,
       professionalDetails: {
         specialization,
         experience,
@@ -121,3 +123,46 @@ module.exports.loginDoctor = async function (req, res) {
 module.exports.getDoctorDashboard = function (req, res) {
   res.status(200).json({ doctor: req.doctor });
 };
+
+
+module.exports.getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find();
+
+    const formattedDoctors = doctors.map(doc => ({
+      _id: doc._id,
+      fullName: doc.fullName,
+      email: doc.email,
+      profileImage: doc.profileImage || "/placeholder.svg?height=120&width=120",
+      phone: doc.phone,
+      professionalDetails: {
+        specialization: doc.professionalDetails.specialization,
+        experience: doc.professionalDetails.experience,
+        qualification: doc.professionalDetails.qualification,
+        registrationNumber: doc.professionalDetails.registrationNumber,
+        consultationFee: doc.professionalDetails.consultationFee,
+        avgAppointmentTime: doc.professionalDetails.avgAppointmentTime,
+      },
+      clinicInfo: {
+        clinicName: doc.clinicInfo.clinicName,
+        address: doc.clinicInfo.address,
+        city: doc.clinicInfo.city,
+        state: doc.clinicInfo.state,
+        pincode: doc.clinicInfo.pincode,
+        availableDays: doc.clinicInfo.availableDays,
+        clinicOpenTime: doc.clinicInfo.clinicOpenTime,
+        clinicCloseTime: doc.clinicInfo.clinicCloseTime,
+        appointmentsPerDay: doc.clinicInfo.appointmentsPerDay,
+      },
+      about: doc.about || "",
+    }));
+
+    res.status(200).json(formattedDoctors);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching doctors", error: error.message });
+  }
+};
+
+
+
+

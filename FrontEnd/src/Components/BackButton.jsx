@@ -5,11 +5,13 @@ const BackButton = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    const lastRoute = localStorage.getItem("lastVisitedRoute");
+    const lastRoute = localStorage.getItem("lastVisitedRoute") ;
     const current = window.location.pathname;
 
     if (lastRoute && lastRoute !== current) {
-      navigate(lastRoute); // ✅ Go to saved route
+      navigate(lastRoute); 
+    } else if (lastRoute == current) {
+      navigate("/"); 
     } else {
       window.history.length > 1 ? navigate(-1) : navigate("/"); // 🔄 Fallback
     }
