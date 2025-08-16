@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Calendar,
@@ -9,20 +8,16 @@ import {
   LogOut,
   FileText,
   Stethoscope,
-  Bell,
   Home,
   ChevronRight,
   Menu,
   X,
   Eye,
   CheckCircle,
-  XCircle,
-  Phone,
-  Mail,
-  MapPin,
-  TrendingUp,
   Activity,
   UserCheck,
+  Plus,
+  AlertCircle,
 } from "lucide-react";
 import Logo from "../../Components/Logo";
 
@@ -30,6 +25,15 @@ const DoctorDashboard = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("queue");
+  const [showAddPatientModal, setShowAddPatientModal] = useState(false);
+  const [offlinePatientForm, setOfflinePatientForm] = useState({
+    name: "",
+    phone: "",
+    age: "",
+    gender: "",
+    symptoms: "",
+    appointmentType: "walk-in",
+  });
 
   // Sample doctor data
   const doctorData = {
@@ -66,6 +70,8 @@ const DoctorDashboard = () => {
       phone: "+1 (555) 123-4567",
       bloodGroup: "O+",
       allergies: ["Penicillin"],
+      bookingType: "online", // online or offline
+      bookedAt: "2024-01-15T09:00:00Z",
     },
     {
       id: 2,
@@ -79,6 +85,8 @@ const DoctorDashboard = () => {
       phone: "+1 (555) 234-5678",
       bloodGroup: "A+",
       allergies: [],
+      bookingType: "online",
+      bookedAt: "2024-01-15T08:30:00Z",
     },
     {
       id: 3,
@@ -92,6 +100,8 @@ const DoctorDashboard = () => {
       phone: "+1 (555) 345-6789",
       bloodGroup: "B+",
       allergies: ["Aspirin"],
+      bookingType: "offline", // Walk-in patient
+      bookedAt: "2024-01-15T10:15:00Z",
     },
     {
       id: 4,
@@ -105,55 +115,8 @@ const DoctorDashboard = () => {
       phone: "+1 (555) 456-7890",
       bloodGroup: "AB+",
       allergies: [],
-    },
-  ];
-
-  // Today's appointments
-  const todayAppointments = [
-    {
-      id: 1,
-      time: "09:00 AM",
-      patient: "Robert Johnson",
-      type: "Consultation",
-      status: "completed",
-      duration: "30 mins",
-      fee: 500,
-    },
-    {
-      id: 2,
-      time: "09:30 AM",
-      patient: "Maria Garcia",
-      type: "Follow-up",
-      status: "completed",
-      duration: "20 mins",
-      fee: 300,
-    },
-    {
-      id: 3,
-      time: "10:00 AM",
-      patient: "David Lee",
-      type: "Consultation",
-      status: "completed",
-      duration: "25 mins",
-      fee: 500,
-    },
-    {
-      id: 4,
-      time: "10:30 AM",
-      patient: "John Smith",
-      type: "Consultation",
-      status: "in-progress",
-      duration: "30 mins",
-      fee: 500,
-    },
-    {
-      id: 5,
-      time: "10:45 AM",
-      patient: "Emily Davis",
-      type: "Checkup",
-      status: "scheduled",
-      duration: "15 mins",
-      fee: 400,
+      bookingType: "online",
+      bookedAt: "2024-01-15T07:45:00Z",
     },
   ];
 
@@ -182,11 +145,106 @@ const DoctorDashboard = () => {
     },
   ];
 
+  // Today's appointments data
+  const todayAppointments = [
+    {
+      id: 1,
+      time: "10:00 AM",
+      patient: "John Doe",
+      type: "Online",
+      status: "completed",
+      fee: 500,
+    },
+    {
+      id: 2,
+      time: "10:15 AM",
+      patient: "Jane Smith",
+      type: "Walk-in",
+      status: "in-progress",
+      fee: 600,
+    },
+    {
+      id: 3,
+      time: "10:30 AM",
+      patient: "Michael Brown",
+      type: "Online",
+      status: "pending",
+      fee: 700,
+    },
+    {
+      id: 4,
+      time: "10:45 AM",
+      patient: "Emily Davis",
+      type: "Walk-in",
+      status: "completed",
+      fee: 800,
+    },
+    {
+      id: 5,
+      time: "11:00 AM",
+      patient: "Lisa Wilson",
+      type: "Online",
+      status: "pending",
+      fee: 900,
+    },
+  ];
+
   // Navigation function
   const handleNavigation = (route) => {
     console.log(`Navigating to: ${route}`);
     setSidebarOpen(false);
     alert(`Navigation to ${route} - Replace with actual routing`);
+  };
+
+  const handleOfflinePatientInputChange = (field, value) => {
+    setOfflinePatientForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleAddOfflinePatient = async (e) => {
+    e.preventDefault();
+
+    // Generate next token number
+    const nextTokenNumber = `A-${(patientQueue.length + 1)
+      .toString()
+      .padStart(2, "0")}`;
+
+    const newPatient = {
+      id: Date.now(),
+      tokenNumber: nextTokenNumber,
+      patientName: offlinePatientForm.name,
+      age: Number.parseInt(offlinePatientForm.age),
+      gender: offlinePatientForm.gender,
+      appointmentTime: "Walk-in",
+      symptoms: offlinePatientForm.symptoms,
+      status: "waiting",
+      phone: offlinePatientForm.phone,
+      bloodGroup: "Unknown",
+      allergies: [],
+      bookingType: "offline",
+      bookedAt: new Date().toISOString(),
+    };
+
+    // Add to queue (in real app, this would be an API call)
+    console.log("Adding offline patient:", newPatient);
+
+    // Reset form and close modal
+    setOfflinePatientForm({
+      name: "",
+      phone: "",
+      age: "",
+      gender: "",
+      symptoms: "",
+      appointmentType: "walk-in",
+    });
+    setShowAddPatientModal(false);
+
+    // Show success message
+    alert(
+      `Patient ${newPatient.patientName} added to queue with token ${newPatient.tokenNumber}`
+    );
   };
 
   // Patient details modal
@@ -547,9 +605,18 @@ const DoctorDashboard = () => {
                     <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 mr-2" />
                     Patient Queue
                   </h2>
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium self-start sm:self-auto">
-                    {patientQueue.length} Waiting
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {patientQueue.length} Waiting
+                    </span>
+                    <button
+                      onClick={() => setShowAddPatientModal(true)}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Walk-in Patient
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="p-4 sm:p-6">
@@ -582,9 +649,22 @@ const DoctorDashboard = () => {
                               />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-gray-900">
-                                {patient.patientName}
-                              </h3>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-gray-900">
+                                  {patient.patientName}
+                                </h3>
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    patient.bookingType === "online"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : "bg-orange-100 text-orange-800"
+                                  }`}
+                                >
+                                  {patient.bookingType === "online"
+                                    ? "Online"
+                                    : "Walk-in"}
+                                </span>
+                              </div>
                               <p className="text-gray-600 text-sm">
                                 {patient.age} years • {patient.gender}
                               </p>
@@ -756,6 +836,151 @@ const DoctorDashboard = () => {
         patient={selectedPatient}
         onClose={() => setSelectedPatient(null)}
       />
+
+      {/* Add Offline Patient Modal */}
+      {showAddPatientModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  Add Walk-in Patient
+                </h2>
+                <button
+                  onClick={() => setShowAddPatientModal(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6">
+              <form onSubmit={handleAddOfflinePatient} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Patient Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={offlinePatientForm.name}
+                    onChange={(e) =>
+                      handleOfflinePatientInputChange("name", e.target.value)
+                    }
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter patient name"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone *
+                    </label>
+                    <input
+                      type="tel"
+                      value={offlinePatientForm.phone}
+                      onChange={(e) =>
+                        handleOfflinePatientInputChange("phone", e.target.value)
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="+1 (555) 123-4567"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Age *
+                    </label>
+                    <input
+                      type="number"
+                      value={offlinePatientForm.age}
+                      onChange={(e) =>
+                        handleOfflinePatientInputChange("age", e.target.value)
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="25"
+                      min="1"
+                      max="120"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Gender *
+                  </label>
+                  <select
+                    value={offlinePatientForm.gender}
+                    onChange={(e) =>
+                      handleOfflinePatientInputChange("gender", e.target.value)
+                    }
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  >
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Symptoms / Reason *
+                  </label>
+                  <textarea
+                    value={offlinePatientForm.symptoms}
+                    onChange={(e) =>
+                      handleOfflinePatientInputChange(
+                        "symptoms",
+                        e.target.value
+                      )
+                    }
+                    rows="3"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Describe symptoms or reason for visit..."
+                    required
+                  />
+                </div>
+
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-1" />
+                    <div>
+                      <h5 className="font-medium text-yellow-900">
+                        Walk-in Patient
+                      </h5>
+                      <p className="text-yellow-800 text-sm mt-1">
+                        This patient will be added to the current queue and
+                        assigned the next available token number.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddPatientModal(false)}
+                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+                  >
+                    Add to Queue
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

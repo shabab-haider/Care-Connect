@@ -8,31 +8,33 @@ module.exports.CreatePatient = async ({
   gender,
   phoneNumber,
   profileImage,
+  isOffline = false,
 }) => {
-  if (!fullname || !email || !password) {
-    throw new Error("All Fields Are Required");
+  // Validation: fullname & phone are always required
+  if (!fullname || !phoneNumber) {
+    throw new Error("Fullname and phone number are required");
   }
-  const Patient = await PatientModel.create({
+
+  // Extra validation for online patients
+  if (!isOffline) {
+    if (!email || !password || !dateOfBirth || !gender) {
+      throw new Error(
+        "All required fields must be provided for online patients"
+      );
+    }
+  }
+
+  // Create patient record
+  const patient = await PatientModel.create({
     fullname,
-    email,
-    password,
-    dateOfBirth,
-    gender,
+    email: isOffline ? null : email,
+    password: isOffline ? null : password,
+    dateOfBirth: isOffline ? null : dateOfBirth,
+    gender: isOffline ? null : gender,
     phoneNumber,
     profileImage,
+    isOffline,
   });
-  return Patient;
-};
 
-module.exports.UpdatePatient = async ({ id, fullname, email, phoneNumber, profileImage }) => {
-  const patient = await PatientModel.findById(id);
-  if (!patient) {
-    throw new Error("patient not found");
-  }
-  if (fullname !== undefined) patient.fullname = fullname;
-  if (email !== undefined) patient.email = email;
-  if (phoneNumber !== undefined) patient.phoneNumber = phoneNumber;
-  if (profileImage !== undefined) patient.profileImage = profileImage;
-  await patient.save();
   return patient;
 };

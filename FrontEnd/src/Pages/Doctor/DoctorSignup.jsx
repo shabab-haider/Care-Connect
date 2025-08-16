@@ -1,5 +1,4 @@
-
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -18,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import LogoAndBack from "../../Components/LogoAndBack";
 import axios from "axios";
 import { DoctorDataContext } from "../../Context/DoctorContext";
+import { setMaxAppointments } from "../../Utils/setMaxAppointments";
 
 const DoctorSignup = () => {
   const navigate = useNavigate();
@@ -56,7 +56,23 @@ const DoctorSignup = () => {
     appointmentsPerDay: "",
     avgAppointmentTime: "",
   });
-
+  useEffect(() => {
+    if (
+      formData.clinicOpenTime &&
+      formData.clinicCloseTime &&
+      formData.avgAppointmentTime
+    ) {
+      const calculatedAppointments = setMaxAppointments(
+        formData.clinicOpenTime,
+        formData.clinicCloseTime,
+        formData.avgAppointmentTime
+      );
+      setFormData((prev) => ({
+        ...prev,
+        appointmentsPerDay: calculatedAppointments,
+      }));
+    }
+  }, [formData.avgAppointmentTime]);
   const specializations = [
     "General Physician",
     "Cardiologist",
@@ -107,6 +123,16 @@ const DoctorSignup = () => {
       alert("Passwords don't match!");
       return;
     }
+
+    // const isValid = checkMaxAppointments(
+    //   formData.clinicOpenTime,
+    //   formData.clinicCloseTime,
+    //   formData.avgAppointmentTime,
+    //   formData.appointmentsPerDay
+    // );
+    // if (!isValid) {
+    //   return;
+    // }
 
     const response = await axios.post(
       `${import.meta.env.VITE_BASE_URL}/doctors/register`,
@@ -440,7 +466,7 @@ const DoctorSignup = () => {
                     value={formData.about}
                     onChange={handleInputChange}
                     className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Clinic or hospital name"
+                    placeholder="Tell About Your Self"
                     required
                   />
                 </div>
@@ -612,21 +638,15 @@ const DoctorSignup = () => {
                     </label>
                     <div className="relative">
                       <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <select
+                      <input
+                        type="number"
                         name="avgAppointmentTime"
                         value={formData.avgAppointmentTime}
                         onChange={handleInputChange}
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="e.g., 15 minutes"
                         required
-                      >
-                        <option value="">Select duration</option>
-                        <option value="10">10 minutes</option>
-                        <option value="15">15 minutes</option>
-                        <option value="20">20 minutes</option>
-                        <option value="30">30 minutes</option>
-                        <option value="45">45 minutes</option>
-                        <option value="60">60 minutes</option>
-                      </select>
+                      />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       Time allocated per patient consultation
@@ -644,7 +664,7 @@ const DoctorSignup = () => {
                       className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="e.g., 20"
                       min="1"
-                      max="50"
+                      disabled
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">

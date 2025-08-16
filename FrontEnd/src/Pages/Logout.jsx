@@ -14,7 +14,6 @@ const Logout = () => {
   const token = localStorage.getItem("token");
   useEffect(() => {
     if (!token) {
-      localStorage.setItem("lastVisitedRoute", "/");
       navigate("/login");
       return;
     }

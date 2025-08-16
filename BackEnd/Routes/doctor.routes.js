@@ -5,6 +5,7 @@ const doctorController = require("../controllers/doctor.controller");
 const authMiddleware = require("../Middlewares/Auth.middleware");
 const doctorModel = require("../models/doctor.model");
 
+
 router.post(
   "/register",
   [
@@ -38,6 +39,16 @@ router.get(
 );
 
 router.get("/all", doctorController.getAllDoctors);
+
+router.get("/:id", doctorController.getDoctorById);
+
+
+router.get(
+  "/:id/availability",
+  doctorController.getDoctorAvailabilityNext7Days
+);
+
+router.get("/:id/tokens", doctorController.getDoctorTokens);
 
 
 module.exports = router;

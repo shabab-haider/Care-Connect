@@ -7,9 +7,6 @@ import DoctorProfileSetup from "./Pages/Doctor/DoctorProfileSetup";
 import PatientDashboard from "./Pages/Patient/PatientDashboard";
 import DoctorDashboard from "./Pages/Doctor/DoctorDashboard";
 
-
-
-
 import PatientProfileProtectedWrapper from "./Pages/Patient/ProfileProtectedWrapper";
 import DoctorProfileProtectedWrapper from "./Pages/Doctor/ProfileProtectedWrapper";
 import PatientProtectedWrapper from "./Pages/Patient/PatientProtectedWrapper";
@@ -19,6 +16,8 @@ import Login from "./Pages/Login";
 import PatientSignup from "./Pages/Patient/PatientSignup";
 import DoctorSignup from "./Pages/Doctor/DoctorSignup";
 import FindDoctor from "./Pages/Patient/FindDoctor";
+import AppointmentBooking from "./Pages/Patient/AppointmentBooking";
+import DoctorPendingRequests from "./Pages/Doctor/DoctorPendingRequests";
 
 const App = () => {
   return (
@@ -48,11 +47,11 @@ const App = () => {
         />
 
         <Route path="/find-doctor" element={<FindDoctor />} />
-       
-        
-       
-       
-       
+        <Route
+          path="/appointment-booking/:id"
+          element={<AppointmentBooking />}
+        />
+
         {/* Doctor Routes */}
         <Route
           path="doctor-dashboard"
@@ -70,13 +69,11 @@ const App = () => {
             </DoctorProfileProtectedWrapper>
           }
         />
-       
-        
-        
-        
-        
+        <Route
+          path="/pending-appointments"
+          element={<DoctorPendingRequests />}
+        />
       </Routes>
-
     </>
   );
 };

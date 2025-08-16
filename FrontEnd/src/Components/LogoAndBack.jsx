@@ -4,8 +4,8 @@ import Logo from "./Logo";
 
 const LogoAndBack = () => {
   return (
-    
-      <div className="flex mb-3">
+
+      <div className="w-full flex justify-between mb-3">
         <Logo />
         {/* Back to Home */}
         <div className="mt-3">

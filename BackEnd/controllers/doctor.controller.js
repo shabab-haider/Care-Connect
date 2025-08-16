@@ -1,15 +1,18 @@
 const { validationResult } = require("express-validator");
 const doctorService = require("../Services/doctor.service");
 const doctorModel = require("../models/doctor.model");
+const tokenModel = require("../models/token.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const moment = require("moment-timezone");
+const { generateTokensForDate } = require("../utils/tokenGenerator");
 
 module.exports.registerDoctor = async function (req, res) {
   const err = validationResult(req);
   if (!err.isEmpty()) {
     return res.status(400).json({ errors: err.array() });
   }
-console.log(req.body)
+  console.log(req.body);
   try {
     const {
       firstName,
@@ -124,12 +127,11 @@ module.exports.getDoctorDashboard = function (req, res) {
   res.status(200).json({ doctor: req.doctor });
 };
 
-
 module.exports.getAllDoctors = async (req, res) => {
   try {
     const doctors = await doctorModel.find();
 
-    const formattedDoctors = doctors.map(doc => ({
+    const formattedDoctors = doctors.map((doc) => ({
       _id: doc._id,
       fullName: doc.fullName,
       email: doc.email,
@@ -159,10 +161,169 @@ module.exports.getAllDoctors = async (req, res) => {
 
     res.status(200).json(formattedDoctors);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching doctors", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching doctors", error: error.message });
   }
 };
 
+module.exports.getDoctorById = async (req, res) => {
+  try {
+    const doctor = await doctorModel.findById(req.params.id);
 
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
 
+    const formattedDoctor = {
+      _id: doctor._id,
+      fullName: doctor.fullName,
+      email: doctor.email,
+      profileImage:
+        doctor.profileImage || "/placeholder.svg?height=120&width=120",
+      phone: doctor.phone,
+      professionalDetails: {
+        specialization: doctor.professionalDetails.specialization,
+        experience: doctor.professionalDetails.experience,
+        qualification: doctor.professionalDetails.qualification,
+        consultationFee: doctor.professionalDetails.consultationFee,
+        avgAppointmentTime: doctor.professionalDetails.avgAppointmentTime,
+      },
+      clinicInfo: {
+        clinicName: doctor.clinicInfo.clinicName,
+        address: doctor.clinicInfo.address,
+        city: doctor.clinicInfo.city,
+        state: doctor.clinicInfo.state,
+        availableDays: doctor.clinicInfo.availableDays,
+        clinicOpenTime: doctor.clinicInfo.clinicOpenTime,
+        clinicCloseTime: doctor.clinicInfo.clinicCloseTime,
+        appointmentsPerDay: doctor.clinicInfo.appointmentsPerDay,
+      },
+    };
 
+    res.status(200).json(formattedDoctor);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching doctor", error: error.message });
+  }
+};
+
+module.exports.getDoctorAvailabilityNext7Days = async (req, res) => {
+  try {
+    const doctor = await doctorModel.findById(req.params.id);
+
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    const availableDays = doctor.clinicInfo.availableDays;
+    const closingTime = moment.tz(
+      doctor.clinicInfo.clinicCloseTime,
+      "HH:mm",
+      "Asia/Karachi"
+    );
+
+    const today = moment.tz("Asia/Karachi").startOf("day");
+
+    const currentTime = moment.tz("Asia/Karachi");
+
+    const isPastClosingTime = currentTime.isAfter(closingTime);
+    const startDay = isPastClosingTime ? today.add(1, "days") : today;
+    //may be error
+
+    const deleteBefore = moment
+      .tz("Asia/Karachi")
+      .startOf("day")
+      .format("YYYY-MM-DDTHH:mm:ss.SSS[+00:00]");
+    // Remove past days & their tokens from DB
+    await tokenModel.updateOne(
+      { doctor: doctor._id },
+      {
+        $pull: {
+          tokens: {
+            date: { $lt: deleteBefore },
+          },
+        },
+      }
+    );
+    const result = [];
+
+    // Add next 7 days
+    for (let i = 0; i < 7; i++) {
+      const date = moment.tz(startDay, "Asia/Karachi").add(i, "days");
+      const dayName = date.format("dddd");
+      if (availableDays.includes(dayName)) {
+        // Create tokens if not already in DB
+        await generateTokensForDate(doctor, date);
+
+        result.push({
+          date: date.format("YYYY-MM-DD"),
+          displayDate: date.format("ddd, MMM DD"),
+          dayName,
+          isToday: i === 0 && !isPastClosingTime,
+        });
+      }
+    }
+
+    await tokenModel.updateOne(
+      { doctor: doctor._id },
+      {
+        $pull: {
+          tokens: {
+            date: { $lt: deleteBefore },
+          },
+        },
+      }
+    );
+
+    res.status(200).json({ result, isPastClosingTime });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching availability", error: error.message });
+  }
+};
+
+module.exports.getDoctorTokens = async (req, res) => {
+  try {
+    const doctorId = req.params.id;
+
+    const doctor = await doctorModel.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    // Fetch tokens for doctor
+    const tokenData = await tokenModel.findOne({ doctor: doctorId });
+    if (!tokenData || !tokenData.tokens) {
+      return res.status(200).json({});
+    }
+
+    const result = {};
+    const timezone = "Asia/Karachi";
+
+    tokenData.tokens.forEach((dayTokens, idx) => {
+      const dateKey = moment
+        .tz(dayTokens.date, timezone)
+        .utc()
+        .format("YYYY-MM-DD");
+      // console.log(idx);
+      result[dateKey] = dayTokens.tokenList.map((t) => ({
+        id: t._id,
+        tokenNumber: t.tokenNumber,
+        time: t.time,
+        displayTime: t.displayTime,
+        isBooked: t.isBooked || false,
+        isCurrentToken: t.isCurrentToken || false,
+      }));
+    });
+
+    // return res.status(200).json(tokenData);
+    return res.status(200).json(result);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching doctor tokens", error: err.message });
+  }
+};

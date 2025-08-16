@@ -31,7 +31,6 @@ const Login = () => {
       `${import.meta.env.VITE_BASE_URL}/${userType}s/login`,
       formData
     );
-    console.log(response);
     if (response.status == "200") {
       if (userType == "patient") {
         const token = response.data.token;

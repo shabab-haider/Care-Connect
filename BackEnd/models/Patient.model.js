@@ -6,30 +6,32 @@ const PatientSchema = mongoose.Schema({
   fullname: {
     type: String,
     required: true,
-    minlength: [3, "Firstname must be 3 characters long"],
+    minlength: [3, "Fullname must be at least 3 characters long"],
   },
   email: {
     type: String,
-    required: true,
+    minlength: [8, "Email must be at least 8 characters long"],
     unique: true,
-    minlength: [8, "email must be 8 character long"],
+    sparse: true, // Allows multiple null emails for offline patients
   },
   password: {
     type: String,
-    required: true,
-    minlength: [8, "password must be 8 character long"],
+    minlength: [8, "Password must be at least 8 characters long"],
     select: false,
   },
   dateOfBirth: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.isOffline; // Required only for online patients
+    },
   },
   gender: {
     type: String,
     enum: ["male", "female", "other", "prefer not to say"],
-    required: true,
+    required: function () {
+      return !this.isOffline;
+    },
   },
-
   phoneNumber: {
     type: Number,
     minlength: [10, "Phone number must be 10 digits"],
@@ -40,19 +42,27 @@ const PatientSchema = mongoose.Schema({
     default:
       "https://res.cloudinary.com/di9ljccil/image/upload/v1752328111/default-avatar-photo-placeholder-profile-icon-vector_nlejsr.jpg",
   },
+  isOffline: {
+    type: Boolean,
+    default: false, // true if added manually by doctor
+  },
 });
 
+// Generate token (only for online patients)
 PatientSchema.methods.genrateToken = function () {
+  if (this.isOffline) return null; // No token for offline patients
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: "24h",
   });
 };
 
+// Password hashing
 PatientSchema.statics.hashPassword = async function (password) {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
 };
 
+// Compare passwords
 PatientSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };

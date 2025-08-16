@@ -14,10 +14,10 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import LogoAndBack from "../../Components/LogoAndBack";
-import axios from 'axios'
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 const FindDoctor = () => {
-
   const [doctorsData, setDoctorsData] = useState([
     {
       _id: "1",
@@ -54,8 +54,8 @@ const FindDoctor = () => {
         `${import.meta.env.VITE_BASE_URL}/doctors/all`
       );
       setDoctorsData(response.data);
-    }
-    getDoctor()
+    };
+    getDoctor();
   }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,8 +81,6 @@ const FindDoctor = () => {
     "Surgery",
     "Other",
   ];
-
-  
 
   // Filter doctors based on search criteria
   const getFilteredDoctors = () => {
@@ -157,7 +155,7 @@ const FindDoctor = () => {
   };
 
   // Doctor details modal
-  const DoctorDetailsModal = ({ doctor, onClose, onBookAppointment }) => {
+  const DoctorDetailsModal = ({ doctor, onClose }) => {
     if (!doctor) return null;
 
     return (
@@ -189,7 +187,6 @@ const FindDoctor = () => {
                   <h3 className="text-2xl font-bold text-gray-900">
                     {doctor.fullName}
                   </h3>
-                  
                 </div>
                 <p className="text-blue-600 font-medium mb-2">
                   {doctor.professionalDetails.specialization}
@@ -201,7 +198,6 @@ const FindDoctor = () => {
                   Reg. No: {doctor.professionalDetails.registrationNumber}
                 </p>
                 <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
-                  
                   <div className="flex items-center text-gray-600">
                     <User className="h-4 w-4 mr-1" />
                     <span>
@@ -209,7 +205,6 @@ const FindDoctor = () => {
                     </span>
                   </div>
                 </div>
-                
               </div>
             </div>
 
@@ -290,24 +285,17 @@ const FindDoctor = () => {
 
             {/* Action Button */}
             <div className="pt-4">
-              <button
-                onClick={() => onBookAppointment(doctor)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+              <Link
+                to={`/appointment-booking/${doctor._id}`}
+                className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-60 rounded-lg font-medium transition-colors"
               >
                 Book Appointment
-              </button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
     );
-  };
-
-  const handleBookAppointment = (doctor) => {
-    alert(
-      `Booking appointment with ${doctor.fullName} - Replace with actual booking flow`
-    );
-    setSelectedDoctor(null);
   };
 
   return (
@@ -462,9 +450,9 @@ const FindDoctor = () => {
             {/* Results Header */}
             <div className="mb-6">
               <div className="flex items-center justify-between mt-2">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {filteredDoctors.length} Doctors Found
-              </h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {filteredDoctors.length} Doctors Found
+                </h2>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className="lg:hidden flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
@@ -530,9 +518,7 @@ const FindDoctor = () => {
 
                         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-sm mb-3">
                           <div className="font-medium">
-                            <span>
-                              Consultation fee:
-                            </span>
+                            <span>Consultation fee:</span>
                           </div>
                           <div className="text-green-600 font-medium">
                             <span>
@@ -578,15 +564,16 @@ const FindDoctor = () => {
                         >
                           View Profile
                         </button>
-                        <button
-                          onClick={() => handleBookAppointment(doctor)}
-                          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                        <Link
+                          to={`/appointment-booking/${doctor._id}`}
+                          className="bg-green-600 hover:bg-green-700 text-center text-white py-2 px-4 rounded-lg font-medium transition-colors"
                         >
                           Book Appointment
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
+                  
                 ))
               ) : (
                 <div className="text-center py-12">
@@ -614,7 +601,6 @@ const FindDoctor = () => {
       <DoctorDetailsModal
         doctor={selectedDoctor}
         onClose={() => setSelectedDoctor(null)}
-        onBookAppointment={handleBookAppointment}
       />
     </div>
   );

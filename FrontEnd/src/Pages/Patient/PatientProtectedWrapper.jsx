@@ -10,7 +10,7 @@ const PatientProtectedWrapper = ({ children }) => {
   const { patient, setpatient } = useContext(PatientDataContext);
   useEffect(() => {
     if (!token) {
-      navigate("/sign-in");
+      navigate("/login");
     } else {
       axios
         .get(`${import.meta.env.VITE_BASE_URL}/patients/dashboard`, {
@@ -22,7 +22,7 @@ const PatientProtectedWrapper = ({ children }) => {
           setLoading(false);
         })
         .catch((err) => {
-          navigate("/sign-in");
+          navigate("/login");
         });
     }
   }, [token]);
