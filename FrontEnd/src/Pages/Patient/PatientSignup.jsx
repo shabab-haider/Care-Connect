@@ -1,4 +1,3 @@
-
 import { useContext, useState } from "react";
 import {
   Eye,
@@ -61,7 +60,7 @@ const PatientSignup = () => {
       `${import.meta.env.VITE_BASE_URL}/patients/register`,
       payload
     );
-    if (response.status == "200") {
+    if (response.status == "201") {
       const token = response.data.token;
       localStorage.setItem("token", token);
       const patientDetails = response.data.patient;

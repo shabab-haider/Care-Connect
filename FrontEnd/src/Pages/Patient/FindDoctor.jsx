@@ -69,17 +69,18 @@ const FindDoctor = () => {
 
   // Doctor specializations
   const specializations = [
-    "Cardiology",
-    "Dermatology",
-    "Endocrinology",
-    "Gastroenterology",
-    "Neurology",
-    "Obstetrics & Gynecology",
-    "Oncology",
-    "Pediatrics",
-    "Psychiatry",
-    "Surgery",
-    "Other",
+    "General Physician",
+    "Cardiologist",
+    "Dermatologist",
+    "Orthopedist",
+    "Ophthalmologist",
+    "ENT Specialist",
+    "Gastroenterologist",
+    "Psychiatrist",
+    "Gynecologist",
+    "Pediatrician",
+    "Neurologist",
+    "Urologist",
   ];
 
   // Filter doctors based on search criteria
@@ -573,7 +574,6 @@ const FindDoctor = () => {
                       </div>
                     </div>
                   </div>
-                  
                 ))
               ) : (
                 <div className="text-center py-12">

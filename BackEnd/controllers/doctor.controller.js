@@ -218,64 +218,48 @@ module.exports.getDoctorAvailabilityNext7Days = async (req, res) => {
     }
 
     const availableDays = doctor.clinicInfo.availableDays;
+    const today = moment.tz("Asia/Karachi").startOf("day");
+    const currentTime = moment.tz("Asia/Karachi");
     const closingTime = moment.tz(
       doctor.clinicInfo.clinicCloseTime,
       "HH:mm",
       "Asia/Karachi"
     );
-
-    const today = moment.tz("Asia/Karachi").startOf("day");
-
-    const currentTime = moment.tz("Asia/Karachi");
-
     const isPastClosingTime = currentTime.isAfter(closingTime);
     const startDay = isPastClosingTime ? today.add(1, "days") : today;
-    //may be error
 
-    const deleteBefore = moment
-      .tz("Asia/Karachi")
-      .startOf("day")
-      .format("YYYY-MM-DDTHH:mm:ss.SSS[+00:00]");
     // Remove past days & their tokens from DB
     await tokenModel.updateOne(
       { doctor: doctor._id },
       {
         $pull: {
           tokens: {
-            date: { $lt: deleteBefore },
+            date: { $lt: today.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]") },
           },
         },
       }
     );
+
     const result = [];
 
     // Add next 7 days
     for (let i = 0; i < 7; i++) {
       const date = moment.tz(startDay, "Asia/Karachi").add(i, "days");
       const dayName = date.format("dddd");
+      const isToday = date.isSame(today, "day");
+
       if (availableDays.includes(dayName)) {
-        // Create tokens if not already in DB
+        // Generate tokens if not already in DB
         await generateTokensForDate(doctor, date);
 
         result.push({
           date: date.format("YYYY-MM-DD"),
           displayDate: date.format("ddd, MMM DD"),
           dayName,
-          isToday: i === 0 && !isPastClosingTime,
+          isToday,
         });
       }
     }
-
-    await tokenModel.updateOne(
-      { doctor: doctor._id },
-      {
-        $pull: {
-          tokens: {
-            date: { $lt: deleteBefore },
-          },
-        },
-      }
-    );
 
     res.status(200).json({ result, isPastClosingTime });
   } catch (error) {
@@ -303,23 +287,19 @@ module.exports.getDoctorTokens = async (req, res) => {
     const result = {};
     const timezone = "Asia/Karachi";
 
-    tokenData.tokens.forEach((dayTokens, idx) => {
-      const dateKey = moment
-        .tz(dayTokens.date, timezone)
-        .utc()
-        .format("YYYY-MM-DD");
-      // console.log(idx);
+    tokenData.tokens.forEach((dayTokens) => {
+      const dateKey = moment.tz(dayTokens.date, timezone).format("YYYY-MM-DD");
       result[dateKey] = dayTokens.tokenList.map((t) => ({
         id: t._id,
         tokenNumber: t.tokenNumber,
-        time: t.time,
-        displayTime: t.displayTime,
+        // Convert time from UTC to local time
+        time: moment.utc(t.time, "HH:mm").tz(timezone).format("HH:mm"), // Convert to local time
+        displayTime: moment.utc(t.time, "HH:mm").tz(timezone).format("h:mm A"), // Display in local format
         isBooked: t.isBooked || false,
         isCurrentToken: t.isCurrentToken || false,
       }));
     });
 
-    // return res.status(200).json(tokenData);
     return res.status(200).json(result);
   } catch (err) {
     res

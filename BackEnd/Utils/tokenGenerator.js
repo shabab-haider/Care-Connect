@@ -7,14 +7,14 @@ const tokenModel = require("../models/token.model");
  */
 async function generateTokensForDate(doctor, date) {
   const timezone = "Asia/Karachi";
+  const dateStart = moment.tz(date, timezone).startOf("day").utc().format(); // Store in UTC
 
-  const dateStart = moment.tz(date, timezone).startOf("day").format();
   // Check if tokens already exist for this date
-  // const chkdate = moment.tz(date, timezone).startOf("day").utc().format();
   const existing = await tokenModel.findOne({
     doctor: doctor._id,
     "tokens.date": dateStart,
   });
+
   if (existing) {
     return; // Already exists -> don't regenerate
   }
@@ -24,17 +24,16 @@ async function generateTokensForDate(doctor, date) {
     "HH:mm",
     timezone
   );
-
   const tokenList = [];
 
-  for (let i = 0; i <= doctor.clinicInfo.appointmentsPerDay; i++) {
+  for (let i = 0; i < doctor.clinicInfo.appointmentsPerDay; i++) {
     const tokenTime = moment
       .tz(startTime, timezone)
       .add(i * doctor.professionalDetails.avgAppointmentTime, "minutes");
     tokenList.push({
       tokenNumber: `A-${String(i + 1).padStart(2, "0")}`,
-      time: tokenTime.format("HH:mm"),
-      displayTime: tokenTime.format("h:mm A"),
+      time: tokenTime.utc().format("HH:mm"), // Store time in UTC
+      displayTime: tokenTime.format("h:mm A"), // Display in local timezone
       isBooked: false,
       isCurrentToken: false,
       patientId: null,

@@ -158,7 +158,7 @@ const AppointmentBooking = () => {
         `${import.meta.env.VITE_BASE_URL}/doctors/${id}/tokens`
       );
       if (response.status == "200") {
-        // console.log(response.data);
+        console.log(response.data);
         setAvailableSlots(response.data);
       }
     };
@@ -169,12 +169,11 @@ const AppointmentBooking = () => {
 
   const handleSubmit = async (e) => {
     console.log(selectedDate);
-    const Date = convertDate(selectedDate);
     e.preventDefault();
     console.log({
       doctorId: id,
       patientId: patient._id,
-      Date,
+      selectedDate,
       selectedToken,
     });
     // API call to send appointment request
@@ -183,7 +182,7 @@ const AppointmentBooking = () => {
       {
         doctorId: id,
         patientId: patient._id,
-        Date,
+        selectedDate,
         selectedToken,
       }
     );
