@@ -3,6 +3,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const PatientSchema = mongoose.Schema({
+  isOffline: {
+    type: Boolean,
+    default: false, // true if added manually by doctor
+  },
   fullname: {
     type: String,
     required: true,
@@ -11,7 +15,7 @@ const PatientSchema = mongoose.Schema({
   email: {
     type: String,
     minlength: [8, "Email must be at least 8 characters long"],
-    unique: true,
+    unique: true, // Keep it unique
     sparse: true, // Allows multiple null emails for offline patients
   },
   password: {
@@ -41,10 +45,6 @@ const PatientSchema = mongoose.Schema({
     type: String,
     default:
       "https://res.cloudinary.com/di9ljccil/image/upload/v1752328111/default-avatar-photo-placeholder-profile-icon-vector_nlejsr.jpg",
-  },
-  isOffline: {
-    type: Boolean,
-    default: false, // true if added manually by doctor
   },
 });
 

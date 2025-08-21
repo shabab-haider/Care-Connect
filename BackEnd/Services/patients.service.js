@@ -7,17 +7,16 @@ module.exports.CreatePatient = async ({
   dateOfBirth,
   gender,
   phoneNumber,
-  profileImage,
   isOffline = false,
 }) => {
   // Validation: fullname & phone are always required
-  if (!fullname || !phoneNumber) {
-    throw new Error("Fullname and phone number are required");
+  if (!fullname || !phoneNumber || !gender) {
+    throw new Error("Fullname, gender and phone number are required");
   }
 
   // Extra validation for online patients
   if (!isOffline) {
-    if (!email || !password || !dateOfBirth || !gender) {
+    if (!email || !password || !dateOfBirth) {
       throw new Error(
         "All required fields must be provided for online patients"
       );
@@ -25,16 +24,22 @@ module.exports.CreatePatient = async ({
   }
 
   // Create patient record
-  const patient = await PatientModel.create({
+  const patientData = {
     fullname,
-    email: isOffline ? null : email,
-    password: isOffline ? null : password,
-    dateOfBirth: isOffline ? null : dateOfBirth,
-    gender: isOffline ? null : gender,
+    gender,
     phoneNumber,
-    profileImage,
     isOffline,
-  });
+  };
 
+  // Add additional fields only if the patient is online
+  if (!isOffline) {
+    patientData.email = email;
+    patientData.password = password;
+    patientData.dateOfBirth = dateOfBirth;
+  }
+
+  const patient = await PatientModel.create(patientData);
   return patient;
 };
+
+

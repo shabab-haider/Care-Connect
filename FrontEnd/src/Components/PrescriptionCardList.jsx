@@ -15,7 +15,7 @@ const PrescriptionCardList = ({ prescriptions }) => {
                 {prescription.doctorName}
               </h2>
               <p className="text-sm text-gray-600">
-                Valid: {prescription.validTill}
+                Valid: {prescription.validity}
               </p>
             </div>
           </div>

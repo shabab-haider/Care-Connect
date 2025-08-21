@@ -10,14 +10,26 @@ const BackButton = () => {
     if (current == "/login") {
       navigate("/");
     }
-    if (lastRoute == "/logout") {
+    if (current == "/patient-signup") {
       navigate("/");
-    } else if (lastRoute && lastRoute !== current) {
-      navigate(lastRoute);
-    } else if (lastRoute == current) {
+    }
+    if (current == "/doctor-signup") {
       navigate("/");
-    } else {
-      window.history.length > 1 ? navigate(-1) : navigate("/"); // 🔄 Fallback
+    }
+    if (/^\/appointment-booking\/[a-f0-9]{24}$/.test(current)) {
+      navigate("/find-doctor");
+    }
+    if (current == "/find-doctor") {
+      navigate("/patient-dashboard");
+    }
+    if (current == "/patient-appointment-history") {
+      navigate("/patient-dashboard");
+    }
+    if (current == "/appointment-requests") {
+      navigate("/doctor-dashboard");
+    }
+    if (current == "/doctor-appointment-history") {
+      navigate("/doctor-dashboard");
     }
   };
 

@@ -2,13 +2,9 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 
 import HomePage from "./Pages/HomePage";
-import PatientProfileSetup from "./Pages/Patient/ProfileSetup";
-import DoctorProfileSetup from "./Pages/Doctor/DoctorProfileSetup";
 import PatientDashboard from "./Pages/Patient/PatientDashboard";
 import DoctorDashboard from "./Pages/Doctor/DoctorDashboard";
 
-import PatientProfileProtectedWrapper from "./Pages/Patient/ProfileProtectedWrapper";
-import DoctorProfileProtectedWrapper from "./Pages/Doctor/ProfileProtectedWrapper";
 import PatientProtectedWrapper from "./Pages/Patient/PatientProtectedWrapper";
 import DoctorProtectedWrapper from "./Pages/Doctor/DoctorProtectedWrapper";
 import Logout from "./Pages/Logout";
@@ -18,6 +14,10 @@ import DoctorSignup from "./Pages/Doctor/DoctorSignup";
 import FindDoctor from "./Pages/Patient/FindDoctor";
 import AppointmentBooking from "./Pages/Patient/AppointmentBooking";
 import DoctorPendingRequests from "./Pages/Doctor/DoctorPendingRequests";
+import ConsultationForm from "./Pages/Doctor/ConsultationForm";
+import PatientAppointments from "./Pages/Patient/patientAppointments";
+import DoctorAppointments from "./Pages/Doctor/DoctorAppointments";
+import DoctorProfile from "./Pages/Doctor/DoctorProfile";
 
 const App = () => {
   return (
@@ -30,15 +30,7 @@ const App = () => {
         <Route path="/doctor-signup" element={<DoctorSignup />} />
         {/* Patient Routes */}
         <Route
-          path="Patient-Profile-Setup"
-          element={
-            <PatientProfileProtectedWrapper>
-              <PatientProfileSetup />
-            </PatientProfileProtectedWrapper>
-          }
-        />
-        <Route
-          path="patient-dashboard"
+          path="/patient-dashboard"
           element={
             <PatientProtectedWrapper>
               <PatientDashboard />
@@ -48,13 +40,17 @@ const App = () => {
 
         <Route path="/find-doctor" element={<FindDoctor />} />
         <Route
+          path="/patient-appointment-history"
+          element={<PatientAppointments />}
+        />
+        <Route
           path="/appointment-booking/:id"
           element={<AppointmentBooking />}
         />
 
         {/* Doctor Routes */}
         <Route
-          path="doctor-dashboard"
+          path="/doctor-dashboard"
           element={
             <DoctorProtectedWrapper>
               <DoctorDashboard />
@@ -62,17 +58,15 @@ const App = () => {
           }
         />
         <Route
-          path="doctor-Profile-Setup"
-          element={
-            <DoctorProfileProtectedWrapper>
-              <DoctorProfileSetup />
-            </DoctorProfileProtectedWrapper>
-          }
-        />
-        <Route
-          path="/pending-appointments"
+          path="/appointment-requests"
           element={<DoctorPendingRequests />}
         />
+        <Route
+          path="/doctor-appointment-history"
+          element={<DoctorAppointments />}
+        />
+        <Route path="/consultation" element={<ConsultationForm />} />
+        <Route path="/doctor-profile" element={<DoctorProfile />} />
       </Routes>
     </>
   );

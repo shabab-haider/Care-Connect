@@ -1,15 +1,7 @@
+"use client";
+
 import { useContext, useState } from "react";
-import {
-  Eye,
-  EyeOff,
-  User,
-  Mail,
-  Lock,
-  Phone,
-  Calendar,
-  Heart,
-  ArrowLeft,
-} from "lucide-react";
+import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar } from "lucide-react";
 import LogoAndBack from "../../Components/LogoAndBack";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -100,11 +92,21 @@ const PatientSignup = () => {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="First name"
+                    minLength={3}
                     required
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                      formData.firstName && formData.firstName.length < 3
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
+                    placeholder="First name"
                   />
                 </div>
+                {formData.firstName && formData.firstName.length < 3 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    First name must be at least 3 characters long
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,11 +119,21 @@ const PatientSignup = () => {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Last name"
+                    minLength={3}
                     required
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                      formData.lastName && formData.lastName.length < 3
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
+                    placeholder="Last name"
                   />
                 </div>
+                {formData.lastName && formData.lastName.length < 3 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Last name must be at least 3 characters long
+                  </p>
+                )}
               </div>
             </div>
 
@@ -137,11 +149,20 @@ const PatientSignup = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Enter your email"
                   required
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                    formData.email && !formData.email.includes("@")
+                      ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  }`}
+                  placeholder="Enter your email"
                 />
               </div>
+              {formData.email && !formData.email.includes("@") && (
+                <p className="text-red-500 text-sm mt-1">
+                  Please enter a valid email address
+                </p>
+              )}
             </div>
 
             {/* Phone */}
@@ -156,11 +177,21 @@ const PatientSignup = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Enter your phone number"
+                  minLength={10}
                   required
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                    formData.phone && formData.phone.length < 10
+                      ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  }`}
+                  placeholder="Enter your phone number"
                 />
               </div>
+              {formData.phone && formData.phone.length < 10 && (
+                <p className="text-red-500 text-sm mt-1">
+                  Phone number must be at least 10 digits
+                </p>
+              )}
             </div>
 
             {/* Date of Birth & Gender */}
@@ -176,10 +207,22 @@ const PatientSignup = () => {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     required
+                    max={new Date().toISOString().split("T")[0]}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                      formData.dateOfBirth &&
+                      new Date(formData.dateOfBirth) > new Date()
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
                   />
                 </div>
+                {formData.dateOfBirth &&
+                  new Date(formData.dateOfBirth) > new Date() && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Date of birth cannot be in the future
+                    </p>
+                  )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,8 +232,8 @@ const PatientSignup = () => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleInputChange}
-                  className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   required
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -212,9 +255,14 @@ const PatientSignup = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Create a password"
+                  minLength={8}
                   required
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                    formData.password && formData.password.length < 8
+                      ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  }`}
+                  placeholder="Create a password"
                 />
                 <button
                   type="button"
@@ -228,6 +276,11 @@ const PatientSignup = () => {
                   )}
                 </button>
               </div>
+              {formData.password && formData.password.length < 8 && (
+                <p className="text-red-500 text-sm mt-1">
+                  Password must be at least 8 characters long
+                </p>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -242,9 +295,14 @@ const PatientSignup = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Confirm your password"
                   required
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                    formData.confirmPassword &&
+                    formData.confirmPassword !== formData.password
+                      ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  }`}
+                  placeholder="Confirm your password"
                 />
                 <button
                   type="button"
@@ -258,6 +316,12 @@ const PatientSignup = () => {
                   )}
                 </button>
               </div>
+              {formData.confirmPassword &&
+                formData.confirmPassword !== formData.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Passwords do not match
+                  </p>
+                )}
             </div>
 
             {/* Submit Button */}

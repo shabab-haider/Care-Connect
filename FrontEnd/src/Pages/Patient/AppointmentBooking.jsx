@@ -15,12 +15,14 @@ import axios from "axios";
 import { PatientDataContext } from "../../Context/PatientContext";
 import { convertDate } from "../../Utils/dateUtils";
 import { isCurrentTimeGreater } from "../../Utils/timeComparison";
+import { getAppointmentNumber } from "../../Utils/getAppointmentNumber";
 const AppointmentBooking = () => {
   const { id } = useParams();
   const [selectedDate, setSelectedDate] = useState("");
   const [isTodayClosed, setIsTodayClosed] = useState(false);
   const [today, setToday] = useState(false);
   const [selectedToken, setSelectedToken] = useState("");
+  const [selectedTokenNumber, setSelectedTokenNumber] = useState("");
   const { patient, setPatient } = useContext(PatientDataContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -168,13 +170,15 @@ const AppointmentBooking = () => {
   const currentSlots = selectedDate ? availableSlots[selectedDate] || [] : [];
 
   const handleSubmit = async (e) => {
-    console.log(selectedDate);
+    const appointmentNo = getAppointmentNumber(selectedTokenNumber);
+    console.log(appointmentNo);
     e.preventDefault();
     console.log({
       doctorId: id,
       patientId: patient._id,
       selectedDate,
       selectedToken,
+      appointmentNo,
     });
     // API call to send appointment request
     const response = await axios.post(
@@ -184,6 +188,7 @@ const AppointmentBooking = () => {
         patientId: patient._id,
         selectedDate,
         selectedToken,
+        appointmentNo,
       }
     );
     if (response.status == "201") {
@@ -304,7 +309,7 @@ const AppointmentBooking = () => {
                 </div>
                 <div className="flex items-center text-purple-600 font-medium">
                   <span>
-                    ₹{doctor.professionalDetails.consultationFee} consultation
+                    (PKR){doctor.professionalDetails.consultationFee} consultation
                   </span>
                 </div>
               </div>
@@ -374,8 +379,8 @@ const AppointmentBooking = () => {
                   key={dateObj.date}
                   onClick={() => {
                     setToday(dateObj.isToday);
-                    console.log("Today :", today);
                     setSelectedDate(dateObj.date);
+                    console.log("Today :", today);
                   }}
                   className={`p-3 rounded-lg border-2 transition-all text-center ${
                     selectedDate === dateObj.date
@@ -408,7 +413,7 @@ const AppointmentBooking = () => {
                     key={slot.tokenNumber}
                     onClick={() => {
                       setSelectedToken(slot.id);
-                      console.log(slot);
+                      setSelectedTokenNumber(slot.tokenNumber);
                     }}
                     disabled={
                       slot.isBooked || isCurrentTimeGreater(slot.time, today)
@@ -485,7 +490,7 @@ const AppointmentBooking = () => {
               </div>
               <div className="mt-3 pt-3 border-t border-blue-200">
                 <p className="text-lg font-semibold text-blue-900">
-                  <strong>Consultation Fee:</strong> ₹
+                  <strong>Consultation Fee:</strong> (PKR)
                   {doctor.professionalDetails.consultationFee}
                 </p>
               </div>

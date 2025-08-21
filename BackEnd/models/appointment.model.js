@@ -11,9 +11,15 @@ const appointmentSchema = new mongoose.Schema({
     ref: "Patient",
     required: true,
   },
-  tokenId: {
+  appointmentNo: {
+    type: Number,
+    required: true,
+  },
+  // Reference to the _id of object inside tokenList array of tokens collection
+  token: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true, // The _id of the token object from Tokens model
+    ref: "Tokens.tokenList", // Reference to the id of object inside tokenList array
+    required: true,
   },
   date: {
     type: String, // "YYYY-MM-DD" - store for quick lookups
@@ -21,7 +27,7 @@ const appointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["booked", "pending", "completed", "cancelled"],
+    enum: ["booked", "pending", "completed",  "no_show"],
     default: "pending",
   },
 });

@@ -16,6 +16,7 @@ import {
 import LogoAndBack from "../../Components/LogoAndBack";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Header from "../../Components/Header";
 
 const FindDoctor = () => {
   const [doctorsData, setDoctorsData] = useState([
@@ -53,6 +54,7 @@ const FindDoctor = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/doctors/all`
       );
+      console.log(response.data);
       setDoctorsData(response.data);
     };
     getDoctor();
@@ -61,7 +63,6 @@ const FindDoctor = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
   const [cityFilter, setCityFilter] = useState("");
-  const [selectedAvailability, setSelectedAvailability] = useState("");
   const [minFee, setMinFee] = useState("");
   const [maxFee, setMaxFee] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -120,12 +121,6 @@ const FindDoctor = () => {
       });
     }
 
-    // Availability filter
-    if (selectedAvailability) {
-      filtered = filtered.filter((doctor) => {
-        return doctor.availability === selectedAvailability;
-      });
-    }
 
     // Fee filter
     if (minFee) {
@@ -150,7 +145,6 @@ const FindDoctor = () => {
     setSearchQuery("");
     setSelectedSpecialization("");
     setCityFilter("");
-    setSelectedAvailability("");
     setMinFee("");
     setMaxFee("");
   };
@@ -254,7 +248,7 @@ const FindDoctor = () => {
                   <div className="flex items-center">
                     <DollarSign className="h-4 w-4 text-gray-500 mr-2" />
                     <span>
-                      ₹{doctor.professionalDetails.consultationFee} consultation
+                      (PKR){doctor.professionalDetails.consultationFee} consultation
                       fee
                     </span>
                   </div>
@@ -302,9 +296,7 @@ const FindDoctor = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="px-6 py-2 bg-white shadow-sm border-b sticky top-0 z-40">
-        <LogoAndBack />
-      </div>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
@@ -380,23 +372,6 @@ const FindDoctor = () => {
                   </div>
                 </div>
 
-                {/* Availability */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Availability
-                  </label>
-                  <select
-                    value={selectedAvailability}
-                    onChange={(e) => setSelectedAvailability(e.target.value)}
-                    className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">Any Time</option>
-                    <option value="Today">Today</option>
-                    <option value="Tomorrow">Tomorrow</option>
-                    <option value="Next Week">Next Week</option>
-                  </select>
-                </div>
-
                 {/* Fee Range */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -405,7 +380,7 @@ const FindDoctor = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">
-                        Min Fee (Rs)
+                        Min Fee (PKR)
                       </label>
                       <input
                         type="number"
@@ -418,7 +393,7 @@ const FindDoctor = () => {
                     </div>
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">
-                        Max Fee (Rs)
+                        Max Fee (PKR)
                       </label>
                       <input
                         type="number"
@@ -433,11 +408,11 @@ const FindDoctor = () => {
                   {(minFee || maxFee) && (
                     <p className="text-xs text-gray-500 mt-1">
                       {minFee && maxFee
-                        ? `₹${minFee} - ₹${maxFee}`
+                        ? `(PKR)${minFee} - (PKR)${maxFee}`
                         : minFee
-                        ? `₹${minFee}+`
+                        ? `(PKR)${minFee}+`
                         : maxFee
-                        ? `Up to ₹${maxFee}`
+                        ? `Up to (PKR)${maxFee}`
                         : ""}
                     </p>
                   )}

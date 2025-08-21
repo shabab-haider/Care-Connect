@@ -6,8 +6,3 @@ export function isCurrentTimeGreater(time, today) {
 
   return today && currentTime.isAfter(givenTime); // Compare times
 }
-
-// Example usage
-const timeToCompare = "15:30";
-const result = isCurrentTimeGreater(timeToCompare);
-console.log(result); // true or false

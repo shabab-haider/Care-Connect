@@ -48,4 +48,15 @@ router.get(
   PatientController.getPatientDashboard
 );
 
+router.get(
+  "/upcomingAppointments",
+  authMiddleware.PatientAuth,
+  PatientController.getUpcomingAppointments
+);
+router.get(
+  "/recentAppointments",
+  authMiddleware.PatientAuth,
+  PatientController.getRecentAppointments
+);
+
 module.exports = router;

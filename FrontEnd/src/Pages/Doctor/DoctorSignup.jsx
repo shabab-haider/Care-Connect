@@ -1,3 +1,5 @@
+"use client";
+
 import { useContext, useEffect, useState } from "react";
 import {
   Eye,
@@ -55,6 +57,8 @@ const DoctorSignup = () => {
     avgAppointmentTime: "",
   });
 
+  //Calculate maximum appointments per day
+
   useEffect(() => {
     if (
       formData.clinicOpenTime &&
@@ -98,188 +102,66 @@ const DoctorSignup = () => {
     "Sunday",
   ];
 
-  // Field validation rules
-  const fieldRules = {
-    firstName: {
-      required: true,
-      minLength: 3,
-      message: "First name must be at least 3 characters long",
-    },
-    lastName: {
-      required: true,
-      minLength: 3,
-      message: "Last name must be at least 3 characters long",
-    },
-    email: {
-      required: true,
-      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      message: "Please enter a valid email address",
-    },
-    phone: {
-      required: true,
-      minLength: 10,
-      message: "Phone number must be at least 10 digits",
-    },
-    password: {
-      required: true,
-      minLength: 8,
-      message: "Password must be at least 8 characters long",
-    },
-    confirmPassword: {
-      required: true,
-      match: "password",
-      message: "Passwords do not match",
-    },
-    specialization: {
-      required: true,
-      message: "Please select a specialization",
-    },
-    experience: {
-      required: true,
-      min: 1,
-      message: "Experience must be at least 1 year",
-    },
-    qualification: {
-      required: true,
-      minLength: 2,
-      message: "Qualification must be at least 2 characters long",
-    },
-    registrationNumber: {
-      required: true,
-      minLength: 5,
-      message: "Registration number must be at least 5 characters long",
-    },
-    clinicName: {
-      required: true,
-      minLength: 3,
-      message: "Clinic name must be at least 3 characters long",
-    },
-    about: {
-      required: true,
-      minLength: 10,
-      message: "About section must be at least 10 characters long",
-    },
-    address: {
-      required: true,
-      minLength: 10,
-      message: "Address must be at least 10 characters long",
-    },
-    city: {
-      required: true,
-      minLength: 2,
-      message: "City name must be at least 2 characters long",
-    },
-    state: {
-      required: true,
-      minLength: 2,
-      message: "State name must be at least 2 characters long",
-    },
-    pincode: {
-      required: true,
-      exactLength: 5,
-      message: "Pincode must be exactly 6 digits",
-    },
-    consultationFee: {
-      required: true,
-      minLength: 1,
-      message: "Consultation fee is required",
-    },
-    clinicOpenTime: { required: true, message: "Please select opening time" },
-    clinicCloseTime: { required: true, message: "Please select closing time" },
-    avgAppointmentTime: {
-      required: true,
-      min: 5,
-      message: "Appointment time must be at least 5 minutes",
-    },
-  };
-
-  // Check if field is valid
-  const isFieldValid = (fieldName, value) => {
-    const rules = fieldRules[fieldName];
-    if (!rules) return true;
-
-    if (rules.required && (!value || value === "")) return false;
-    if (rules.minLength && value.length < rules.minLength) return false;
-    if (rules.exactLength && value.length !== rules.exactLength) return false;
-    if (rules.min && Number(value) < rules.min) return false;
-    if (rules.pattern && !rules.pattern.test(value)) return false;
-    if (rules.match && value !== formData[rules.match]) return false;
-
-    return true;
-  };
-
-  // Get error message for field
-  const getFieldError = (fieldName, value) => {
-    const rules = fieldRules[fieldName];
-    if (!rules) return "";
-
-    if (!isFieldValid(fieldName, value)) {
-      return rules.message;
-    }
-    return "";
-  };
-
-  // Get input styling based on validation
-  const getInputStyling = (
-    fieldName,
-    value,
-    hasIcon = false,
-    isPassword = false
-  ) =>
-  {
-    const baseClass = hasIcon
-      ? "w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors"
-      : "w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors";
-
-    const passwordClass = isPassword
-      ? "w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 transition-colors"
-      : baseClass;
-
-    const finalBaseClass = isPassword ? passwordClass : baseClass;
-
-    if (value && !isFieldValid(fieldName, value)) {
-      return `${finalBaseClass} border-red-500 focus:ring-red-500 focus:border-red-500`;
-    }
-    return `${finalBaseClass} border-gray-300 focus:ring-blue-500 focus:border-blue-500`;
-  };
-
   // Check if current step has any invalid fields
   const hasStepErrors = () => {
-    let stepFields = [];
-
     if (currentStep === 1) {
-      stepFields = [
-        "firstName",
-        "lastName",
-        "email",
-        "phone",
-        "password",
-        "confirmPassword",
-      ];
-    } else if (currentStep === 2) {
-      stepFields = [
-        "specialization",
-        "experience",
-        "qualification",
-        "registrationNumber",
-        "clinicName",
-        "about",
-        "address",
-        "city",
-        "state",
-        "pincode",
-        "consultationFee",
-      ];
-    } else if (currentStep === 3) {
-      stepFields = ["clinicOpenTime", "clinicCloseTime", "avgAppointmentTime"];
-      // Check available days separately
-      if (formData.availableDays.length === 0) return true;
+      return (
+        formData.firstName.length < 3 ||
+        formData.lastName.length < 3 ||
+        !formData.email.includes("@") ||
+        formData.phone.length < 10 ||
+        formData.password.length < 8 ||
+        formData.confirmPassword !== formData.password ||
+        !formData.firstName ||
+        !formData.lastName ||
+        !formData.email ||
+        !formData.phone ||
+        !formData.password ||
+        !formData.confirmPassword
+      );
     }
 
-    return stepFields.some((field) => !isFieldValid(field, formData[field]));
+    if (currentStep === 2) {
+      return (
+        !formData.specialization ||
+        formData.experience < 1 ||
+        formData.qualification.length < 2 ||
+        formData.registrationNumber.length < 5 ||
+        formData.clinicName.length < 3 ||
+        formData.about.length < 10 ||
+        formData.address.length < 10 ||
+        formData.city.length < 2 ||
+        formData.state.length < 2 ||
+        formData.pincode.length !== 5 ||
+        formData.consultationFee < 100 ||
+        !formData.experience ||
+        !formData.qualification ||
+        !formData.registrationNumber ||
+        !formData.clinicName ||
+        !formData.about ||
+        !formData.address ||
+        !formData.city ||
+        !formData.state ||
+        !formData.pincode ||
+        !formData.consultationFee
+      );
+    }
+
+    if (currentStep === 3) {
+      return (
+        formData.availableDays.length === 0 ||
+        !formData.clinicOpenTime ||
+        !formData.clinicCloseTime ||
+        formData.avgAppointmentTime < 5 ||
+        !formData.avgAppointmentTime
+      );
+    }
+
+    return false;
   };
 
   const handleInputChange = (e) => {
+    //recive values from event.target
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
@@ -414,21 +296,21 @@ const DoctorSignup = () => {
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "firstName",
-                          formData.firstName,
-                          true
-                        )}
-                        placeholder="First name"
+                        minLength={3}
                         required
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.firstName && formData.firstName.length < 3
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="First name"
                       />
                     </div>
-                    {formData.firstName &&
-                      !isFieldValid("firstName", formData.firstName) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("firstName", formData.firstName)}
-                        </p>
-                      )}
+                    {formData.firstName && formData.firstName.length < 3 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        First name must be at least 3 characters long
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -441,21 +323,21 @@ const DoctorSignup = () => {
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "lastName",
-                          formData.lastName,
-                          true
-                        )}
-                        placeholder="Last name"
+                        minLength={3}
                         required
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.lastName && formData.lastName.length < 3
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="Last name"
                       />
                     </div>
-                    {formData.lastName &&
-                      !isFieldValid("lastName", formData.lastName) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("lastName", formData.lastName)}
-                        </p>
-                      )}
+                    {formData.lastName && formData.lastName.length < 3 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Last name must be at least 3 characters long
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -472,21 +354,20 @@ const DoctorSignup = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "email",
-                          formData.email,
-                          true
-                        )}
-                        placeholder="Enter your email"
                         required
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.email && !formData.email.includes("@")
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="Enter your email"
                       />
                     </div>
-                    {formData.email &&
-                      !isFieldValid("email", formData.email) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("email", formData.email)}
-                        </p>
-                      )}
+                    {formData.email && !formData.email.includes("@") && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Please enter a valid email address
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -499,21 +380,21 @@ const DoctorSignup = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "phone",
-                          formData.phone,
-                          true
-                        )}
-                        placeholder="Enter your phone number"
+                        minLength={10}
                         required
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.phone && formData.phone.length < 10
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="Enter your phone number"
                       />
                     </div>
-                    {formData.phone &&
-                      !isFieldValid("phone", formData.phone) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("phone", formData.phone)}
-                        </p>
-                      )}
+                    {formData.phone && formData.phone.length < 10 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Phone number must be at least 10 digits
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -530,14 +411,14 @@ const DoctorSignup = () => {
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "password",
-                          formData.password,
-                          false,
-                          true
-                        )}
-                        placeholder="Create a password"
+                        minLength={8}
                         required
+                        className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.password && formData.password.length < 8
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="Create a password"
                       />
                       <button
                         type="button"
@@ -551,12 +432,11 @@ const DoctorSignup = () => {
                         )}
                       </button>
                     </div>
-                    {formData.password &&
-                      !isFieldValid("password", formData.password) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("password", formData.password)}
-                        </p>
-                      )}
+                    {formData.password && formData.password.length < 8 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Password must be at least 8 characters long
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -569,14 +449,14 @@ const DoctorSignup = () => {
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "confirmPassword",
-                          formData.confirmPassword,
-                          false,
-                          true
-                        )}
-                        placeholder="Confirm your password"
                         required
+                        className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.confirmPassword &&
+                          formData.confirmPassword !== formData.password
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="Confirm your password"
                       />
                       <button
                         type="button"
@@ -593,15 +473,9 @@ const DoctorSignup = () => {
                       </button>
                     </div>
                     {formData.confirmPassword &&
-                      !isFieldValid(
-                        "confirmPassword",
-                        formData.confirmPassword
-                      ) && (
+                      formData.confirmPassword !== formData.password && (
                         <p className="text-red-500 text-sm mt-1">
-                          {getFieldError(
-                            "confirmPassword",
-                            formData.confirmPassword
-                          )}
+                          Passwords do not match
                         </p>
                       )}
                   </div>
@@ -628,12 +502,8 @@ const DoctorSignup = () => {
                         name="specialization"
                         value={formData.specialization}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "specialization",
-                          formData.specialization,
-                          true
-                        )}
                         required
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       >
                         <option value="">Select specialization</option>
                         {specializations.map((spec) => (
@@ -643,18 +513,6 @@ const DoctorSignup = () => {
                         ))}
                       </select>
                     </div>
-                    {formData.specialization &&
-                      !isFieldValid(
-                        "specialization",
-                        formData.specialization
-                      ) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError(
-                            "specialization",
-                            formData.specialization
-                          )}
-                        </p>
-                      )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -665,20 +523,20 @@ const DoctorSignup = () => {
                       name="experience"
                       value={formData.experience}
                       onChange={handleInputChange}
-                      className={getInputStyling(
-                        "experience",
-                        formData.experience
-                      )}
-                      placeholder="Years of experience"
-                      min="1"
+                      min={1}
                       required
+                      className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.experience && formData.experience < 1
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="Years of experience"
                     />
-                    {formData.experience &&
-                      !isFieldValid("experience", formData.experience) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("experience", formData.experience)}
-                        </p>
-                      )}
+                    {formData.experience && formData.experience < 1 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Experience must be at least 1 year
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -693,23 +551,20 @@ const DoctorSignup = () => {
                       name="qualification"
                       value={formData.qualification}
                       onChange={handleInputChange}
-                      className={getInputStyling(
-                        "qualification",
-                        formData.qualification
-                      )}
-                      placeholder="e.g., MBBS, MD"
+                      minLength={2}
                       required
+                      className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.qualification &&
+                        formData.qualification.length < 2
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="e.g., MBBS, MD"
                     />
                     {formData.qualification &&
-                      !isFieldValid(
-                        "qualification",
-                        formData.qualification
-                      ) && (
+                      formData.qualification.length < 2 && (
                         <p className="text-red-500 text-sm mt-1">
-                          {getFieldError(
-                            "qualification",
-                            formData.qualification
-                          )}
+                          Qualification must be at least 2 characters long
                         </p>
                       )}
                   </div>
@@ -722,23 +577,20 @@ const DoctorSignup = () => {
                       name="registrationNumber"
                       value={formData.registrationNumber}
                       onChange={handleInputChange}
-                      className={getInputStyling(
-                        "registrationNumber",
-                        formData.registrationNumber
-                      )}
-                      placeholder="Registration number"
+                      minLength={5}
                       required
+                      className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.registrationNumber &&
+                        formData.registrationNumber.length < 5
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="Registration number"
                     />
                     {formData.registrationNumber &&
-                      !isFieldValid(
-                        "registrationNumber",
-                        formData.registrationNumber
-                      ) && (
+                      formData.registrationNumber.length < 5 && (
                         <p className="text-red-500 text-sm mt-1">
-                          {getFieldError(
-                            "registrationNumber",
-                            formData.registrationNumber
-                          )}
+                          Registration number must be at least 5 characters long
                         </p>
                       )}
                   </div>
@@ -754,20 +606,22 @@ const DoctorSignup = () => {
                     name="clinicName"
                     value={formData.clinicName}
                     onChange={handleInputChange}
-                    className={getInputStyling(
-                      "clinicName",
-                      formData.clinicName
-                    )}
-                    placeholder="Clinic or hospital name"
+                    minLength={3}
                     required
+                    className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                      formData.clinicName && formData.clinicName.length < 3
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
+                    placeholder="Clinic or hospital name"
                   />
-                  {formData.clinicName &&
-                    !isFieldValid("clinicName", formData.clinicName) && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {getFieldError("clinicName", formData.clinicName)}
-                      </p>
-                    )}
+                  {formData.clinicName && formData.clinicName.length < 3 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Clinic name must be at least 3 characters long
+                    </p>
+                  )}
                 </div>
+
                 {/* About */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -778,13 +632,18 @@ const DoctorSignup = () => {
                     name="about"
                     value={formData.about}
                     onChange={handleInputChange}
-                    className={getInputStyling("about", formData.about)}
-                    placeholder="Tell About Your Self"
+                    minLength={10}
                     required
+                    className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                      formData.about && formData.about.length < 10
+                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
+                    placeholder="Tell About Your Self"
                   />
-                  {formData.about && !isFieldValid("about", formData.about) && (
+                  {formData.about && formData.about.length < 10 && (
                     <p className="text-red-500 text-sm mt-1">
-                      {getFieldError("about", formData.about)}
+                      About section must be at least 10 characters long
                     </p>
                   )}
                 </div>
@@ -800,22 +659,22 @@ const DoctorSignup = () => {
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
+                      minLength={10}
                       rows="3"
-                      className={getInputStyling(
-                        "address",
-                        formData.address,
-                        true
-                      )}
-                      placeholder="Complete address"
                       required
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.address && formData.address.length < 10
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="Complete address"
                     />
                   </div>
-                  {formData.address &&
-                    !isFieldValid("address", formData.address) && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {getFieldError("address", formData.address)}
-                      </p>
-                    )}
+                  {formData.address && formData.address.length < 10 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Address must be at least 10 characters long
+                    </p>
+                  )}
                 </div>
 
                 {/* City, State, Pincode */}
@@ -829,13 +688,18 @@ const DoctorSignup = () => {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={getInputStyling("city", formData.city)}
-                      placeholder="City"
+                      minLength={2}
                       required
+                      className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.city && formData.city.length < 2
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="City"
                     />
-                    {formData.city && !isFieldValid("city", formData.city) && (
+                    {formData.city && formData.city.length < 2 && (
                       <p className="text-red-500 text-sm mt-1">
-                        {getFieldError("city", formData.city)}
+                        City name must be at least 2 characters long
                       </p>
                     )}
                   </div>
@@ -848,16 +712,20 @@ const DoctorSignup = () => {
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      className={getInputStyling("state", formData.state)}
-                      placeholder="State"
+                      minLength={2}
                       required
+                      className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.state && formData.state.length < 2
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="State"
                     />
-                    {formData.state &&
-                      !isFieldValid("state", formData.state) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("state", formData.state)}
-                        </p>
-                      )}
+                    {formData.state && formData.state.length < 2 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        State name must be at least 2 characters long
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -868,23 +736,28 @@ const DoctorSignup = () => {
                       name="pincode"
                       value={formData.pincode}
                       onChange={handleInputChange}
-                      className={getInputStyling("pincode", formData.pincode)}
-                      placeholder="Pincode"
+                      maxLength={5}
+                      minLength={5}
                       required
+                      className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.pincode && formData.pincode.length !== 5
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="Pincode"
                     />
-                    {formData.pincode &&
-                      !isFieldValid("pincode", formData.pincode) && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {getFieldError("pincode", formData.pincode)}
-                        </p>
-                      )}
+                    {formData.pincode && formData.pincode.length !== 5 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Pincode must be exactly 5 digits
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Consultation Fee */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Consultation Fee (Rs)
+                    Consultation Fee (PKR)
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -893,26 +766,21 @@ const DoctorSignup = () => {
                       name="consultationFee"
                       value={formData.consultationFee}
                       onChange={handleInputChange}
-                      className={getInputStyling(
-                        "consultationFee",
-                        formData.consultationFee,
-                        true
-                      )}
-                      placeholder="Consultation fee"
-                      min="100"
+                      min={100}
                       required
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                        formData.consultationFee &&
+                        formData.consultationFee < 100
+                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                      placeholder="Consultation fee"
                     />
                   </div>
                   {formData.consultationFee &&
-                    !isFieldValid(
-                      "consultationFee",
-                      formData.consultationFee
-                    ) && (
+                    formData.consultationFee < 100 && (
                       <p className="text-red-500 text-sm mt-1">
-                        {getFieldError(
-                          "consultationFee",
-                          formData.consultationFee
-                        )}
+                        Consultation fee must be at least Rs. 100
                       </p>
                     )}
                 </div>
@@ -970,24 +838,9 @@ const DoctorSignup = () => {
                         name="clinicOpenTime"
                         value={formData.clinicOpenTime}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "clinicOpenTime",
-                          formData.clinicOpenTime
-                        )}
                         required
+                        className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
-                      {formData.clinicOpenTime &&
-                        !isFieldValid(
-                          "clinicOpenTime",
-                          formData.clinicOpenTime
-                        ) && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {getFieldError(
-                              "clinicOpenTime",
-                              formData.clinicOpenTime
-                            )}
-                          </p>
-                        )}
                       <p className="text-xs text-gray-500 mt-1">
                         When your clinic opens (first token time)
                       </p>
@@ -1001,24 +854,9 @@ const DoctorSignup = () => {
                         name="clinicCloseTime"
                         value={formData.clinicCloseTime}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "clinicCloseTime",
-                          formData.clinicCloseTime
-                        )}
                         required
+                        className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
-                      {formData.clinicCloseTime &&
-                        !isFieldValid(
-                          "clinicCloseTime",
-                          formData.clinicCloseTime
-                        ) && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {getFieldError(
-                              "clinicCloseTime",
-                              formData.clinicCloseTime
-                            )}
-                          </p>
-                        )}
                       <p className="text-xs text-gray-500 mt-1">
                         When your clinic closes (last appointment)
                       </p>
@@ -1039,26 +877,21 @@ const DoctorSignup = () => {
                         name="avgAppointmentTime"
                         value={formData.avgAppointmentTime}
                         onChange={handleInputChange}
-                        className={getInputStyling(
-                          "avgAppointmentTime",
-                          formData.avgAppointmentTime,
-                          true
-                        )}
-                        placeholder="e.g., 15 minutes"
-                        min="10"
+                        min={5}
                         required
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
+                          formData.avgAppointmentTime &&
+                          formData.avgAppointmentTime < 5
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        placeholder="e.g., 15 minutes"
                       />
                     </div>
                     {formData.avgAppointmentTime &&
-                      !isFieldValid(
-                        "avgAppointmentTime",
-                        formData.avgAppointmentTime
-                      ) && (
+                      formData.avgAppointmentTime < 5 && (
                         <p className="text-red-500 text-sm mt-1">
-                          {getFieldError(
-                            "avgAppointmentTime",
-                            formData.avgAppointmentTime
-                          )}
+                          Appointment time must be at least 10 minutes
                         </p>
                       )}
                     <p className="text-xs text-gray-500 mt-1">
@@ -1074,14 +907,11 @@ const DoctorSignup = () => {
                       name="appointmentsPerDay"
                       value={formData.appointmentsPerDay}
                       onChange={handleInputChange}
-                      className={getInputStyling(
-                        "appointmentsPerDay",
-                        formData.appointmentsPerDay
-                      )}
-                      placeholder="e.g., 20"
-                      min="1"
+                      min={1}
                       disabled
                       required
+                      className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-100"
+                      placeholder="e.g., 20"
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       Maximum patients you can see per day

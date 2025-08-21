@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const doctorService = require("../Services/doctor.service");
 const doctorModel = require("../models/doctor.model");
 const tokenModel = require("../models/token.model");
+const appointmentModel = require("../models/appointment.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
@@ -221,11 +222,12 @@ module.exports.getDoctorAvailabilityNext7Days = async (req, res) => {
     const today = moment.tz("Asia/Karachi").startOf("day");
     const currentTime = moment.tz("Asia/Karachi");
     const closingTime = moment.tz(
-      doctor.clinicInfo.clinicCloseTime,
-      "HH:mm",
+      `${today.format("YYYY-MM-DD")} ${doctor.clinicInfo.clinicCloseTime}`,
       "Asia/Karachi"
     );
+
     const isPastClosingTime = currentTime.isAfter(closingTime);
+
     const startDay = isPastClosingTime ? today.add(1, "days") : today;
 
     // Remove past days & their tokens from DB
@@ -241,12 +243,11 @@ module.exports.getDoctorAvailabilityNext7Days = async (req, res) => {
     );
 
     const result = [];
-
     // Add next 7 days
     for (let i = 0; i < 7; i++) {
       const date = moment.tz(startDay, "Asia/Karachi").add(i, "days");
       const dayName = date.format("dddd");
-      const isToday = date.isSame(today, "day");
+      const isToday = date.isSame(moment.tz("Asia/Karachi").startOf("day"));
 
       if (availableDays.includes(dayName)) {
         // Generate tokens if not already in DB
@@ -305,5 +306,149 @@ module.exports.getDoctorTokens = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching doctor tokens", error: err.message });
+  }
+};
+
+module.exports.updateDoctor = async (req, res) => {
+  let { id } = req.params; // Extracting the doctor ID from URL parameters
+
+  // Clean the ID by removing any leading colons or whitespace
+  id = id.replace(/^:/, "").trim();
+
+  console.log("Cleaned Doctor ID:", id); // Log the cleaned ID for debugging
+
+  try {
+    // Find the existing doctor by ID
+    const existingDoctor = await doctorModel.findById(id);
+    if (!existingDoctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    // Extracting fields from req.body
+    const {
+      fullName,
+      phone,
+      profileImage,
+      about,
+      professionalDetails,
+      clinicInfo,
+    } = req.body.data;
+
+    // Prepare the updated document
+    const updatedDoctor = {
+      fullName: fullName || existingDoctor.fullName,
+      phone: phone || existingDoctor.phone,
+      profileImage: profileImage || existingDoctor.profileImage,
+      about: about || existingDoctor.about,
+      professionalDetails: {
+        specialization: existingDoctor.professionalDetails.specialization,
+        experience:
+          professionalDetails?.experience ||
+          existingDoctor.professionalDetails.experience,
+        qualification: existingDoctor.professionalDetails.qualification,
+        registrationNumber:
+          existingDoctor.professionalDetails.registrationNumber,
+        consultationFee:
+          professionalDetails?.consultationFee ||
+          existingDoctor.professionalDetails.consultationFee,
+        avgAppointmentTime:
+          professionalDetails?.avgAppointmentTime ||
+          existingDoctor.professionalDetails.avgAppointmentTime,
+      },
+      clinicInfo: {
+        clinicName: existingDoctor.clinicInfo.clinicName,
+        address: existingDoctor.clinicInfo.address,
+        city: existingDoctor.clinicInfo.city,
+        state: existingDoctor.clinicInfo.state,
+        pincode: existingDoctor.clinicInfo.pincode,
+        availableDays:
+          clinicInfo?.availableDays || existingDoctor.clinicInfo.availableDays,
+        clinicOpenTime:
+          clinicInfo?.clinicOpenTime ||
+          existingDoctor.clinicInfo.clinicOpenTime,
+        clinicCloseTime:
+          clinicInfo?.clinicCloseTime ||
+          existingDoctor.clinicInfo.clinicCloseTime,
+        appointmentsPerDay:
+          clinicInfo?.appointmentsPerDay ||
+          existingDoctor.clinicInfo.appointmentsPerDay,
+      },
+    };
+
+    // Update the doctor with the new values
+    const result = await doctorModel.findByIdAndUpdate(id, updatedDoctor, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.json({ doctor: result });
+  } catch (error) {
+    console.error("Error updating doctor:", error);
+    res.status(500).json({ message: "Error updating doctor", error });
+  }
+};
+
+module.exports.getAppointments = async (req, res) => {
+  const doctorId = req.params.id;
+  try {
+    // Fetch appointments for the given doctor ID
+    const appointments = await appointmentModel
+      .find({ doctor: doctorId, status: { $in: ["no_show", "completed"] } })
+      .populate("patient");
+
+    const appointmentDetails = await Promise.all(
+      appointments.map(async (appointment) => {
+        // Fetch token details
+        const tokenDoc = await tokenModel.findOne({
+          doctor: appointment.doctor._id,
+        });
+
+        // Find the specific token from the token list
+        let tokenDetails = null;
+        if (tokenDoc) {
+          tokenDetails = tokenDoc.tokens
+            .flatMap((token) => token.tokenList)
+            .find((token) => token._id.equals(appointment.token));
+        }
+        console.log(tokenDetails);
+
+        // Get current time in Asia/Karachi timezone
+        const currentTime = moment().tz("Asia/Karachi");
+
+        // Get token time and format it
+        const tokenTime = moment(tokenDetails.displayTime, "h:mm A").set({
+          year: currentTime.year(),
+          month: currentTime.month(),
+          date: currentTime.date(),
+        });
+
+        // Format the appointment time to Asia/Karachi
+        const formattedTime = moment
+          .tz(tokenTime, "Asia/Karachi")
+          .format("h:mm A");
+
+        // Determine booking type based on patient's isOffline field
+        const bookingType = appointment.patient.isOffline
+          ? "Walk-in"
+          : "Online";
+
+        return {
+          id: appointment.appointmentNo, // Assuming appointmentNo is unique
+          patientName: appointment.patient.fullName, // Get patient's name
+          phone: appointment.patient.phone, // Get patient's phone
+          gender: appointment.patient.gender, // Get patient's gender
+          date: appointment.date, // Appointment date
+          appointmentTime: formattedTime, // Formatted appointment time
+          status: appointment.status, // Appointment status
+          bookingType: bookingType, // Set booking type based on isOffline
+        };
+      })
+    );
+
+    console.log(appointmentDetails);
+    res.json(appointmentDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };

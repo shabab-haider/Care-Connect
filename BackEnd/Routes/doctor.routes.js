@@ -5,7 +5,6 @@ const doctorController = require("../controllers/doctor.controller");
 const authMiddleware = require("../Middlewares/Auth.middleware");
 const doctorModel = require("../models/doctor.model");
 
-
 router.post(
   "/register",
   [
@@ -19,7 +18,6 @@ router.post(
   ],
   doctorController.registerDoctor
 );
-
 
 router.post(
   "/login",
@@ -42,7 +40,6 @@ router.get("/all", doctorController.getAllDoctors);
 
 router.get("/:id", doctorController.getDoctorById);
 
-
 router.get(
   "/:id/availability",
   doctorController.getDoctorAvailabilityNext7Days
@@ -50,7 +47,12 @@ router.get(
 
 router.get("/:id/tokens", doctorController.getDoctorTokens);
 
+router.post("/:id/update", doctorController.updateDoctor);
+
+router.get(
+  "/getAppointments/:id",
+
+  doctorController.getAppointments
+);
 
 module.exports = router;
-
-

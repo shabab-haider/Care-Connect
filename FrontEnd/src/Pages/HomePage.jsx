@@ -362,9 +362,8 @@ const HomePage = () => {
                 Search & Select
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Browse through verified doctors, filter by location,
-                specialization, and fees. View detailed profiles and patient
-                reviews to make informed decisions.
+                Browse through  doctors, filter by location,
+                specialization, and fees. View detailed profiles to make informed decisions.
               </p>
               <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-blue-200 to-transparent"></div>
             </div>

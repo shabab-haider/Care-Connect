@@ -1,120 +1,99 @@
-import { useState } from "react"
-import { Calendar, Clock, User, CheckCircle, XCircle } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Calendar, Clock, User, CheckCircle, XCircle } from "lucide-react";
+import LogoAndBack from "../../Components/LogoAndBack";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const DoctorPendingRequests = () => {
+  const navigate = useNavigate();
   // Dummy data for appointment requests
-  const [appointmentRequests, setAppointmentRequests] = useState([
-    {
-      id: 1,
-      patientName: "John Smith",
-      patientPhone: "+91 9876543210",
-      patientEmail: "john.smith@email.com",
-      appointmentDate: "2024-01-15",
-      appointmentTime: "10:00 AM",
-      tokenNumber: "A-03",
-      symptoms: "Chest pain and shortness of breath for the past 2 days",
-      appointmentType: "Consultation",
-      requestedAt: "2 hours ago",
-    },
-    {
-      id: 2,
-      patientName: "Emily Davis",
-      patientPhone: "+91 8765432109",
-      patientEmail: "emily.davis@email.com",
-      appointmentDate: "2024-01-15",
-      appointmentTime: "11:30 AM",
-      tokenNumber: "A-06",
-      symptoms: "Regular checkup and blood pressure monitoring",
-      appointmentType: "Checkup",
-      requestedAt: "4 hours ago",
-    },
-    {
-      id: 3,
-      patientName: "Michael Brown",
-      patientPhone: "+91 7654321098",
-      patientEmail: "michael.brown@email.com",
-      appointmentDate: "2024-01-16",
-      appointmentTime: "2:00 PM",
-      tokenNumber: "A-07",
-      symptoms: "Follow-up for diabetes management and medication review",
-      appointmentType: "Follow-up",
-      requestedAt: "6 hours ago",
-    },
-    {
-      id: 4,
-      patientName: "Sarah Wilson",
-      patientPhone: "+91 6543210987",
-      patientEmail: "sarah.wilson@email.com",
-      appointmentDate: "2024-01-16",
-      appointmentTime: "3:30 PM",
-      tokenNumber: "A-09",
-      symptoms: "Severe headache and dizziness since yesterday",
-      appointmentType: "Consultation",
-      requestedAt: "8 hours ago",
-    },
-  ])
+  const [appointmentRequests, setAppointmentRequests] = useState([]);
+  const [updateAppointmentRequests, setUpdateAppointmentRequests] = useState(0);
+  //template for appointmentRequests
+  // [
+  //   {
+  //     id: 1,
+  //     patientName: "John Smith",
+  //     patientPhone: "+91 9876543210",
+  //     patientEmail: "john.smith@email.com",
+  //     appointmentDate: "2024-01-15",
+  //     appointmentTime: "10:00 AM",
+  //     tokenNumber: "A-03",
+  //   },
+  // ];
 
-  const [processingId, setProcessingId] = useState(null)
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const getPendingAppointments = async () => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/appointments/pending`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response);
+      if (response.status == "200") {
+        setAppointmentRequests(response.data.appointments);
+      }
+    };
+    getPendingAppointments();
+  }, [updateAppointmentRequests]);
 
   // Function to handle accept appointment request
   const handleAcceptRequest = async (requestId) => {
-    setProcessingId(requestId)
-
     try {
-      // TODO: Add API call to accept appointment request
-      // const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/appointments/${requestId}/accept`);
-      // if (response.data.success) {
-      //   // Remove the accepted request from the list
-      //   setAppointmentRequests(prev => prev.filter(req => req.id !== requestId));
-      //   alert('Appointment request accepted successfully!');
-      // }
-
-      // Simulate API call delay
-      setTimeout(() => {
-        setAppointmentRequests((prev) => prev.filter((req) => req.id !== requestId))
-        setProcessingId(null)
-        alert("Appointment request accepted successfully!")
-      }, 1500)
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/appointments/${requestId}/accept`
+      );
+      if (response.status == "200") {
+        setUpdateAppointmentRequests(updateAppointmentRequests + 1);
+      }
     } catch (error) {
-      console.error("Error accepting request:", error)
-      setProcessingId(null)
-      alert("Error accepting request. Please try again.")
+      console.error("Error accepting request:", error);
+
+      alert("Error accepting request. Please try again.");
     }
-  }
+  };
 
   // Function to handle reject appointment request
-  const handleRejectRequest = async (requestId) => {
-    setProcessingId(requestId)
-
+  const handleRejectRequest = async (requestId, appointmentId, doctorId) => {
     try {
-      // TODO: Add API call to reject appointment request
-      // const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/appointments/${requestId}/reject`);
-      // if (response.data.success) {
-      //   // Remove the rejected request from the list
-      //   setAppointmentRequests(prev => prev.filter(req => req.id !== requestId));
-      //   alert('Appointment request rejected.');
-      // }
-
-      // Simulate API call delay
-      setTimeout(() => {
-        setAppointmentRequests((prev) => prev.filter((req) => req.id !== requestId))
-        setProcessingId(null)
-        alert("Appointment request rejected.")
-      }, 1500)
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/appointments/reject`,
+        {
+          tokenId: requestId,
+          appointmentId,
+          doctorId,
+        }
+      );
+      if (response.status == "200") {
+        setUpdateAppointmentRequests(updateAppointmentRequests + 1);
+      }
     } catch (error) {
-      console.error("Error rejecting request:", error)
-      setProcessingId(null)
-      alert("Error rejecting request. Please try again.")
+      console.error("Error rejecting request:", error);
+
+      alert("Error rejecting request. Please try again.");
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="py-3 px-6 md:px-14 w-full bg-white shadow-lg border-b sticky top-0 z-40">
+        <LogoAndBack />
+      </div>
+
+      <div className="max-w-6xl mx-4 md:mx-auto mt-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Pending Appointment Requests</h1>
-          <p className="text-gray-600">Review and manage incoming appointment requests from patients</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Pending Appointment Requests
+          </h1>
+          <p className="text-gray-600">
+            Review and manage incoming appointment requests from patients
+          </p>
         </div>
 
         {/* Stats */}
@@ -124,7 +103,9 @@ const DoctorPendingRequests = () => {
               <Clock className="h-6 w-6 text-orange-600" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">{appointmentRequests.length} Pending Requests</h3>
+              <h3 className="text-xl font-semibold text-gray-900">
+                {appointmentRequests.length} Pending Requests
+              </h3>
               <p className="text-gray-600">Waiting for your approval</p>
             </div>
           </div>
@@ -134,8 +115,12 @@ const DoctorPendingRequests = () => {
         {appointmentRequests.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">All Caught Up!</h3>
-            <p className="text-gray-600">No pending appointment requests at the moment.</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              All Caught Up!
+            </h3>
+            <p className="text-gray-600">
+              No pending appointment requests at the moment.
+            </p>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -154,13 +139,14 @@ const DoctorPendingRequests = () => {
                           <User className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{request.patientName}</h3>
-                          <p className="text-sm text-gray-600">{request.patientPhone}</p>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {request.patientName}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {request.patientPhone}
+                          </p>
                         </div>
                       </div>
-                      <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {request.requestedAt}
-                      </span>
                     </div>
 
                     {/* Appointment Details */}
@@ -170,7 +156,9 @@ const DoctorPendingRequests = () => {
                           <Calendar className="h-4 w-4 text-gray-500 mr-2" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {new Date(request.appointmentDate).toLocaleDateString("en-US", {
+                              {new Date(
+                                request.appointmentDate
+                              ).toLocaleDateString("en-US", {
                                 weekday: "long",
                                 month: "short",
                                 day: "numeric",
@@ -181,19 +169,14 @@ const DoctorPendingRequests = () => {
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 text-gray-500 mr-2" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{request.appointmentTime}</p>
-                            <p className="text-xs text-gray-600">Token: {request.tokenNumber}</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {request.appointmentTime}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Token: {request.tokenNumber}
+                            </p>
                           </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{request.appointmentType}</p>
-                        </div>
-                      </div>
-
-                      {/* Symptoms */}
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">Symptoms/Reason:</p>
-                        <p className="text-sm text-gray-600 bg-white p-3 rounded border">{request.symptoms}</p>
                       </div>
                     </div>
                   </div>
@@ -202,38 +185,24 @@ const DoctorPendingRequests = () => {
                   <div className="flex flex-col sm:flex-row lg:flex-col gap-3 lg:w-48">
                     <button
                       onClick={() => handleAcceptRequest(request.id)}
-                      disabled={processingId === request.id}
                       className="flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
                     >
-                      {processingId === request.id ? (
-                        <div className="flex items-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Accept
-                        </>
-                      )}
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Accept
                     </button>
 
                     <button
-                      onClick={() => handleRejectRequest(request.id)}
-                      disabled={processingId === request.id}
+                      onClick={() =>
+                        handleRejectRequest(
+                          request.tokenId,
+                          request.id,
+                          request.doctorId
+                        )
+                      }
                       className="flex items-center justify-center px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
                     >
-                      {processingId === request.id ? (
-                        <div className="flex items-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        <>
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Reject
-                        </>
-                      )}
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Reject
                     </button>
                   </div>
                 </div>
@@ -243,7 +212,7 @@ const DoctorPendingRequests = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DoctorPendingRequests
+export default DoctorPendingRequests;
