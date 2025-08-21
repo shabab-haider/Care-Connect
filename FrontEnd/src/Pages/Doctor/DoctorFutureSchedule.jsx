@@ -1,39 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  History,
-  Calendar,
-  Clock,
-  Filter,
-  Search,
-  ChevronDown,
-  Eye,
-  FileText,
-  Hash,
-} from "lucide-react";
+import { useState, useEffect, useContext } from "react";
+import { Calendar, Filter, Search, Eye, User, Phone, Hash } from "lucide-react";
 import Header from "../../Components/Header";
+import axios from "axios";
+import { DoctorDataContext } from "../../Context/DoctorContext";
 
-const PatientAppointments = () => {
-  //recent appointments template
-  //  [ {
-  //       id: 3,
-  //       date: "2024-01-10",
-  //       TokenNo: "2",
-  //       doctor: "Dr. Emily Davis",
-  //       specialization: "General Physician",
-  //       clinic: "City General Hospital",
-  //       fee: 300,
-  //       status: "no_show",
-  //       profileImage: "",
-  //     }]
+const DoctorFutureSchedule = () => {
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
+  const id = doctor._id;
+
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [filters, setFilters] = useState({
-    status: "all",
     selectedDate: "",
     search: "",
   });
@@ -41,37 +21,23 @@ const PatientAppointments = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const getAppointments = async () => {
+    const getFutureAppointments = async () => {
       try {
-        setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/patients/recentAppointments`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          `${import.meta.env.VITE_BASE_URL}/doctors/getFutureAppointments/${id}`
         );
-        console.log(response);
+        console.log(response.data);
         setAppointments(response.data);
-        setFilteredAppointments(response.data);
       } catch (error) {
-        console.error("Error fetching appointments:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching future appointments:", error);
       }
     };
-    getAppointments();
+    getFutureAppointments();
   }, [token]);
 
   // Filter appointments based on selected filters
   useEffect(() => {
     let filtered = [...appointments];
-
-    // Filter by status
-    if (filters.status !== "all") {
-      filtered = filtered.filter((apt) => apt.status === filters.status);
-    }
 
     // Filter by selected date
     if (filters.selectedDate) {
@@ -86,11 +52,10 @@ const PatientAppointments = () => {
     if (filters.search) {
       filtered = filtered.filter(
         (apt) =>
-          apt.doctor.toLowerCase().includes(filters.search.toLowerCase()) ||
-          apt.specialization
+          apt.patientName
             .toLowerCase()
             .includes(filters.search.toLowerCase()) ||
-          apt.clinic.toLowerCase().includes(filters.search.toLowerCase())
+          apt.phone.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
@@ -104,28 +69,6 @@ const PatientAppointments = () => {
     }));
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "no_show":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "no_show":
-        return "No Show";
-      default:
-        return status;
-    }
-  };
-
   const AppointmentDetailsModal = ({ appointment, onClose }) => {
     if (!appointment) return null;
 
@@ -135,7 +78,7 @@ const PatientAppointments = () => {
           <div className="p-4 sm:p-6 border-b">
             <div className="flex justify-between items-center">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Appointment Details
+                Upcoming Appointment Details
               </h2>
               <button
                 onClick={onClose}
@@ -146,8 +89,29 @@ const PatientAppointments = () => {
             </div>
           </div>
           <div className="p-4 sm:p-6 space-y-6">
-            {/* Appointment Info */}
+            {/* Patient & Appointment Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">
+                  Patient Information
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span className="font-medium">
+                      {appointment.patientName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="font-medium">{appointment.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Gender:</span>
+                    <span className="font-medium">{appointment.gender}</span>
+                  </div>
+                </div>
+              </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">
                   Appointment Information
@@ -160,77 +124,49 @@ const PatientAppointments = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Token No:</span>
-                    <span className="font-medium">A-{appointment.TokenNo}</span>
+                    <span className="text-gray-600">Token:</span>
+                    <span className="font-medium text-blue-600">
+                      A-{appointment.TokenNo}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Booking Type:</span>
+                    <span className="font-medium">
+                      {appointment.bookingType}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Status:</span>
-                    <span
-                      className={`font-medium px-2 py-1 rounded-full text-xs ${getStatusColor(
-                        appointment.status
-                      )}`}
-                    >
-                      {getStatusLabel(appointment.status)}
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                      Scheduled
                     </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Fee:</span>
-                    <span className="font-medium">PKR {appointment.fee}</span>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  Doctor Information
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Doctor:</span>
-                    <span className="font-medium">{appointment.doctor}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Specialization:</span>
-                    <span className="font-medium">
-                      {appointment.specialization}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Clinic:</span>
-                    <span className="font-medium">{appointment.clinic}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Prescription/Diagnosis if available */}
-            {appointment.diagnosis && (
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Diagnosis</h3>
-                <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
-                  {appointment.diagnosis}
-                </p>
-              </div>
-            )}
-
-            {appointment.prescription && (
+            {/* Symptoms if available */}
+            {appointment.symptoms && (
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">
-                  Prescription
+                  Symptoms/Reason for Visit
                 </h3>
                 <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
-                  {appointment.prescription}
+                  {appointment.symptoms}
                 </p>
               </div>
             )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              {appointment.status === "completed" && (
-                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Download Prescription
-                </button>
-              )}
+              <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                <Phone className="h-4 w-4 mr-2" />
+                Call Patient
+              </button>
+              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                Reschedule
+              </button>
               <button
                 onClick={onClose}
                 className="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
@@ -244,17 +180,6 @@ const PatientAppointments = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading appointments...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -264,15 +189,15 @@ const PatientAppointments = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-                <History className="h-8 w-8 text-blue-600 mr-3" />
-                My Appointments
+                <Calendar className="h-8 w-8 text-blue-600 mr-3" />
+                Future Schedule
               </h1>
               <p className="text-gray-600 mt-2">
-                View and manage all your appointments
+                View and manage your upcoming patient appointments
               </p>
             </div>
             <div className="bg-white px-4 py-2 rounded-lg border">
-              <p className="text-sm text-gray-600">Total Appointments</p>
+              <p className="text-sm text-gray-600">Upcoming Appointments</p>
               <p className="text-2xl font-bold text-blue-600">
                 {appointments.length}
               </p>
@@ -290,7 +215,7 @@ const PatientAppointments = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
                     type="text"
-                    placeholder="Search by doctor, specialization, or clinic..."
+                    placeholder="Search by patient name or phone number..."
                     value={filters.search}
                     onChange={(e) =>
                       handleFilterChange("search", e.target.value)
@@ -298,19 +223,6 @@ const PatientAppointments = () => {
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-              </div>
-
-              {/* Status Filter */}
-              <div className="relative">
-                <select
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All Status</option>
-                  <option value="completed">Completed</option>
-                  <option value="no_show">No Show</option>
-                </select>
               </div>
 
               {/* Date Filter */}
@@ -344,7 +256,7 @@ const PatientAppointments = () => {
           <div className="p-4 sm:p-6 border-b">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                Appointments ({filteredAppointments.length})
+                Scheduled Appointments ({filteredAppointments.length})
               </h2>
               <Filter className="h-5 w-5 text-gray-400" />
             </div>
@@ -359,47 +271,55 @@ const PatientAppointments = () => {
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex items-center space-x-4 flex-1">
-                        <img
-                          src={
-                            appointment.profileImage ||
-                            "/placeholder.svg?height=48&width=48" ||
-                            "/placeholder.svg"
-                          }
-                          alt="Doctor"
-                          className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
-                        />
+                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                          <User className="h-6 w-6 text-blue-600" />
+                        </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">
-                            {appointment.doctor}
-                          </h3>
-                          <p className="text-gray-600 text-sm">
-                            {appointment.specialization} • {appointment.clinic}
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-900">
+                              {appointment.patientName}
+                            </h3>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              Scheduled
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-2">
+                            {appointment.phone} • {appointment.gender}
                           </p>
-                          <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
                               {new Date(appointment.date).toLocaleDateString()}
                             </div>
                             <div className="flex items-center">
                               <Hash className="h-4 w-4 mr-1" />
-                              A-{appointment.TokenNo}
+                              Token: A-{appointment.TokenNo}
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-green-600 font-medium">
+                                {appointment.bookingType} Booking
+                              </span>
                             </div>
                           </div>
+                          {appointment.symptoms && (
+                            <p className="text-sm text-gray-600 mt-1">
+                              <span className="font-medium">Symptoms:</span>{" "}
+                              {appointment.symptoms.length > 50
+                                ? `${appointment.symptoms.substring(0, 50)}...`
+                                : appointment.symptoms}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between lg:justify-end gap-4">
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
-                            PKR {appointment.fee}
+                          <p className="text-sm font-medium text-blue-600">
+                            Upcoming
                           </p>
-                          <span
-                            className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              appointment.status
-                            )}`}
-                          >
-                            {getStatusLabel(appointment.status)}
-                          </span>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {appointment.bookingType}
+                          </p>
                         </div>
                         <button
                           onClick={() => setSelectedAppointment(appointment)}
@@ -415,24 +335,15 @@ const PatientAppointments = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <History className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No appointments found
+                  No upcoming appointments found
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  {filters.search ||
-                  filters.status !== "all" ||
-                  filters.selectedDate
+                  {filters.search || filters.selectedDate
                     ? "Try adjusting your filters to see more results."
-                    : "You haven't booked any appointments yet."}
+                    : "No future appointments scheduled yet."}
                 </p>
-                {!filters.search &&
-                  filters.status === "all" &&
-                  !filters.selectedDate && (
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                      Book Your First Appointment
-                    </button>
-                  )}
               </div>
             )}
           </div>
@@ -448,4 +359,4 @@ const PatientAppointments = () => {
   );
 };
 
-export default PatientAppointments;
+export default DoctorFutureSchedule;

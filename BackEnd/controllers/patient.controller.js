@@ -200,83 +200,21 @@ module.exports.getRecentAppointments = async function (req, res) {
   const patientId = req.Patient._id;
 
   try {
-    // Fetch appointments for the given patient ID
     const appointments = await appointmentModel
       .find({ patient: patientId, status: { $in: ["no_show", "completed"] } })
       .populate("doctor");
 
-    const appointmentDetails = await Promise.all(
-      appointments.map(async (appointment) => {
-        // Fetch token details
-        const tokenDoc = await tokenModel.findOne({
-          doctor: appointment.doctor._id,
-        });
-
-        // Find the specific token from the token list
-        let tokenDetails = null;
-        if (tokenDoc) {
-          tokenDetails = tokenDoc.tokens
-            .flatMap((token) => token.tokenList)
-            .find((token) => token._id.equals(appointment.token));
-        }
-
-        // Get current time in Asia/Karachi timezone
-        const currentTime = moment().tz("Asia/Karachi");
-
-        // Get token time and format it
-        const tokenTime = moment(tokenDetails.displayTime, "h:mm A").set({
-          year: currentTime.year(),
-          month: currentTime.month(),
-          date: currentTime.date(),
-        });
-
-        // Create a moment object for the token time, using the appointment date
-        const tokenDateTime = moment(
-          `${appointment.date} ${tokenDetails.displayTime}`,
-          "YYYY-MM-DD h:mm A"
-        ).tz("Asia/Karachi");
-
-        // Calculate estimated wait time in minutes
-        const estimatedWaitMinutes = tokenDateTime.isAfter(currentTime)
-          ? tokenDateTime.diff(currentTime, "minutes")
-          : 0;
-
-        // Function to format estimated wait time
-        const formatWaitTime = (minutes) => {
-          if (minutes <= 0) return "0 minutes";
-
-          const days = Math.floor(minutes / (24 * 60));
-          const hours = Math.floor((minutes % (24 * 60)) / 60);
-          const mins = minutes % 60;
-
-          let result = [];
-          if (days > 0) result.push(`${days} day${days > 1 ? "s" : ""}`);
-          if (hours > 0) result.push(`${hours} hour${hours > 1 ? "s" : ""}`);
-          if (mins > 0) result.push(`${mins} minute${mins > 1 ? "s" : ""}`);
-
-          return result.join(" ");
-        };
-
-        const timeInKarachi = moment
-          .tz(tokenDetails.displayTime, "h:mm A", "UTC")
-          .tz("Asia/Karachi");
-
-        // Format the result to the same input format
-        const formattedTime = timeInKarachi.format("h:mm A");
-
-        return {
-          id: appointment.appointmentNo,
-          date: appointment.date,
-          time: formattedTime,
-          doctor: appointment.doctor.fullName,
-          specialization: appointment.doctor.professionalDetails.specialization,
-          clinic: appointment.doctor.clinicInfo.clinicName,
-          fee: appointment.doctor.professionalDetails.consultationFee,
-          profileImage: appointment.doctor.profileImage,
-          status: appointment.status,
-        };
-      })
-    );
+    const appointmentDetails = appointments.map((appointment) => ({
+      id: appointment.appointmentNo,
+      date: appointment.date,
+      tokenNumber: appointment.appointmentNo,
+      doctor: appointment.doctor.fullName,
+      specialization: appointment.doctor.professionalDetails.specialization,
+      clinic: appointment.doctor.clinicInfo.clinicName,
+      fee: appointment.doctor.professionalDetails.consultationFee,
+      profileImage: appointment.doctor.profileImage,
+      status: appointment.status,
+    }));
 
     res.json(appointmentDetails);
   } catch (error) {

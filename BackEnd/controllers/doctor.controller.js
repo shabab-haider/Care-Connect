@@ -389,64 +389,33 @@ module.exports.updateDoctor = async (req, res) => {
 };
 
 module.exports.getAppointments = async (req, res) => {
-  const doctorId = req.params.id;
+  let doctorId = req.params.id;
+  doctorId = doctorId.replace(/^:/, "").trim();
   try {
     // Fetch appointments for the given doctor ID
     const appointments = await appointmentModel
-      .find({ doctor: doctorId, status: { $in: ["no_show", "completed"] } })
+      .find({ doctor: doctorId, status: "booked" })
       .populate("patient");
 
-    const appointmentDetails = await Promise.all(
-      appointments.map(async (appointment) => {
-        // Fetch token details
-        const tokenDoc = await tokenModel.findOne({
-          doctor: appointment.doctor._id,
-        });
+    const appointmentDetails = appointments.map((appointment) => {
+      // Handle case where patient may be null
+      const patient = appointment.patient || {};
+      console.log(patient);
+      const bookingType = patient.isOffline ? "Walk-in" : "Online";
 
-        // Find the specific token from the token list
-        let tokenDetails = null;
-        if (tokenDoc) {
-          tokenDetails = tokenDoc.tokens
-            .flatMap((token) => token.tokenList)
-            .find((token) => token._id.equals(appointment.token));
-        }
-        console.log(tokenDetails);
+      return {
+        id: appointment.appointmentNo, // Assuming appointmentNo is unique
+        patientName: patient.fullname || "", // Get patient's name
+        phone: "0" + patient.phoneNumber || "", // Get patient's phone
+        gender: patient.gender || "", // Get patient's gender
+        date: appointment.date, // Appointment date
+        TokenNo: appointment.appointmentNo, // Formatted appointment time
+        status: appointment.status, // Appointment status
+        bookingType: bookingType, // Set booking type based on isOffline
+      };
+    });
 
-        // Get current time in Asia/Karachi timezone
-        const currentTime = moment().tz("Asia/Karachi");
-
-        // Get token time and format it
-        const tokenTime = moment(tokenDetails.displayTime, "h:mm A").set({
-          year: currentTime.year(),
-          month: currentTime.month(),
-          date: currentTime.date(),
-        });
-
-        // Format the appointment time to Asia/Karachi
-        const formattedTime = moment
-          .tz(tokenTime, "Asia/Karachi")
-          .format("h:mm A");
-
-        // Determine booking type based on patient's isOffline field
-        const bookingType = appointment.patient.isOffline
-          ? "Walk-in"
-          : "Online";
-
-        return {
-          id: appointment.appointmentNo, // Assuming appointmentNo is unique
-          patientName: appointment.patient.fullName, // Get patient's name
-          phone: appointment.patient.phone, // Get patient's phone
-          gender: appointment.patient.gender, // Get patient's gender
-          date: appointment.date, // Appointment date
-          appointmentTime: formattedTime, // Formatted appointment time
-          status: appointment.status, // Appointment status
-          bookingType: bookingType, // Set booking type based on isOffline
-        };
-      })
-    );
-
-    console.log(appointmentDetails);
-    res.json(appointmentDetails);
+    res.status(200).json(appointmentDetails);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

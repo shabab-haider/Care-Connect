@@ -18,6 +18,7 @@ import ConsultationForm from "./Pages/Doctor/ConsultationForm";
 import PatientAppointments from "./Pages/Patient/patientAppointments";
 import DoctorAppointments from "./Pages/Doctor/DoctorAppointments";
 import DoctorProfile from "./Pages/Doctor/DoctorProfile";
+import DoctorFutureSchedule from "./Pages/Doctor/DoctorFutureSchedule";
 
 const App = () => {
   return (
@@ -67,6 +68,7 @@ const App = () => {
         />
         <Route path="/consultation" element={<ConsultationForm />} />
         <Route path="/doctor-profile" element={<DoctorProfile />} />
+        <Route path="/Schedule" element={<DoctorFutureSchedule />} />
       </Routes>
     </>
   );

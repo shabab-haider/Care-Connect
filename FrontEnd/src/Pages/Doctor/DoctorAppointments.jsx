@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Calendar,
   Clock,
@@ -9,23 +9,29 @@ import {
   User,
   Phone,
   Stethoscope,
+  Hash,
 } from "lucide-react";
 import Header from "../../Components/Header";
 import axios from "axios";
+import { DoctorDataContext } from "../../Context/DoctorContext";
 
 const DoctorAppointments = () => {
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      patientName: "Ahmed Ali",
-      phone: "+92 300 1234567",
-      gender: "Male",
-      date: "2024-01-20",
-      appointmentTime: "10:00 AM",
-      status: "completed",
-      bookingType: "Online",
-    },
-  ]);
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
+  const id = doctor._id;
+  // appointments template
+  // [
+  //   {
+  //     id: 1,
+  //     patientName: "Ahmed Ali",
+  //     phone: "+92 300 1234567",
+  //     gender: "Male",
+  //     date: "2024-01-20",
+  //     TokenNo: "2",
+  //     status: "completed",
+  //     bookingType: "Online",
+  //   },
+  // ];
+  const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [filters, setFilters] = useState({
@@ -34,23 +40,16 @@ const DoctorAppointments = () => {
     search: "",
   });
 
-  
-
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const getAppointments = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/doctors/appointments`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          `${import.meta.env.VITE_BASE_URL}/doctors/getAppointments/${id}`
         );
-        console.log(response);
-        
+        console.log(response.data);
+        setAppointments(response.data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -174,10 +173,8 @@ const DoctorAppointments = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Time:</span>
-                    <span className="font-medium">
-                      {appointment.appointmentTime}
-                    </span>
+                    <span className="text-gray-600">Token:</span>
+                    <span className="font-medium">A-{appointment.TokenNo}</span>
                   </div>
 
                   <div className="flex justify-between">
@@ -336,8 +333,8 @@ const DoctorAppointments = () => {
                               {new Date(appointment.date).toLocaleDateString()}
                             </div>
                             <div className="flex items-center">
-                              <Clock className="h-4 w-4 mr-1" />
-                              {appointment.appointmentTime}
+                              <Hash className="h-4 w-4 mr-1" />
+                              A-{appointment.TokenNo}
                             </div>
                           </div>
                         </div>

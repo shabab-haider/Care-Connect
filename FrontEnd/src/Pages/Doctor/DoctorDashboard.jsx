@@ -359,6 +359,18 @@ const DoctorDashboard = () => {
             </li>
             <li>
               <button
+                onClick={() => navigate("/Schedule")}
+                className="w-full flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <Calendar className="h-5 w-5" />
+                  <span className="font-medium">Schedule</span>
+                </div>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => navigate("/doctor-appointment-history")}
                 className="w-full flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
               >

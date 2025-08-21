@@ -9,6 +9,8 @@ import {
   Stethoscope,
   DollarSign,
   Building,
+  Upload,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "../../Components/Header";
@@ -226,12 +228,7 @@ const DoctorProfile = () => {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-4">
-            <Link
-              to="/doctor-dashboard"
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
-            </Link>
+            <RefreshCw />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Update Profile
