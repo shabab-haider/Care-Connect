@@ -157,23 +157,7 @@ const DoctorFutureSchedule = () => {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
-                <Phone className="h-4 w-4 mr-2" />
-                Call Patient
-              </button>
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                Reschedule
-              </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-              >
-                Close
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>
