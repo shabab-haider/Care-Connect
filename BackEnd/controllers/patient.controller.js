@@ -241,3 +241,36 @@ module.exports.getRecentAppointments = async function (req, res) {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+module.exports.update = async function (req, res) {
+  const { fullname, gender, phoneNumber, profileImage, id } = req.body;
+
+  try {
+    // Find the patient by ID and update the information
+    const updatedPatient = await PatientModel.findByIdAndUpdate(
+      id,
+      {
+        fullname,
+        gender,
+        profileImage,
+        phoneNumber,
+      },
+      { new: true, runValidators: true } // Return the updated document and run validators
+    );
+
+    if (!updatedPatient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.status(200).json({
+      id: updatedPatient._id,
+      fullname: updatedPatient.fullname,
+      gender: updatedPatient.gender,
+      phoneNumber: updatedPatient.phoneNumber,
+      profileImage: updatedPatient.profileImage,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

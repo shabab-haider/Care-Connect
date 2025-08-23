@@ -3,7 +3,7 @@ const router = express.Router();
 const medicalRecordController = require("../controllers/medicalRecord.controller");
 
 router.post(
-  "/createMedicalRecord/:doctorId/:patientId",
+  "/createMedicalRecord/:doctorId/:patientId/:appointmentId",
   medicalRecordController.createMedicalRecord
 );
 
@@ -12,8 +12,5 @@ router.get(
   medicalRecordController.getMedicalRecords
 );
 
-router.get(
-  "/valid-medical-records/:patientId",
-  medicalRecordController.getValidMedicalRecords
-);
+router.get("/valid-medical-records/:patientId", medicalRecordController.getValidMedicalRecords);
 module.exports = router;

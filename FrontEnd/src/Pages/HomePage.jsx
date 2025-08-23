@@ -16,13 +16,13 @@ import {
   PlayCircle,
   Zap,
   TrendingUp,
-} from "lucide-react"
-import FloatingChatbot from "../Components/FloatingChatbot"
-import Logo from "../Components/Logo"
-import { Link } from "react-router-dom"
-
+} from "lucide-react";
+import FloatingChatbot from "../Components/FloatingChatbot";
+import Logo from "../Components/Logo";
+import { Link, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
@@ -57,15 +57,9 @@ const HomePage = () => {
             <div className="flex items-center space-x-3">
               <Link
                 to="/login"
-                className="text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                to="/patient-signup"
                 className="hidden md:block p-3 bg-blue-600 hover:bg-blue-700 text-white md:px-6 md:py-2 rounded-lg font-medium transition-colors shadow-md"
               >
-                Sign Up
+                Login
               </Link>
             </div>
           </div>
@@ -160,18 +154,6 @@ const HomePage = () => {
                         4.9/5 Rating
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border">
-                    <div className="flex items-center justify-center mb-2">
-                      <PlayCircle className="h-5 w-5 text-blue-600 mr-2" />
-                      <span className="text-sm font-medium text-gray-700">
-                        Ready to experience the difference?
-                      </span>
-                    </div>
-                    <button className="w-full bg-gradient-to-r from-blue-600 to-green-600 text-white py-2 rounded-lg font-medium hover:from-blue-700 hover:to-green-700 transition-all">
-                      Start Your Journey
-                    </button>
                   </div>
                 </div>
               </div>
@@ -362,8 +344,8 @@ const HomePage = () => {
                 Search & Select
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Browse through  doctors, filter by location,
-                specialization, and fees. View detailed profiles to make informed decisions.
+                Browse through doctors, filter by location, specialization, and
+                fees. View detailed profiles to make informed decisions.
               </p>
               <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-blue-200 to-transparent"></div>
             </div>
@@ -462,7 +444,12 @@ const HomePage = () => {
                   </div>
                 </div>
               </div>
-              <button className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl">
+              <button
+                onClick={() => {
+                  navigate("/doctor-signup");
+                }}
+                className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+              >
                 Join as Doctor
               </button>
             </div>
@@ -524,12 +511,18 @@ const HomePage = () => {
             the future of healthcare management
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <button className="bg-white hover:bg-gray-100 text-blue-600 px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl">
+            <Link
+              to="/patient-signup"
+              className="bg-white hover:bg-gray-100 text-blue-600 px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl"
+            >
               Start as Patient
-            </button>
-            <button className="bg-transparent hover:bg-white hover:text-blue-600 text-white border-2 border-white px-10 py-4 rounded-xl text-lg font-semibold transition-all">
+            </Link>
+            <Link
+              to="/doctor-signup"
+              className="bg-transparent hover:bg-white hover:text-blue-600 text-white border-2 border-white px-10 py-4 rounded-xl text-lg font-semibold transition-all"
+            >
               Register as Doctor
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -628,6 +621,6 @@ const HomePage = () => {
       <FloatingChatbot />
     </div>
   );
-}
+};
 
-export default HomePage
+export default HomePage;

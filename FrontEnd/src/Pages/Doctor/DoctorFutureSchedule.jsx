@@ -130,12 +130,6 @@ const DoctorFutureSchedule = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Booking Type:</span>
-                    <span className="font-medium">
-                      {appointment.bookingType}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
                     <span className="text-gray-600">Status:</span>
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
                       Scheduled
@@ -156,8 +150,6 @@ const DoctorFutureSchedule = () => {
                 </p>
               </div>
             )}
-
-            
           </div>
         </div>
       </div>
@@ -256,16 +248,17 @@ const DoctorFutureSchedule = () => {
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex items-center space-x-4 flex-1">
                         <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                          <User className="h-6 w-6 text-blue-600" />
+                          <img
+                            src={appointment.profileImage || "/placeholder.svg"}
+                            alt="Profile"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
+                          />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-gray-900">
                               {appointment.patientName}
                             </h3>
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                              Scheduled
-                            </span>
                           </div>
                           <p className="text-gray-600 text-sm mb-2">
                             {appointment.phone} • {appointment.gender}
@@ -278,11 +271,6 @@ const DoctorFutureSchedule = () => {
                             <div className="flex items-center">
                               <Hash className="h-4 w-4 mr-1" />
                               Token: A-{appointment.TokenNo}
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-green-600 font-medium">
-                                {appointment.bookingType} Booking
-                              </span>
                             </div>
                           </div>
                           {appointment.symptoms && (
@@ -297,14 +285,6 @@ const DoctorFutureSchedule = () => {
                       </div>
 
                       <div className="flex items-center justify-between lg:justify-end gap-4">
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-blue-600">
-                            Upcoming
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {appointment.bookingType}
-                          </p>
-                        </div>
                         <button
                           onClick={() => setSelectedAppointment(appointment)}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"

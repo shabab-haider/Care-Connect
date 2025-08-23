@@ -1,8 +1,9 @@
+const appointmentModel = require("../models/appointment.model");
 const MedicalRecord = require("../models/medicalRecord.model");
 const moment = require("moment-timezone");
 
 module.exports.createMedicalRecord = async (req, res) => {
-  const { doctorId, patientId } = req.params; // Extracting doctor and patient IDs from URL parameters
+  const { doctorId, patientId, appointmentId } = req.params; // Extracting doctor and patient IDs from URL parameters
 
   const {
     appointmentDetails,
@@ -24,6 +25,9 @@ module.exports.createMedicalRecord = async (req, res) => {
 
     // Save the medical record to the database
     const savedRecord = await newMedicalRecord.save();
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      status: "completed",
+    });
 
     res.status(201).json({
       message: "Medical record created successfully",
@@ -50,6 +54,7 @@ module.exports.getMedicalRecords = async (req, res) => {
       doctor: {
         name: record.doctor.fullName,
         specialization: record.doctor.professionalDetails.specialization,
+        profileImage: record.doctor.profileImage,
       },
       patient: record.patient,
       date: record.date,

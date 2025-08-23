@@ -426,14 +426,14 @@ module.exports.getFutureAppointments = async (req, res) => {
   doctorId = doctorId.replace(/^:/, "").trim();
   try {
     // Fetch appointments for the given doctor ID
+    const today = moment.tz("Asia/Karachi").format("YYYY-MM-DD");
+    console.log(today);
     const appointments = await appointmentModel
-      .find({ doctor: doctorId, status: "booked" })
+      .find({ doctor: doctorId, status: "booked", date: { $gt: today } })
       .populate("patient");
-
     const appointmentDetails = appointments.map((appointment) => {
       // Handle case where patient may be null
       const patient = appointment.patient || {};
-      console.log(patient);
       const bookingType = patient.isOffline ? "Walk-in" : "Online";
 
       return {
@@ -444,7 +444,7 @@ module.exports.getFutureAppointments = async (req, res) => {
         date: appointment.date, // Appointment date
         TokenNo: appointment.appointmentNo, // Formatted appointment time
         status: appointment.status, // Appointment status
-        bookingType: bookingType, // Set booking type based on isOffline
+        profileImage: patient.profileImage,
       };
     });
 

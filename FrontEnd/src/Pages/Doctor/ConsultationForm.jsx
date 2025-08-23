@@ -11,10 +11,11 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 const ConsultationForm = () => {
+  const navigate = useNavigate();
   const { doctorId, patientId, appointmentId } = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -184,7 +185,7 @@ const ConsultationForm = () => {
       const response = await axios.post(
         `${
           import.meta.env.VITE_BASE_URL
-        }/medicalRecord/createMedicalRecord/${doctorId}/${patientId}`,
+        }/medicalRecord/createMedicalRecord/${doctorId}/${patientId}/${appointmentId}`,
         { formData }
       );
       console.log(response);
@@ -218,24 +219,6 @@ const ConsultationForm = () => {
             >
               Back to Dashboard
             </Link>
-            <button
-              onClick={() => {
-                setShowSuccessModal(false);
-                // Reset form for next patient
-                setFormData({
-                  appointmentDetails: "",
-                  prescription: {
-                    validity: "",
-                    medicines: [
-                      { name: "", instructions: "", frequency: [], dosage: "" },
-                    ],
-                  },
-                });
-              }}
-              className="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-4 rounded-lg font-medium transition-colors"
-            >
-              New Consultation
-            </button>
           </div>
         </div>
       </div>
@@ -341,7 +324,6 @@ const ConsultationForm = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
-                
               </div>
             </div>
 

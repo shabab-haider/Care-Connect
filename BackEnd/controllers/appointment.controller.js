@@ -232,6 +232,7 @@ module.exports.getBookedAppointments = async (req, res) => {
       });
     }
     console.log(appointments);
+
     const formattedAppointments = await Promise.all(
       appointments.map(async (appointment) => {
         // Fetch the corresponding token document
@@ -247,6 +248,8 @@ module.exports.getBookedAppointments = async (req, res) => {
             if (tokenDetails) break; // Break if found
           }
         }
+
+        console.log(tokenDetails);
 
         // Fetch patient details
         const patient = await patientModel.findById(appointment.patient);
@@ -381,7 +384,7 @@ module.exports.getMissedAppointments = async (req, res) => {
         const timezone = "Asia/Karachi";
         return {
           appointmentNo: appointment.appointmentNo,
-          bookingType: appointment.isOffline ? "Offline" : "online",
+          bookingType: patient.isOffline ? "Offline" : "online",
           status: appointment.status,
           id: appointment._id, // Use appointment's ID
           patientName: patient.fullname, // Patient's name

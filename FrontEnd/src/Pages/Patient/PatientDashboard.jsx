@@ -409,8 +409,8 @@ const PatientDashboard = () => {
               </Link>
             </li>
             <li>
-              <button
-                onClick={() => handleNavigation("profile")}
+              <Link
+                to="/patient-profile"
                 className="w-full flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
               >
                 <div className="flex items-center space-x-3">
@@ -418,7 +418,7 @@ const PatientDashboard = () => {
                   <span className="font-medium">Profile</span>
                 </div>
                 <ChevronRight className="h-4 w-4" />
-              </button>
+              </Link>
             </li>
           </ul>
         </nav>

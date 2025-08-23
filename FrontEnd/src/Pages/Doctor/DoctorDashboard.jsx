@@ -32,7 +32,6 @@ const DoctorDashboard = () => {
   const todayDateString = new Date().toISOString().split("T")[0];
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("queue");
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
   const [offlinePatientForm, setOfflinePatientForm] = useState({
     name: "",

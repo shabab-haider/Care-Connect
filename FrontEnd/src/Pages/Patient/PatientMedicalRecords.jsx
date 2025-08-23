@@ -147,7 +147,6 @@ const PatientMedicalRecords = () => {
   };
 
   const isPrescriptionValid = (validityDate) => {
-    
     return new Date(validityDate) >= new Date();
   };
 
@@ -246,7 +245,11 @@ const PatientMedicalRecords = () => {
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                           <div className="flex items-center space-x-4 flex-1">
                             <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                              <Stethoscope className="h-6 w-6 text-blue-600" />
+                              <img
+                                src={record.doctor.profileImage || "/placeholder.svg"}
+                                alt="Profile"
+                                className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
+                              />
                             </div>
                             <div className="flex-1">
                               <h3 className="font-semibold text-gray-900">

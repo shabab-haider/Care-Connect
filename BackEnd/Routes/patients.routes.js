@@ -59,4 +59,6 @@ router.get(
   PatientController.getRecentAppointments
 );
 
+router.post("/update",PatientController.update)
+
 module.exports = router;

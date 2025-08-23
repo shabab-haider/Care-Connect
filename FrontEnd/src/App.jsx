@@ -20,6 +20,7 @@ import DoctorAppointments from "./Pages/Doctor/DoctorAppointments";
 import DoctorProfile from "./Pages/Doctor/DoctorProfile";
 import DoctorFutureSchedule from "./Pages/Doctor/DoctorFutureSchedule";
 import PatientMedicalRecords from "./Pages/Patient/PatientMedicalRecords";
+import PatientProfile from "./Pages/Patient/PatientProfile";
 
 const App = () => {
   return (
@@ -53,6 +54,7 @@ const App = () => {
           path="/appointment-booking/:id"
           element={<AppointmentBooking />}
         />
+        <Route path="/patient-profile" element={<PatientProfile />} />
 
         {/* Doctor Routes */}
         <Route

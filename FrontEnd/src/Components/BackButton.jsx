@@ -28,6 +28,9 @@ const BackButton = () => {
     if (current == "/patient-appointment-history") {
       navigate("/patient-dashboard");
     }
+    if (current == "/patient-profile") {
+      navigate("/patient-dashboard");
+    }
     if (current == "/appointment-requests") {
       navigate("/doctor-dashboard");
     }
