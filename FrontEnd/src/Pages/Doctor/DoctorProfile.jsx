@@ -340,6 +340,7 @@ const DoctorProfile = () => {
                         errors.phone ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="+92 300 1234567"
+                      minLength={11}
                     />
                   </div>
                   {errors.phone && (

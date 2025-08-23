@@ -19,6 +19,7 @@ import PatientAppointments from "./Pages/Patient/patientAppointments";
 import DoctorAppointments from "./Pages/Doctor/DoctorAppointments";
 import DoctorProfile from "./Pages/Doctor/DoctorProfile";
 import DoctorFutureSchedule from "./Pages/Doctor/DoctorFutureSchedule";
+import PatientMedicalRecords from "./Pages/Patient/PatientMedicalRecords";
 
 const App = () => {
   return (
@@ -40,6 +41,10 @@ const App = () => {
         />
 
         <Route path="/find-doctor" element={<FindDoctor />} />
+        <Route
+          path="/medical-record/:patientId"
+          element={<PatientMedicalRecords />}
+        />
         <Route
           path="/patient-appointment-history"
           element={<PatientAppointments />}
@@ -66,7 +71,10 @@ const App = () => {
           path="/doctor-appointment-history"
           element={<DoctorAppointments />}
         />
-        <Route path="/consultation" element={<ConsultationForm />} />
+        <Route
+          path="/consultation/:doctorId/:patientId/:appointmentId"
+          element={<ConsultationForm />}
+        />
         <Route path="/doctor-profile" element={<DoctorProfile />} />
         <Route path="/Schedule" element={<DoctorFutureSchedule />} />
       </Routes>

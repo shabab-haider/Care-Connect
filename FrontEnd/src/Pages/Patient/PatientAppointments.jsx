@@ -14,8 +14,10 @@ import {
   Hash,
 } from "lucide-react";
 import Header from "../../Components/Header";
+import { useNavigate } from "react-router-dom";
 
 const PatientAppointments = () => {
+  const navigate = useNavigate();
   //recent appointments template
   //  [ {
   //       id: 3,
@@ -429,7 +431,12 @@ const PatientAppointments = () => {
                 {!filters.search &&
                   filters.status === "all" &&
                   !filters.selectedDate && (
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    <button
+                      onClick={() => {
+                        navigate("/find-doctor");
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    >
                       Book Your First Appointment
                     </button>
                   )}

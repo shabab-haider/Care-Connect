@@ -19,6 +19,9 @@ const BackButton = () => {
     if (/^\/appointment-booking\/[a-f0-9]{24}$/.test(current)) {
       navigate("/find-doctor");
     }
+    if (/^\/medical-record\/[a-f0-9]{24}$/.test(current)) {
+      navigate("/patient-dashboard");
+    }
     if (current == "/find-doctor") {
       navigate("/patient-dashboard");
     }

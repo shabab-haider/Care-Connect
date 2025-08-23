@@ -394,6 +394,39 @@ module.exports.getAppointments = async (req, res) => {
   try {
     // Fetch appointments for the given doctor ID
     const appointments = await appointmentModel
+      .find({ doctor: doctorId, status: { $in: ["no_show", "completed"] } })
+      .populate("patient");
+
+    const appointmentDetails = appointments.map((appointment) => {
+      // Handle case where patient may be null
+      const patient = appointment.patient || {};
+      console.log(patient);
+      const bookingType = patient.isOffline ? "Walk-in" : "Online";
+
+      return {
+        id: appointment.appointmentNo, // Assuming appointmentNo is unique
+        patientName: patient.fullname || "", // Get patient's name
+        phone: "0" + patient.phoneNumber || "", // Get patient's phone
+        gender: patient.gender || "", // Get patient's gender
+        date: appointment.date, // Appointment date
+        TokenNo: appointment.appointmentNo, // Formatted appointment time
+        status: appointment.status, // Appointment status
+        bookingType: bookingType, // Set booking type based on isOffline
+      };
+    });
+
+    res.status(200).json(appointmentDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+module.exports.getFutureAppointments = async (req, res) => {
+  let doctorId = req.params.id;
+  doctorId = doctorId.replace(/^:/, "").trim();
+  try {
+    // Fetch appointments for the given doctor ID
+    const appointments = await appointmentModel
       .find({ doctor: doctorId, status: "booked" })
       .populate("patient");
 

@@ -57,7 +57,7 @@ router.get(
 router.get(
   "/getFutureAppointments/:id",
 
-  doctorController.getAppointments
+  doctorController.getFutureAppointments
 );
 
 module.exports = router;

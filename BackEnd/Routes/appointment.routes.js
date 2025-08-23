@@ -36,4 +36,9 @@ router.get(
   appointmentController.addOfflinePatient
 );
 
+router.get(
+  "/getAppointmentData/:appointmentId",
+  appointmentController.getAppointmentData
+);
+
 module.exports = router;

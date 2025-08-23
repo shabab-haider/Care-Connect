@@ -253,9 +253,10 @@ module.exports.getBookedAppointments = async (req, res) => {
         const timezone = "Asia/Karachi";
         return {
           appointmentNo: appointment.appointmentNo,
-          bookingType: appointment.isOffline ? "Offline" : "online",
+          bookingType: patient.isOffline ? "Offline" : "online",
           status: appointment.status,
           id: appointment._id, // Use appointment's ID
+          patientId: patient._id,
           patientName: patient.fullname, // Patient's name
           phone: patient.phoneNumber, // Patient's phone number
           image: patient.profileImage,
@@ -478,5 +479,34 @@ module.exports.addOfflinePatient = async (req, res) => {
     return res.status(201).json({ appointment });
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports.getAppointmentData = async (req, res) => {
+  let appointmentId = req.params.appointmentId;
+  appointmentId = appointmentId.replace(/^:/, "").trim();
+  try {
+    // Find the appointment by ID and populate the patient details
+    const appointment = await appointmentModel
+      .findById(appointmentId)
+      .populate("patient");
+
+    // Check if the appointment exists
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Extract patient details
+    const patient = appointment.patient; // Assuming patient is populated
+    const patientData = {
+      name: patient.fullname, // Adjust according to your patient schema
+      gender: patient.gender, // Adjust according to your patient schema
+      tokenNumber: appointment.appointmentNo, // Assuming this field exists in the appointment
+    };
+    // Return the patient data
+    res.status(200).json(patientData);
+  } catch (error) {
+    console.error("Error fetching appointment data:", error);
+    res.status(500).json({ message: "Error fetching appointment data", error });
   }
 };

@@ -32,8 +32,13 @@ const PatientDashboard = () => {
     profileImage: patient.profileImage,
   };
 
+  const isPrescriptionValid = (validityDate) => {
+    console.log(new Date());
+    return new Date(validityDate) >= new Date();
+  };
+
   // Current medicines data
-  const prescriptions = [
+  const [prescriptions, setPrescriptions] = useState([
     {
       prescriptionId: "presc-001",
       doctorName: "Dr. Ali",
@@ -79,7 +84,24 @@ const PatientDashboard = () => {
         },
       ],
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const getPrescriptions = async () => {
+      try {
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BASE_URL
+          }/medicalRecord/valid-medical-records/${patient._id}`
+        );
+        console.log(response.data);
+        setPrescriptions(response.data);
+      } catch (error) {
+        console.error("Error fetching prescriptions:", error);
+      }
+    };
+    getPrescriptions();
+  }, []);
 
   //Template data for upcommingAppointments
   // [
@@ -363,8 +385,8 @@ const PatientDashboard = () => {
               </Link>
             </li>
             <li>
-              <button
-                onClick={() => handleNavigation("medical-history")}
+              <Link
+                to={`/medical-record/${patient._id}`}
                 className="w-full flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
               >
                 <div className="flex items-center space-x-3">
@@ -372,7 +394,7 @@ const PatientDashboard = () => {
                   <span className="font-medium">Medical History</span>
                 </div>
                 <ChevronRight className="h-4 w-4" />
-              </button>
+              </Link>
             </li>
             <li>
               <Link

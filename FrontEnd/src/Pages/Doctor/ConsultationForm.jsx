@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Calendar,
   Plus,
@@ -11,15 +11,14 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import axios from "axios";
 
 const ConsultationForm = () => {
-  const [loading, setLoading] = useState(false);
+  const { doctorId, patientId, appointmentId } = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
-    appointmentDetails: {
-      type: "",
-    },
+    appointmentDetails: "",
     prescription: {
       validity: "",
       medicines: [
@@ -34,26 +33,23 @@ const ConsultationForm = () => {
   });
 
   // Sample patient data - would come from props or context in real app
-  const patientData = {
-    id: "PAT001",
+  const [patientData, setPatientData] = useState({
     name: "John Smith",
-    age: 35,
     gender: "Male",
-    phone: "+1 (555) 123-4567",
     tokenNumber: "A-15",
-    appointmentTime: "10:30 AM",
-    symptoms: "Chest pain, shortness of breath",
-  };
+  });
 
-  const appointmentTypes = [
-    "Consultation",
-    "Follow-up",
-    "Routine Checkup",
-    "Emergency",
-    "Diagnostic",
-    "Preventive Care",
-    "Specialist Referral",
-  ];
+  useEffect(() => {
+    const getPatientData = async () => {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/appointments/getAppointmentData/${appointmentId}`
+      );
+      setPatientData(response.data);
+    };
+    getPatientData();
+  }, []);
 
   const frequencyOptions = [
     "Morning",
@@ -65,6 +61,13 @@ const ConsultationForm = () => {
     "As Needed",
   ];
 
+  const handleAppointmentDetails = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      appointmentDetails: e.target.value,
+    }));
+  };
+
   const handleInputChange = (field, value) => {
     if (field.includes("prescription.")) {
       const prescriptionField = field.split(".")[1];
@@ -73,15 +76,6 @@ const ConsultationForm = () => {
         prescription: {
           ...prev.prescription,
           [prescriptionField]: value,
-        },
-      }));
-    } else if (field.includes("appointmentDetails.")) {
-      const appointmentField = field.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        appointmentDetails: {
-          ...prev.appointmentDetails,
-          [appointmentField]: value,
         },
       }));
     }
@@ -160,11 +154,6 @@ const ConsultationForm = () => {
   };
 
   const validateForm = () => {
-    if (!formData.appointmentDetails.type) {
-      alert("Please select appointment type");
-      return false;
-    }
-
     if (!formData.prescription.validity) {
       alert("Please set prescription validity date");
       return false;
@@ -174,7 +163,6 @@ const ConsultationForm = () => {
       const medicine = formData.prescription.medicines[i];
       if (
         !medicine.name ||
-        !medicine.instructions ||
         !medicine.dosage ||
         medicine.frequency.length === 0
       ) {
@@ -191,25 +179,21 @@ const ConsultationForm = () => {
 
     if (!validateForm()) return;
 
-    setLoading(true);
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // In real app, make API call to save consultation
-      // const response = await axios.post('/api/consultations', {
-      //   patientId: patientData.id,
-      //   ...formData
-      // })
-
       console.log("Consultation Data:", formData);
-      setShowSuccessModal(true);
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/medicalRecord/createMedicalRecord/${doctorId}/${patientId}`,
+        { formData }
+      );
+      console.log(response);
+      if ((response.status = 201)) {
+        setShowSuccessModal(true);
+      }
     } catch (error) {
       console.error("Error saving consultation:", error);
       alert("Error saving consultation. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -239,7 +223,7 @@ const ConsultationForm = () => {
                 setShowSuccessModal(false);
                 // Reset form for next patient
                 setFormData({
-                  appointmentDetails: { type: "" },
+                  appointmentDetails: "",
                   prescription: {
                     validity: "",
                     medicines: [
@@ -296,19 +280,15 @@ const ConsultationForm = () => {
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm text-gray-600">Token Number</p>
               <p className="font-semibold text-blue-600">
-                {patientData.tokenNumber}
+                A-{patientData.tokenNumber}
               </p>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Age & Gender</p>
+              <p className="text-sm text-gray-600">Gender</p>
               <p className="font-semibold text-gray-900">
-                {patientData.age} years, {patientData.gender}
+                {patientData.gender}
               </p>
             </div>
-          </div>
-          <div className="mt-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-            <p className="text-sm text-gray-600">Symptoms/Reason for Visit</p>
-            <p className="font-medium text-gray-900">{patientData.symptoms}</p>
           </div>
         </div>
 
@@ -321,24 +301,17 @@ const ConsultationForm = () => {
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                {/* <label className="block text-sm font-medium text-gray-700 mb-2">
                   Appointment Type <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.appointmentDetails.type}
-                  onChange={(e) =>
-                    handleInputChange("appointmentDetails.type", e.target.value)
-                  }
+                </label> */}
+                <textarea
+                  id="appointmentType"
+                  value={formData.appointmentDetails}
+                  onChange={(e) => handleAppointmentDetails(e)}
+                  placeholder="Enter appointment details"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="">Select appointment type</option>
-                  {appointmentTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
+                  rows={4}
+                />
               </div>
             </div>
           </div>
@@ -368,7 +341,7 @@ const ConsultationForm = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
-                <Calendar className="absolute right-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
+                
               </div>
             </div>
 
@@ -470,7 +443,7 @@ const ConsultationForm = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Instructions <span className="text-red-500">*</span>
+                      Instructions
                     </label>
                     <textarea
                       value={medicine.instructions}
@@ -484,7 +457,6 @@ const ConsultationForm = () => {
                       placeholder="e.g., Take after meals, Avoid alcohol, Take with water"
                       rows={3}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
                     />
                   </div>
                 </div>
@@ -503,20 +475,10 @@ const ConsultationForm = () => {
               </Link>
               <button
                 type="submit"
-                disabled={loading}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
               >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Complete Consultation
-                  </>
-                )}
+                <Save className="h-4 w-4 mr-2" />
+                Complete Consultation
               </button>
             </div>
           </div>

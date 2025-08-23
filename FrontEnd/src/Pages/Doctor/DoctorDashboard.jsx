@@ -17,6 +17,8 @@ import {
   PlusSquare,
   Dot,
   History,
+  ChevronLast,
+  Clock,
 } from "lucide-react";
 import Logo from "../../Components/Logo";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,6 +28,7 @@ import { DoctorDataContext } from "../../Context/DoctorContext";
 const DoctorDashboard = () => {
   const navigate = useNavigate();
   const { doctor, setDoctor } = useContext(DoctorDataContext);
+  const doctorId = doctor._id;
   const todayDateString = new Date().toISOString().split("T")[0];
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -49,18 +52,8 @@ const DoctorDashboard = () => {
     profileImage: doctor.profileImage,
   };
 
-  // Today's stats
-  const todayStats = {
-    totalAppointments: 24,
-    completedAppointments: 18,
-    pendingAppointments: 6,
-    revenue: 12000,
-    avgWaitTime: "15 mins",
-  };
-
   const [appointmentRequests, setAppointmentRequests] = useState([]);
 
-  // Patient queue data
   const [patientQueue, setPatientQueue] = useState([]);
   const [missedAppointments, setMissedAppointments] = useState([]);
 
@@ -78,6 +71,7 @@ const DoctorDashboard = () => {
         }
       );
       if (response.status == "200") {
+        console.log(response.data.appointments);
         setPatientQueue(
           response.data.appointments.sort(
             (a, b) => a.appointmentNo - b.appointmentNo
@@ -105,6 +99,13 @@ const DoctorDashboard = () => {
     };
     getMissedAppointments();
   }, [updateMissedAppointments]);
+
+  // Today's stats
+  const todayStats = {
+    totalAppointments: patientQueue.length + missedAppointments.length,
+    remaining:patientQueue.length,
+    Missed: missedAppointments.length,
+  };
 
   //get Pending Appointments-> use thier length to display notification dot in request nav
   useEffect(() => {
@@ -271,7 +272,7 @@ const DoctorDashboard = () => {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Link
-                to="/consultation"
+                to={`/consultation/${doctorId}/${patient.patientId}/${patient.id}`}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors text-center"
               >
                 Start Consultation
@@ -456,12 +457,12 @@ const DoctorDashboard = () => {
                 <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Completed</p>
+                      <p className="text-sm text-gray-600">Remaining</p>
                       <p className="text-xl sm:text-2xl font-bold text-green-600">
-                        {todayStats.completedAppointments}
+                        {todayStats.remaining}
                       </p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-green-600" />
+                    <Clock className="h-8 w-8 text-green-600" />
                   </div>
                 </div>
                 <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
@@ -469,7 +470,7 @@ const DoctorDashboard = () => {
                     <div>
                       <p className="text-sm text-gray-600">Missed</p>
                       <p className="text-xl sm:text-2xl font-bold text-orange-600">
-                        {todayStats.pendingAppointments}
+                        {todayStats.Missed}
                       </p>
                     </div>
                     <XCircle className="h-8 w-8 text-orange-600" />
@@ -555,7 +556,7 @@ const DoctorDashboard = () => {
                           {/* Right Side Buttons */}
                           <div className="flex flex-col sm:flex-row gap-2">
                             <Link
-                              to="/consultation"
+                              to={`/consultation/${doctorId}/${patient.patientId}/${patient.id}`}
                               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center"
                             >
                               Start Consultation

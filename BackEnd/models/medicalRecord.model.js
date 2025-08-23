@@ -31,7 +31,6 @@ const medicalRecordSchema = mongoose.Schema({
         },
         instructions: {
           type: String,
-          required: true,
         },
         frequency: {
           type: [String],
