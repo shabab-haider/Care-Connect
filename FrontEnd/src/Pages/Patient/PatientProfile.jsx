@@ -81,10 +81,11 @@ const PatientProfile = () => {
       }));
 
       setSuccessMessage("Profile updated successfully!");
+      toast.success("Profile updated successfully!")
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }

@@ -24,6 +24,7 @@ import Logo from "../../Components/Logo";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { DoctorDataContext } from "../../Context/DoctorContext";
+import { toast } from "react-toastify";
 
 const DoctorDashboard = () => {
   const navigate = useNavigate();
@@ -102,7 +103,7 @@ const DoctorDashboard = () => {
   // Today's stats
   const todayStats = {
     totalAppointments: patientQueue.length + missedAppointments.length,
-    remaining:patientQueue.length,
+    remaining: patientQueue.length,
     Missed: missedAppointments.length,
   };
 
@@ -124,13 +125,6 @@ const DoctorDashboard = () => {
     getPendingAppointments();
   }, []);
 
-  // Navigation function
-  const handleNavigation = (route) => {
-    console.log(`Navigating to: ${route}`);
-    setSidebarOpen(false);
-    alert(`Navigation to ${route} - Replace with actual routing`);
-  };
-
   // Move patient to missed appointments
   const handleMarkAsNoShow = async (id) => {
     console.log(id);
@@ -138,6 +132,7 @@ const DoctorDashboard = () => {
       `${import.meta.env.VITE_BASE_URL}/appointments/NoShow/${id}`
     );
     if (response.status == "200") {
+      toast.success("Added to Missed Appointments");
       setUpdateMissedAppointments(updateMissedAppointments + 1);
       setUpdatePatientQueue(updatePatientQueue + 1);
     }
@@ -151,6 +146,7 @@ const DoctorDashboard = () => {
       { id }
     );
     if (response.status == "200") {
+      toast.success("Moved Backed Into Patient Queue");
       setUpdateMissedAppointments(updateMissedAppointments + 1);
       setUpdatePatientQueue(updatePatientQueue + 1);
     }
@@ -276,7 +272,10 @@ const DoctorDashboard = () => {
               >
                 Start Consultation
               </Link>
-              <Link className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors text-center">
+              <Link
+                to={`/medical-record/${patient.id}`}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors text-center"
+              >
                 View History
               </Link>
             </div>

@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Header from "../../Components/Header";
+import { toast } from "react-toastify";
 
 const ConsultationForm = () => {
   const navigate = useNavigate();
@@ -191,10 +193,11 @@ const ConsultationForm = () => {
       console.log(response);
       if ((response.status = 201)) {
         setShowSuccessModal(true);
+        toast.success("consultation completed")
       }
     } catch (error) {
       console.error("Error saving consultation:", error);
-      alert("Error saving consultation. Please try again.");
+      toast.error("Error saving consultation. Please try again.");
     }
   };
 
@@ -226,9 +229,10 @@ const ConsultationForm = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50 pb-8">
+      {/* Header */}
+      <Header />
+      <div className="max-w-4xl mx-auto mt-2 px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>

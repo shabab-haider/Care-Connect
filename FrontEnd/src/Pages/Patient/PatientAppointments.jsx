@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Header from "../../Components/Header";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PatientAppointments = () => {
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ const PatientAppointments = () => {
         setFilteredAppointments(response.data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
+        toast.error("Error in fetching appointments");
       } finally {
         setLoading(false);
       }

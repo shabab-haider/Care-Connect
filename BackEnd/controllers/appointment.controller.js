@@ -319,6 +319,12 @@ module.exports.setAppointmentToNoShaow = async (req, res) => {
 
     // Fetch patient details
     const patient = await patientModel.findById(appointment.patient);
+    const doctor = await doctorModel.findById(appointment.doctor);
+    console.log(
+      appointment.token,
+      doctor._id,
+      doctor.professionalDetails.avgAppointmentTime
+    );
     const timezone = "Asia/Karachi";
 
     const formattedAppointments = {

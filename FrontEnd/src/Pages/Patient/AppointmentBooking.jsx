@@ -16,6 +16,7 @@ import { PatientDataContext } from "../../Context/PatientContext";
 import { convertDate } from "../../Utils/dateUtils";
 import { isCurrentTimeGreater } from "../../Utils/timeComparison";
 import { getAppointmentNumber } from "../../Utils/getAppointmentNumber";
+import { toast } from "react-toastify";
 const AppointmentBooking = () => {
   const { id } = useParams();
   const [selectedDate, setSelectedDate] = useState("");
@@ -193,6 +194,7 @@ const AppointmentBooking = () => {
     );
     if (response.status == "201") {
       setShowSuccess(true);
+      toast.success("Appointment request sent");
     }
   };
 
@@ -309,7 +311,8 @@ const AppointmentBooking = () => {
                 </div>
                 <div className="flex items-center text-purple-600 font-medium">
                   <span>
-                    (PKR){doctor.professionalDetails.consultationFee} consultation
+                    (PKR){doctor.professionalDetails.consultationFee}{" "}
+                    consultation
                   </span>
                 </div>
               </div>

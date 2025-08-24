@@ -17,6 +17,7 @@ import LogoAndBack from "../../Components/LogoAndBack";
 import Header from "../../Components/Header";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const PatientMedicalRecords = () => {
   const { patientId } = useParams();
@@ -64,6 +65,7 @@ const PatientMedicalRecords = () => {
         setMedicalRecords(response.data);
       } catch (error) {
         console.error("Error fetching medical records:", error);
+        toast.error("Error fetching medical records");
       }
     };
     getMedicalRecords();

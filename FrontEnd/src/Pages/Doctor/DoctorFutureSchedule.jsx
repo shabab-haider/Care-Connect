@@ -5,6 +5,7 @@ import { Calendar, Filter, Search, Eye, User, Phone, Hash } from "lucide-react";
 import Header from "../../Components/Header";
 import axios from "axios";
 import { DoctorDataContext } from "../../Context/DoctorContext";
+import { toast } from "react-toastify";
 
 const DoctorFutureSchedule = () => {
   const { doctor, setDoctor } = useContext(DoctorDataContext);
@@ -30,6 +31,7 @@ const DoctorFutureSchedule = () => {
         setAppointments(response.data);
       } catch (error) {
         console.error("Error fetching future appointments:", error);
+        toast.error("Error fetching future appointments");
       }
     };
     getFutureAppointments();

@@ -205,8 +205,10 @@ const DoctorProfile = () => {
       console.log(response.data.doctor);
       setDoctor(response.data.doctor);
       setSuccessMessage("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
+      toast.error("Error in updating profile");
     }
   };
 

@@ -19,6 +19,7 @@ import Logo from "../../Components/Logo";
 import { Link, useNavigate } from "react-router-dom";
 import { PatientDataContext } from "../../Context/PatientContext";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const PatientDashboard = () => {
   const { patient, setPatient } = useContext(PatientDataContext);
@@ -98,6 +99,7 @@ const PatientDashboard = () => {
         setPrescriptions(response.data);
       } catch (error) {
         console.error("Error fetching prescriptions:", error);
+        toast.error("Error in fetching prescriptions");
       }
     };
     getPrescriptions();
@@ -173,13 +175,6 @@ const PatientDashboard = () => {
     };
     getRecentAppointments();
   }, []);
-
-  // Navigation function (replace with actual routing)
-  const handleNavigation = (route) => {
-    console.log(`Navigating to: ${route}`);
-    setSidebarOpen(false); // Close sidebar on mobile after navigation
-    alert(`Navigation to ${route} - Replace with actual routing`);
-  };
 
   const AppointmentDetailsModal = ({ appointment, onClose }) => {
     if (!appointment) return null;

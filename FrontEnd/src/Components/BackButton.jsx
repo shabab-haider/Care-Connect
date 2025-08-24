@@ -19,8 +19,16 @@ const BackButton = () => {
     if (/^\/appointment-booking\/[a-f0-9]{24}$/.test(current)) {
       navigate("/find-doctor");
     }
-    if (/^\/medical-record\/[a-f0-9]{24}$/.test(current)) {
+    if (
+      /^\/medical-record\/[a-f0-9]{24}$/.test(current) &&
+      lastRoute != "/doctor-dashboard"
+    ) {
       navigate("/patient-dashboard");
+    } else if (
+      /^\/medical-record\/[a-f0-9]{24}$/.test(current) &&
+      lastRoute == "/doctor-dashboard"
+    ) {
+      navigate("/doctor-dashboard");
     }
     if (current == "/find-doctor") {
       navigate("/patient-dashboard");
@@ -41,6 +49,9 @@ const BackButton = () => {
       navigate("/doctor-dashboard");
     }
     if (current == "/doctor-appointment-history") {
+      navigate("/doctor-dashboard");
+    }
+    if (lastRoute == "/doctor-dashboard") {
       navigate("/doctor-dashboard");
     }
   };

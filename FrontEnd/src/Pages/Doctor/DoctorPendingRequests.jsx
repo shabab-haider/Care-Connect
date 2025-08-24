@@ -3,6 +3,7 @@ import { Calendar, Clock, User, CheckCircle, XCircle } from "lucide-react";
 import LogoAndBack from "../../Components/LogoAndBack";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const DoctorPendingRequests = () => {
   const navigate = useNavigate();
@@ -50,11 +51,11 @@ const DoctorPendingRequests = () => {
       );
       if (response.status == "200") {
         setUpdateAppointmentRequests(updateAppointmentRequests + 1);
+        toast.success("Appointment Accepted");
       }
     } catch (error) {
       console.error("Error accepting request:", error);
-
-      alert("Error accepting request. Please try again.");
+      toast.error("Error accepting request. Please try again.");
     }
   };
 
@@ -71,11 +72,11 @@ const DoctorPendingRequests = () => {
       );
       if (response.status == "200") {
         setUpdateAppointmentRequests(updateAppointmentRequests + 1);
+        toast.success("Appointment Accepted");
       }
     } catch (error) {
       console.error("Error rejecting request:", error);
-
-      alert("Error rejecting request. Please try again.");
+      toast.error("Error rejecting request. Please try again.");
     }
   };
 
