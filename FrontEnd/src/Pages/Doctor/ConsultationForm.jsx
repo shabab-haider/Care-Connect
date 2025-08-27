@@ -193,7 +193,7 @@ const ConsultationForm = () => {
       console.log(response);
       if ((response.status = 201)) {
         setShowSuccessModal(true);
-        toast.success("consultation completed")
+        toast.success("consultation completed");
       }
     } catch (error) {
       console.error("Error saving consultation:", error);
@@ -333,18 +333,6 @@ const ConsultationForm = () => {
 
             {/* Medicines */}
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-md font-medium text-gray-900">Medicines</h3>
-                <button
-                  type="button"
-                  onClick={addMedicine}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Medicine
-                </button>
-              </div>
-
               {formData.prescription.medicines.map((medicine, index) => (
                 <div
                   key={index}
@@ -447,6 +435,16 @@ const ConsultationForm = () => {
                   </div>
                 </div>
               ))}
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={addMedicine}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Medicine
+                </button>
+              </div>
             </div>
           </div>
 

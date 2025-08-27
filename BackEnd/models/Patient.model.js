@@ -46,6 +46,10 @@ const PatientSchema = mongoose.Schema({
     default:
       "https://res.cloudinary.com/di9ljccil/image/upload/v1752328111/default-avatar-photo-placeholder-profile-icon-vector_nlejsr.jpg",
   },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Generate token (only for online patients)

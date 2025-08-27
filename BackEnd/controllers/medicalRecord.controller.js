@@ -1,6 +1,9 @@
 const appointmentModel = require("../models/appointment.model");
 const MedicalRecord = require("../models/medicalRecord.model");
 const moment = require("moment-timezone");
+const {
+  sendAppointmentCompletionEmail,
+} = require("../Utils/sendAppointmentCompletionEmail");
 
 module.exports.createMedicalRecord = async (req, res) => {
   const { doctorId, patientId, appointmentId } = req.params; // Extracting doctor and patient IDs from URL parameters
@@ -29,6 +32,23 @@ module.exports.createMedicalRecord = async (req, res) => {
       status: "completed",
     });
 
+    const medicalRecord = await MedicalRecord.findOne({
+      patient: patientId,
+    }).populate("patient doctor");
+
+    const medicalRecordForMail = {
+      patientName: medicalRecord.patient.fullname,
+      doctorName: medicalRecord.doctor.fullName,
+      date: medicalRecord.date,
+      appointmentDetails: medicalRecord.appointmentDetails,
+      prescription: medicalRecord.prescription,
+    };
+
+    sendAppointmentCompletionEmail(
+      medicalRecord.patient.email,
+      medicalRecordForMail
+    );
+
     res.status(201).json({
       message: "Medical record created successfully",
       record: savedRecord,
@@ -41,7 +61,7 @@ module.exports.createMedicalRecord = async (req, res) => {
 
 module.exports.getMedicalRecords = async (req, res) => {
   const patientId = req.params.patientId;
-
+  console.log(patientId);
   try {
     // Fetch medical records for the given patient ID
     const medicalRecords = await MedicalRecord.find({

@@ -1,11 +1,10 @@
-"use client";
-
 import { useContext, useState } from "react";
 import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar } from "lucide-react";
 import LogoAndBack from "../../Components/LogoAndBack";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { PatientDataContext } from "../../Context/PatientContext";
+import { toast } from "react-toastify";
 
 const PatientSignup = () => {
   const navigate = useNavigate();
@@ -23,18 +22,88 @@ const PatientSignup = () => {
     confirmPassword: "",
   });
 
+  // Email verification state variables
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [showVerificationField, setShowVerificationField] = useState(false);
+  const [code, setCode] = useState();
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isVerificationLoading, setIsVerificationLoading] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    // Prevent numbers in first and last name fields
+    if ((name === "firstName" || name === "lastName") && /\d/.test(value)) {
+      return; // Don't update state if numbers are detected
+    }
+
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     });
   };
 
+  // Function to send verification code
+  const handleSendVerificationCode = async () => {
+    if (!formData.email || !formData.email.includes("@")) {
+      toast.error("Please enter a valid email address first");
+      return;
+    }
+
+    setIsVerificationLoading(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/email/sendCode`,
+        {
+          email: formData.email,
+        }
+      );
+      if (response.status == "200") {
+        setCode(response.data.toString());
+        setShowVerificationField(true);
+        setIsVerificationLoading(false);
+        toast.success("Verification code sent to your email!");
+      }
+    } catch (error) {
+      setIsVerificationLoading(false);
+      toast.error("Failed to send verification code. Please try again.");
+    }
+  };
+
+  // Function to verify email code
+  const handleVerifyEmail = async () => {
+    if (!verificationCode || verificationCode.length < 6) {
+      toast.error("Please enter a valid verification code");
+      return;
+    }
+
+    setIsVerificationLoading(true);
+    try {
+      if (verificationCode === code) {
+        setIsEmailVerified(true);
+        setIsVerificationLoading(false);
+        toast.success("Email verified successfully!");
+      } else {
+        setIsVerificationLoading(false);
+        toast.error("Invalid verification code. Please try again.");
+      }
+    } catch (error) {
+      setIsVerificationLoading(false);
+      toast.error("Verification failed. Please try again.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if email is verified
+    if (!isEmailVerified) {
+      toast.error("Please verify your email address before proceeding");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      toast.error("Passwords don't match!");
       return;
     }
 
@@ -48,16 +117,22 @@ const PatientSignup = () => {
       profileImage: "",
     };
 
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/patients/register`,
-      payload
-    );
-    if (response.status == "201") {
-      const token = response.data.token;
-      localStorage.setItem("token", token);
-      const patientDetails = response.data.patient;
-      setPatient(patientDetails);
-      navigate("/patient-dashboard");
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/patients/register`,
+        payload
+      );
+      if (response.status == "201") {
+        localStorage.clear();
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+        const patientDetails = response.data.patient;
+        setPatient(patientDetails);
+        toast.success("SignedUp Successfully");
+        navigate("/patient-dashboard");
+      }
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
     }
   };
 
@@ -150,18 +225,78 @@ const PatientSignup = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
+                  disabled={isEmailVerified}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
-                    formData.email && !formData.email.includes("@")
+                    isEmailVerified
+                      ? "border-green-500 bg-green-50 focus:ring-green-500 focus:border-green-500"
+                      : formData.email && !formData.email.includes("@")
                       ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   }`}
                   placeholder="Enter your email"
                 />
+                {isEmailVerified && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
+                    ✓
+                  </div>
+                )}
               </div>
               {formData.email && !formData.email.includes("@") && (
                 <p className="text-red-500 text-sm mt-1">
                   Please enter a valid email address
                 </p>
+              )}
+              {isEmailVerified && (
+                <p className="text-green-500 text-sm mt-1">
+                  Email verified successfully!
+                </p>
+              )}
+
+              {/* Send Verification Code Button */}
+              {!isEmailVerified &&
+                !showVerificationField &&
+                formData.email &&
+                formData.email.includes("@") && (
+                  <button
+                    type="button"
+                    onClick={handleSendVerificationCode}
+                    disabled={isVerificationLoading}
+                    className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors"
+                  >
+                    {isVerificationLoading
+                      ? "Sending..."
+                      : "Send Verification Code"}
+                  </button>
+                )}
+
+              {/* Verification Code Field */}
+              {showVerificationField && !isEmailVerified && (
+                <div className="mt-3 space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Enter Verification Code
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      placeholder="Enter 6-digit code"
+                      maxLength={6}
+                      className="flex-1 py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerifyEmail}
+                      disabled={isVerificationLoading || !verificationCode}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors"
+                    >
+                      {isVerificationLoading ? "Verifying..." : "Verify"}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Check your email for the verification code
+                  </p>
+                </div>
               )}
             </div>
 
@@ -327,9 +462,16 @@ const PatientSignup = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
+              disabled={!isEmailVerified}
+              className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl ${
+                isEmailVerified
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-gray-400 cursor-not-allowed text-gray-700"
+              }`}
             >
-              Create Patient Account
+              {isEmailVerified
+                ? "Create Patient Account"
+                : "Verify Email to Continue"}
             </button>
           </form>
 

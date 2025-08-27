@@ -20,6 +20,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { PatientDataContext } from "../../Context/PatientContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import FloatingChatbot from "../../Components/FloatingChatbot";
 
 const PatientDashboard = () => {
   const { patient, setPatient } = useContext(PatientDataContext);
@@ -563,7 +564,7 @@ const PatientDashboard = () => {
                       Recent Appointments
                     </h2>
                     <Link
-                      to="/appointment-history"
+                      to="/patient-appointment-history"
                       className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center self-start sm:self-auto"
                     >
                       View All
@@ -638,7 +639,7 @@ const PatientDashboard = () => {
           </div>
         </div>
       </div>
-
+      <FloatingChatbot />
       {/* Appointment Details Modal */}
       <AppointmentDetailsModal
         appointment={selectedAppointment}

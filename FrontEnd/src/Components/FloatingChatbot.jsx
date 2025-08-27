@@ -1,69 +1,186 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
-import Logo_img from "../assets/Logo.png";
+import { X, Send, Bot, User } from "lucide-react";
 
-// Doctor specialties mapping
+// Enhanced symptom to doctor mapping with more comprehensive coverage
 const symptomToDoctorMap = {
-  // Heart related
+  // Cardiovascular/Heart related - Cardiologist
   "chest pain": "Cardiologist",
   "heart pain": "Cardiologist",
   "shortness of breath": "Cardiologist",
+  "breathing difficulty": "Cardiologist",
   palpitations: "Cardiologist",
   "irregular heartbeat": "Cardiologist",
+  "heart pounding": "Cardiologist",
+  "chest tightness": "Cardiologist",
+  "chest pressure": "Cardiologist",
+  "heart racing": "Cardiologist",
+  cardiac: "Cardiologist",
+  hypertension: "Cardiologist",
+  "high blood pressure": "Cardiologist",
+  "low blood pressure": "Cardiologist",
 
-  // Skin related
+  // Dermatology/Skin related - Dermatologist
   rash: "Dermatologist",
   acne: "Dermatologist",
+  pimples: "Dermatologist",
   "skin problem": "Dermatologist",
+  "skin issue": "Dermatologist",
   itching: "Dermatologist",
   "skin infection": "Dermatologist",
+  eczema: "Dermatologist",
+  psoriasis: "Dermatologist",
+  "skin allergy": "Dermatologist",
+  hives: "Dermatologist",
+  moles: "Dermatologist",
+  "skin cancer": "Dermatologist",
+  wrinkles: "Dermatologist",
+  "dark spots": "Dermatologist",
+  "skin discoloration": "Dermatologist",
 
-  // Bone/Joint related
+  // Orthopedic/Bone/Joint related - Orthopedist
   "joint pain": "Orthopedist",
   "back pain": "Orthopedist",
   "bone pain": "Orthopedist",
   fracture: "Orthopedist",
+  "broken bone": "Orthopedist",
   "muscle pain": "Orthopedist",
+  "knee pain": "Orthopedist",
+  "shoulder pain": "Orthopedist",
+  "hip pain": "Orthopedist",
+  "ankle pain": "Orthopedist",
+  "wrist pain": "Orthopedist",
+  "neck pain": "Orthopedist",
+  "spine pain": "Orthopedist",
+  arthritis: "Orthopedist",
+  sprain: "Orthopedist",
+  strain: "Orthopedist",
+  "sports injury": "Orthopedist",
 
-  // Eye related
+  // Ophthalmology/Eye related - Ophthalmologist
   "eye pain": "Ophthalmologist",
   "vision problem": "Ophthalmologist",
   "blurred vision": "Ophthalmologist",
   "eye infection": "Ophthalmologist",
+  "red eyes": "Ophthalmologist",
+  "dry eyes": "Ophthalmologist",
+  "watery eyes": "Ophthalmologist",
+  "eye discharge": "Ophthalmologist",
+  "double vision": "Ophthalmologist",
+  "night blindness": "Ophthalmologist",
+  cataracts: "Ophthalmologist",
+  glaucoma: "Ophthalmologist",
+  "eye strain": "Ophthalmologist",
 
-  // Ear/Nose/Throat
+  // ENT/Ear/Nose/Throat - ENT Specialist
   "sore throat": "ENT Specialist",
+  "throat pain": "ENT Specialist",
   "ear pain": "ENT Specialist",
+  earache: "ENT Specialist",
   "hearing problem": "ENT Specialist",
+  "hearing loss": "ENT Specialist",
   "nose bleeding": "ENT Specialist",
+  nosebleed: "ENT Specialist",
+  sinus: "ENT Specialist",
+  sinusitis: "ENT Specialist",
+  tonsillitis: "ENT Specialist",
+  "voice hoarse": "ENT Specialist",
+  "voice loss": "ENT Specialist",
+  "ear infection": "ENT Specialist",
+  "runny nose": "ENT Specialist",
+  "stuffy nose": "ENT Specialist",
+  snoring: "ENT Specialist",
 
-  // General symptoms
-  fever: "General Physician",
-  headache: "General Physician",
-  cold: "General Physician",
-  cough: "General Physician",
+  // Gastroenterology/Digestive - Gastroenterologist
   "stomach pain": "Gastroenterologist",
+  "abdominal pain": "Gastroenterologist",
+  "belly pain": "Gastroenterologist",
   nausea: "Gastroenterologist",
   vomiting: "Gastroenterologist",
   diarrhea: "Gastroenterologist",
+  constipation: "Gastroenterologist",
+  heartburn: "Gastroenterologist",
+  "acid reflux": "Gastroenterologist",
+  indigestion: "Gastroenterologist",
+  bloating: "Gastroenterologist",
+  gas: "Gastroenterologist",
+  ulcer: "Gastroenterologist",
+  "liver pain": "Gastroenterologist",
+  gallbladder: "Gastroenterologist",
 
-  // Mental health
+  // Neurology/Neurological - Neurologist
+  headache: "Neurologist",
+  migraine: "Neurologist",
+  dizziness: "Neurologist",
+  seizure: "Neurologist",
+  numbness: "Neurologist",
+  tingling: "Neurologist",
+  "memory loss": "Neurologist",
+  confusion: "Neurologist",
+  tremor: "Neurologist",
+  weakness: "Neurologist",
+  paralysis: "Neurologist",
+  stroke: "Neurologist",
+
+  // Psychiatry/Mental health - Psychiatrist
   depression: "Psychiatrist",
   anxiety: "Psychiatrist",
   stress: "Psychiatrist",
   "panic attack": "Psychiatrist",
+  "mood swings": "Psychiatrist",
+  insomnia: "Psychiatrist",
+  "sleep problems": "Psychiatrist",
+  bipolar: "Psychiatrist",
+  schizophrenia: "Psychiatrist",
+  ptsd: "Psychiatrist",
+  ocd: "Psychiatrist",
 
-  // Women's health
+  // Gynecology/Women's health - Gynecologist
   "period problem": "Gynecologist",
-  pregnancy: "Gynecologist",
   menstrual: "Gynecologist",
+  pregnancy: "Gynecologist",
+  "pelvic pain": "Gynecologist",
+  "vaginal discharge": "Gynecologist",
+  "breast pain": "Gynecologist",
+  ovarian: "Gynecologist",
+  uterine: "Gynecologist",
+  menopause: "Gynecologist",
 
-  // Children
+  // Pediatrics/Children - Pediatrician
   "child fever": "Pediatrician",
   baby: "Pediatrician",
   infant: "Pediatrician",
+  toddler: "Pediatrician",
+  "child cough": "Pediatrician",
+  "child cold": "Pediatrician",
+  vaccination: "Pediatrician",
+
+  // Urology - Urologist
+  "kidney pain": "Urologist",
+  "kidney stone": "Urologist",
+  urinary: "Urologist",
+  bladder: "Urologist",
+  prostate: "Urologist",
+  "blood in urine": "Urologist",
+
+  // Endocrinology - Endocrinologist
+  diabetes: "Endocrinologist",
+  thyroid: "Endocrinologist",
+  hormone: "Endocrinologist",
+  "weight gain": "Endocrinologist",
+  "weight loss": "Endocrinologist",
+
+  // General symptoms that could indicate multiple specialties
+  fever: "General Physician",
+  cold: "General Physician",
+  cough: "General Physician",
+  fatigue: "General Physician",
+  tired: "General Physician",
+  weakness: "General Physician",
+  "body ache": "General Physician",
+  flu: "General Physician",
+  infection: "General Physician",
 };
 
 const FloatingChatbot = () => {
@@ -85,7 +202,7 @@ const FloatingChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Function to analyze symptoms and suggest doctor
+  // Enhanced function to analyze symptoms and suggest doctor
   const analyzeSymptomsAndSuggestDoctor = (userInput) => {
     const input = userInput.toLowerCase().trim();
 
@@ -121,7 +238,7 @@ const FloatingChatbot = () => {
       return "Goodbye! Take care of your health. Remember to book an appointment with the recommended doctor. Feel free to come back anytime if you need medical guidance!";
     }
 
-    // Check if input contains medical-related keywords
+    // Enhanced medical keyword detection
     const medicalKeywords = [
       "pain",
       "ache",
@@ -166,6 +283,18 @@ const FloatingChatbot = () => {
       "nose",
       "throat",
       "heart",
+      "burning",
+      "itching",
+      "sore",
+      "tender",
+      "stiff",
+      "cramp",
+      "spasm",
+      "discharge",
+      "redness",
+      "inflammation",
+      "allergy",
+      "reaction",
     ];
 
     const containsMedicalKeyword = medicalKeywords.some((keyword) =>
@@ -176,26 +305,78 @@ const FloatingChatbot = () => {
       return "I apologize, but I can only help with medical symptoms and doctor recommendations. Please describe any symptoms you're experiencing (like pain, fever, cough, etc.), and I'll suggest the appropriate doctor to consult. For example, you can say 'I have chest pain' or 'I'm feeling dizzy'.";
     }
 
-    // Find matching symptoms (rest of the function remains the same)
-    const matchedDoctors = new Set();
+    // Enhanced symptom matching with scoring system
+    const matchedDoctors = new Map();
 
+    // Check for exact matches and partial matches
     for (const [symptom, doctor] of Object.entries(symptomToDoctorMap)) {
       if (input.includes(symptom.toLowerCase())) {
-        matchedDoctors.add(doctor);
+        const currentScore = matchedDoctors.get(doctor) || 0;
+        // Give higher score for longer/more specific symptom matches
+        const score = currentScore + symptom.length;
+        matchedDoctors.set(doctor, score);
+      }
+    }
+
+    // Also check for individual words that might indicate specific conditions
+    const words = input.split(/\s+/);
+    for (const word of words) {
+      for (const [symptom, doctor] of Object.entries(symptomToDoctorMap)) {
+        if (symptom.toLowerCase().includes(word) && word.length > 3) {
+          const currentScore = matchedDoctors.get(doctor) || 0;
+          matchedDoctors.set(doctor, currentScore + 1);
+        }
       }
     }
 
     if (matchedDoctors.size > 0) {
-      const doctors = Array.from(matchedDoctors);
-      if (doctors.length === 1) {
-        return `Based on your symptoms, I recommend consulting a **${doctors[0]}**. They specialize in treating conditions related to your symptoms. Please book an appointment for proper diagnosis and treatment.`;
-      } else {
-        return `Based on your symptoms, you may need to consult one of these specialists: **${doctors.join(
+      // Sort doctors by score (highest first)
+      const sortedDoctors = Array.from(matchedDoctors.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([doctor]) => doctor);
+
+      if (sortedDoctors.length === 1) {
+        return `Based on your symptoms, I recommend consulting a **${sortedDoctors[0]}**. They specialize in treating conditions related to your symptoms. Please book an appointment for proper diagnosis and treatment.`;
+      } else if (sortedDoctors.length <= 3) {
+        return `Based on your symptoms, you may need to consult one of these specialists: **${sortedDoctors.join(
           ", "
-        )}**. I recommend starting with a **General Physician** who can examine you and refer you to the appropriate specialist if needed.`;
+        )}**. I recommend starting with a **${
+          sortedDoctors[0]
+        }** as they seem most relevant to your symptoms, but they can refer you to another specialist if needed.`;
+      } else {
+        // If too many matches, show top 3
+        const topDoctors = sortedDoctors.slice(0, 3);
+        return `Based on your symptoms, the most relevant specialists would be: **${topDoctors.join(
+          ", "
+        )}**. I recommend starting with a **${
+          topDoctors[0]
+        }** for initial evaluation.`;
       }
     } else {
-      return "Based on your description, I recommend consulting a **General Physician** first. They can perform an initial examination and refer you to a specialist if needed. If you have specific symptoms like chest pain, skin issues, or joint problems, please mention them for more targeted recommendations.";
+      // Enhanced fallback with more specific guidance
+      const commonConditions = {
+        general: ["tired", "weak", "unwell", "sick", "not feeling well"],
+        respiratory: ["breathing", "breath", "lung", "respiratory"],
+        digestive: ["eating", "food", "meal", "digest"],
+        mental: ["mood", "feeling", "emotional", "mental"],
+      };
+
+      for (const [category, keywords] of Object.entries(commonConditions)) {
+        if (keywords.some((keyword) => input.includes(keyword))) {
+          switch (category) {
+            case "respiratory":
+              return "For breathing-related concerns, I recommend consulting a **Pulmonologist** or starting with a **General Physician** who can evaluate your respiratory symptoms and provide appropriate referrals.";
+            case "digestive":
+              return "For digestive or stomach-related issues, I recommend consulting a **Gastroenterologist** or starting with a **General Physician** for initial evaluation.";
+            case "mental":
+              return "For mental health or emotional concerns, I recommend consulting a **Psychiatrist** or **Psychologist**. You can also start with a **General Physician** who can provide initial support and referrals.";
+            default:
+              break;
+          }
+        }
+      }
+
+      return "Based on your description, I recommend starting with a **General Physician** for initial evaluation. They can examine you thoroughly and refer you to the appropriate specialist if needed. If you can provide more specific symptoms (like location of pain, type of discomfort, etc.), I can give you a more targeted recommendation.";
     }
   };
 
@@ -248,8 +429,7 @@ const FloatingChatbot = () => {
             onClick={() => setIsOpen(true)}
             className="bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
           >
-            {/* <img src={Logo_img} alt="Logo" className="h-8 w-8" /> */}
-            <Bot className="h-8 w-8 " />
+            <Bot className="h-8 w-8" />
           </button>
         )}
 

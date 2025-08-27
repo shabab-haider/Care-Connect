@@ -6,6 +6,7 @@ import LogoAndBack from "../Components/LogoAndBack";
 import axios from "axios";
 import { PatientDataContext } from "../Context/PatientContext";
 import { DoctorDataContext } from "../Context/DoctorContext";
+import { toast } from "react-toastify";
 const Login = () => {
   const { patient, setPatient } = useContext(PatientDataContext);
   const { doctor, setDoctor } = useContext(DoctorDataContext);
@@ -26,24 +27,30 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/${userType}s/login`,
-      formData
-    );
-    if (response.status == "200") {
-      if (userType == "patient") {
-        const token = response.data.token;
-        localStorage.setItem("token", token);
-        const patientDetails = response.data.patient;
-        setPatient(patientDetails);
-        navigate("/patient-dashboard");
-      } else {
-        const token = response.data.token;
-        localStorage.setItem("token", token);
-        const doctorDetails = response.data.doctor;
-        setDoctor(doctorDetails);
-        navigate("/doctor-dashboard");
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/${userType}s/login`,
+        formData
+      );
+      if (response.status == "200") {
+        if (userType == "patient") {
+          const token = response.data.token;
+          localStorage.setItem("token", token);
+          const patientDetails = response.data.patient;
+          setPatient(patientDetails);
+          toast.success("LoggedIn Successfully");
+          navigate("/patient-dashboard");
+        } else {
+          const token = response.data.token;
+          localStorage.setItem("token", token);
+          const doctorDetails = response.data.doctor;
+          setDoctor(doctorDetails);
+          toast.success("LoggedIn Successfully");
+          navigate("/doctor-dashboard");
+        }
       }
+    } catch (error) {
+      toast.error("Invalid Credentials");
     }
   };
 

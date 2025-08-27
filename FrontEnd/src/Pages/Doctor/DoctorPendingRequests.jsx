@@ -72,7 +72,7 @@ const DoctorPendingRequests = () => {
       );
       if (response.status == "200") {
         setUpdateAppointmentRequests(updateAppointmentRequests + 1);
-        toast.success("Appointment Accepted");
+        toast.error("Appointment rejected");
       }
     } catch (error) {
       console.error("Error rejecting request:", error);

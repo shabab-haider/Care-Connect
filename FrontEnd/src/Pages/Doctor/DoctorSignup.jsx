@@ -18,6 +18,7 @@ import LogoAndBack from "../../Components/LogoAndBack";
 import axios from "axios";
 import { DoctorDataContext } from "../../Context/DoctorContext";
 import { setMaxAppointments } from "../../Utils/setMaxAppointments";
+import { toast } from "react-toastify";
 
 const DoctorSignup = () => {
   const navigate = useNavigate();
@@ -57,7 +58,12 @@ const DoctorSignup = () => {
     avgAppointmentTime: "",
   });
 
-  //Calculate maximum appointments per day
+  // Add these new state variables after the existing ones
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [showVerificationField, setShowVerificationField] = useState(false);
+  const [code, setCode] = useState();
+  const [verificationCode, setVerificationCode] = useState();
+  const [isVerificationLoading, setIsVerificationLoading] = useState(false);
 
   useEffect(() => {
     if (
@@ -117,7 +123,8 @@ const DoctorSignup = () => {
         !formData.email ||
         !formData.phone ||
         !formData.password ||
-        !formData.confirmPassword
+        !formData.confirmPassword ||
+        !isEmailVerified // Add email verification check
       );
     }
 
@@ -132,7 +139,7 @@ const DoctorSignup = () => {
         formData.address.length < 10 ||
         formData.city.length < 2 ||
         formData.state.length < 2 ||
-        formData.pincode.length !== 5 ||
+        formData.pincode.length !== 6 ||
         formData.consultationFee < 100 ||
         !formData.experience ||
         !formData.qualification ||
@@ -152,7 +159,7 @@ const DoctorSignup = () => {
         formData.availableDays.length === 0 ||
         !formData.clinicOpenTime ||
         !formData.clinicCloseTime ||
-        formData.avgAppointmentTime < 5 ||
+        formData.avgAppointmentTime < 10 ||
         !formData.avgAppointmentTime
       );
     }
@@ -161,8 +168,13 @@ const DoctorSignup = () => {
   };
 
   const handleInputChange = (e) => {
-    //recive values from event.target
     const { name, value, type, checked } = e.target;
+
+    // Prevent numbers in first and last name fields
+    if ((name === "firstName" || name === "lastName") && /\d/.test(value)) {
+      return; // Don't update state if numbers are detected
+    }
+
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
@@ -180,34 +192,89 @@ const DoctorSignup = () => {
     });
   };
 
+  // Function to send verification code
+  const handleSendVerificationCode = async () => {
+    if (!formData.email || !formData.email.includes("@")) {
+      toast.error("Please enter a valid email address first");
+      return;
+    }
+
+    setIsVerificationLoading(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/email/sendCode`,
+        {
+          email: formData.email,
+        }
+      );
+      if (response.status == "200") {
+        setCode(response.data.toString());
+        setShowVerificationField(true);
+        setIsVerificationLoading(false);
+        toast.success("Verification code sent to your email!");
+      }
+    } catch (error) {
+      setIsVerificationLoading(false);
+      toast.error("Failed to send verification code. Please try again.");
+    }
+  };
+
+  // Function to verify email code
+  const handleVerifyEmail = async () => {
+    if (!verificationCode || verificationCode.length < 6) {
+      toast.error("Please enter a valid verification code");
+      return;
+    }
+
+    setIsVerificationLoading(true);
+    try {
+      if (verificationCode === code) {
+        // Replace with actual verification logic
+        setIsEmailVerified(true);
+        setIsVerificationLoading(false);
+        toast.success("Email verified successfully!");
+      } else {
+        setIsVerificationLoading(false);
+        toast.error("Invalid verification code. Please try again.");
+      }
+    } catch (error) {
+      setIsVerificationLoading(false);
+      toast.error("Verification failed. Please try again.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      toast.error("Passwords don't match!");
       return;
     }
 
     if (formData.availableDays.length === 0) {
-      alert("Please select available days!");
+      toast.error("Please select available days!");
       return;
     }
-
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/doctors/register`,
-      formData
-    );
-    if (response.status == "201") {
-      const token = response.data.token;
-      localStorage.setItem("token", token);
-      const doctorDetails = response.data.doctor;
-      setDoctor(doctorDetails);
-      navigate("/doctor-dashboard");
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/doctors/register`,
+        formData
+      );
+      if (response.status == "201") {
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+        const doctorDetails = response.data.doctor;
+        setDoctor(doctorDetails);
+        toast.success("SignedUp Successfully");
+        navigate("/doctor-dashboard");
+      }
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
     }
   };
 
   const nextStep = () => {
     if (hasStepErrors()) {
-      alert("Please fill valid data in all fields of current section");
+      toast.error("Please fill valid data in all fields of current section");
       return;
     }
 
@@ -355,18 +422,82 @@ const DoctorSignup = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
+                        disabled={isEmailVerified}
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
-                          formData.email && !formData.email.includes("@")
+                          isEmailVerified
+                            ? "border-green-500 bg-green-50 focus:ring-green-500 focus:border-green-500"
+                            : formData.email && !formData.email.includes("@")
                             ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                             : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                         }`}
                         placeholder="Enter your email"
                       />
+                      {isEmailVerified && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
+                          ✓
+                        </div>
+                      )}
                     </div>
                     {formData.email && !formData.email.includes("@") && (
                       <p className="text-red-500 text-sm mt-1">
                         Please enter a valid email address
                       </p>
+                    )}
+                    {isEmailVerified && (
+                      <p className="text-green-500 text-sm mt-1">
+                        Email verified successfully!
+                      </p>
+                    )}
+
+                    {/* Send Verification Code Button */}
+                    {!isEmailVerified &&
+                      !showVerificationField &&
+                      formData.email &&
+                      formData.email.includes("@") && (
+                        <button
+                          type="button"
+                          onClick={handleSendVerificationCode}
+                          disabled={isVerificationLoading}
+                          className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors"
+                        >
+                          {isVerificationLoading
+                            ? "Sending..."
+                            : "Send Verification Code"}
+                        </button>
+                      )}
+
+                    {/* Verification Code Field */}
+                    {showVerificationField && !isEmailVerified && (
+                      <div className="mt-3 space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Enter Verification Code
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            value={verificationCode}
+                            onChange={(e) =>
+                              setVerificationCode(e.target.value)
+                            }
+                            placeholder="Enter 6-digit code"
+                            maxLength={6}
+                            className="flex-1 py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyEmail}
+                            disabled={
+                              isVerificationLoading || !verificationCode
+                            }
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors"
+                          >
+                            {isVerificationLoading ? "Verifying..." : "Verify"}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Check your email for the verification code
+                        </p>
+                      </div>
                     )}
                   </div>
                   <div>
@@ -736,19 +867,19 @@ const DoctorSignup = () => {
                       name="pincode"
                       value={formData.pincode}
                       onChange={handleInputChange}
-                      maxLength={5}
-                      minLength={5}
+                      maxLength={6}
+                      minLength={6}
                       required
                       className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
-                        formData.pincode && formData.pincode.length !== 5
+                        formData.pincode && formData.pincode.length !== 6
                           ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                           : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                       placeholder="Pincode"
                     />
-                    {formData.pincode && formData.pincode.length !== 5 && (
+                    {formData.pincode && formData.pincode.length !== 6 && (
                       <p className="text-red-500 text-sm mt-1">
-                        Pincode must be exactly 5 digits
+                        Pincode must be exactly 6 digits
                       </p>
                     )}
                   </div>
@@ -757,7 +888,7 @@ const DoctorSignup = () => {
                 {/* Consultation Fee */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Consultation Fee (PKR)
+                    Consultation Fee (Rs)
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -877,11 +1008,11 @@ const DoctorSignup = () => {
                         name="avgAppointmentTime"
                         value={formData.avgAppointmentTime}
                         onChange={handleInputChange}
-                        min={5}
+                        min={10}
                         required
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 transition-colors ${
                           formData.avgAppointmentTime &&
-                          formData.avgAppointmentTime < 5
+                          formData.avgAppointmentTime < 10
                             ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                             : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                         }`}
@@ -889,7 +1020,7 @@ const DoctorSignup = () => {
                       />
                     </div>
                     {formData.avgAppointmentTime &&
-                      formData.avgAppointmentTime < 5 && (
+                      formData.avgAppointmentTime < 10 && (
                         <p className="text-red-500 text-sm mt-1">
                           Appointment time must be at least 10 minutes
                         </p>

@@ -544,24 +544,29 @@ const HomePage = () => {
               <h4 className="text-lg font-semibold mb-6">For Patients</h4>
               <ul className="space-y-3 text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Find Doctors
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Book Appointment
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    AI Health Assistant
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <span>
                     Patient Registration
-                  </a>
+                  </span>
+                </li>
+                <li>
+                  <span>
+                    Find Doctors
+                  </span>
+                </li>
+                <li>
+                  <span>
+                    Book Appointment
+                  </span>
+                </li>
+                <li>
+                  <span>
+                    AI Health Assistant
+                  </span>
+                </li>
+                <li>
+                  <span>
+                    Medical Record
+                  </span>
                 </li>
               </ul>
             </div>
@@ -569,24 +574,27 @@ const HomePage = () => {
               <h4 className="text-lg font-semibold mb-6">For Doctors</h4>
               <ul className="space-y-3 text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <span>
                     Doctor Registration
-                  </a>
+                  </span>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Manage Practice
-                  </a>
+                  <span >
+                    Dashboard
+                  </span>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Patient Management
-                  </a>
+                  <span>
+                    Manage Appointments
+                  </span>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Analytics Dashboard
-                  </a>
+                  <span >
+                    Flexible Scheduling
+                  </span>
+                </li>
+                <li>
+                  <span>Patient Management</span>
                 </li>
               </ul>
             </div>
@@ -595,24 +603,21 @@ const HomePage = () => {
               <div className="space-y-3 text-gray-400">
                 <div className="flex items-center">
                   <Phone className="h-5 w-5 mr-3" />
-                  <span>+1 (555) 123-4567</span>
+                  <span>+92 328 6158518</span>
                 </div>
                 <div className="flex items-center">
                   <Mail className="h-5 w-5 mr-3" />
-                  <span>support@careconnect.com</span>
+                  <span>CareConnect1052@gmail.com</span>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 mr-3" />
-                  <span>123 Healthcare St, Medical City</span>
+                  <span>Sialkot, Punjab</span>
                 </div>
               </div>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>
-              &copy; 2024 Care Connect. All rights reserved. Built with MERN
-              Stack.
-            </p>
+            <p>&copy; 2024 Care Connect. All rights reserved.</p>
           </div>
         </div>
       </footer>

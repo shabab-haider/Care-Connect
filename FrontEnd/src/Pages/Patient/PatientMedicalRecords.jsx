@@ -248,7 +248,10 @@ const PatientMedicalRecords = () => {
                           <div className="flex items-center space-x-4 flex-1">
                             <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
                               <img
-                                src={record.doctor.profileImage || "/placeholder.svg"}
+                                src={
+                                  record.doctor.profileImage ||
+                                  "/placeholder.svg"
+                                }
                                 alt="Profile"
                                 className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
                               />

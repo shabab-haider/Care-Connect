@@ -1,5 +1,13 @@
 import React from "react";
-import { Bell } from "lucide-react";
+import {
+  Bell,
+  Copy,
+  File,
+  FileArchive,
+  FileText,
+  Pill,
+  PillBottle,
+} from "lucide-react";
 
 const PrescriptionCardList = ({ prescriptions }) => {
   return (
@@ -38,7 +46,7 @@ const PrescriptionCardList = ({ prescriptions }) => {
                       : med.frequency}
                   </div>
                   <div className="mt-2 text-xs text-yellow-700 bg-yellow-50 px-2 py-1 rounded flex items-center gap-1">
-                    <Bell className="w-4 h-4" />
+                    <FileText className="w-4 h-4" />
                     {med.instructions || "No special instructions"}
                   </div>
                 </div>

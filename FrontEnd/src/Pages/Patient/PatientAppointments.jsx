@@ -23,7 +23,7 @@ const PatientAppointments = () => {
   //  [ {
   //       id: 3,
   //       date: "2024-01-10",
-  //       TokenNo: "2",
+  //       tokenNumber: "2",
   //       doctor: "Dr. Emily Davis",
   //       specialization: "General Physician",
   //       clinic: "City General Hospital",
@@ -165,7 +165,9 @@ const PatientAppointments = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Token No:</span>
-                    <span className="font-medium">A-{appointment.TokenNo}</span>
+                    <span className="font-medium">
+                      A-{appointment.tokenNumber}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Status:</span>
@@ -227,21 +229,7 @@ const PatientAppointments = () => {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              {appointment.status === "completed" && (
-                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Download Prescription
-                </button>
-              )}
-              <button
-                onClick={onClose}
-                className="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-              >
-                Close
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -269,11 +257,9 @@ const PatientAppointments = () => {
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
                 <History className="h-8 w-8 text-blue-600 mr-3" />
-                My Appointments
+                Appointments
               </h1>
-              <p className="text-gray-600 mt-2">
-                View and manage all your appointments
-              </p>
+              <p className="text-gray-600 mt-2">View your past appointments</p>
             </div>
             <div className="bg-white px-4 py-2 rounded-lg border">
               <p className="text-sm text-gray-600">Total Appointments</p>
@@ -386,7 +372,7 @@ const PatientAppointments = () => {
                             </div>
                             <div className="flex items-center">
                               <Hash className="h-4 w-4 mr-1" />
-                              A-{appointment.TokenNo}
+                              A-{appointment.tokenNumber}
                             </div>
                           </div>
                         </div>

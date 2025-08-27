@@ -32,7 +32,10 @@ const doctorSchema = mongoose.Schema({
   about: {
     type: String,
   },
-
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
 
   professionalDetails: {
     specialization: { type: String, required: true },

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { DoctorDataContext } from "../../Context/DoctorContext";
 
 const DoctorProtectedWrapper = ({ children }) => {
+  const { doctor, setDoctor } = useContext(DoctorDataContext);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [loading, setLoading] = useState(true);
@@ -18,10 +19,12 @@ const DoctorProtectedWrapper = ({ children }) => {
           },
         })
         .then(async (res) => {
+          console.log(res);
+          setDoctor(res.data.doctor);
           setLoading(false);
           const id = res.data.doctor._id;
           const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/doctors/${id}/availability`
+            `${import.meta.env.VITE_BASE_URL}/doctors/${id}/availability`
           );
           console.log(response);
         })

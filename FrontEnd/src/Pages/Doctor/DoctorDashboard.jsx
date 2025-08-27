@@ -29,6 +29,7 @@ import { toast } from "react-toastify";
 const DoctorDashboard = () => {
   const navigate = useNavigate();
   const { doctor, setDoctor } = useContext(DoctorDataContext);
+  console.log(doctor);
   const doctorId = doctor._id;
   const todayDateString = new Date().toISOString().split("T")[0];
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -48,7 +49,7 @@ const DoctorDashboard = () => {
   // Sample doctor data
   const doctorData = {
     name: doctor.fullName,
-    specialization: doctor.professionalDetails.specialization,
+    // specialization: doctor.professionalDetails.specialization,
     profileImage: doctor.profileImage,
   };
 
@@ -273,7 +274,7 @@ const DoctorDashboard = () => {
                 Start Consultation
               </Link>
               <Link
-                to={`/medical-record/${patient.id}`}
+                to={`/medical-record/${patient.patientId}`}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors text-center"
               >
                 View History
@@ -340,9 +341,9 @@ const DoctorDashboard = () => {
             />
             <div>
               <p className="font-semibold text-gray-900">{doctorData.name}</p>
-              <p className="text-sm text-gray-600">
+              {/* <p className="text-sm text-gray-600">
                 {doctorData.specialization}
-              </p>
+              </p> */}
             </div>
           </div>
         </div>
@@ -575,9 +576,7 @@ const DoctorDashboard = () => {
                               No Show
                             </button>
 
-                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                              Complete
-                            </button>
+                            
                           </div>
                         </div>
                       </div>
@@ -750,7 +749,7 @@ const DoctorDashboard = () => {
                     }
                     maxLength={11}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="03286158518"
                     required
                   />
                 </div>

@@ -60,4 +60,5 @@ router.get(
   doctorController.getFutureAppointments
 );
 
+
 module.exports = router;

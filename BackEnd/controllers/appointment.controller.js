@@ -4,12 +4,23 @@ const appointmentModel = require("../models/appointment.model");
 const tokenModel = require("../models/token.model");
 const moment = require("moment");
 const patientServices = require("../Services/patients.service");
+const {
+  sendAppointmentRequestEmail,
+} = require("../Utils/sendAppointmentRequestEmail");
+const {
+  sendAppointmentAcceptedEmail,
+} = require("../Utils/sendAppointmentAcceptedEmai");
+const {
+  sendAppointmentRejectedEmail,
+} = require("../Utils/sendAppointmentRejectedEmail");
+const {
+  sendNoShowAppointmentEmail,
+} = require("../Utils/sendNoShowAppointmentEmail");
 
 module.exports.requestAppointment = async (req, res) => {
   try {
     const { doctorId, patientId, selectedDate, selectedToken, appointmentNo } =
       req.body;
-    console.log(req.body);
 
     // Validate input
     if (!doctorId || !patientId || !selectedDate || !selectedToken) {
@@ -75,6 +86,14 @@ module.exports.requestAppointment = async (req, res) => {
     tokenObj.isBooked = true;
     tokenObj.patientId = patientId;
     await tokenDoc.save();
+
+    const appointmentDetails = {
+      patientName: patient.fullname,
+      appointmentNo: appointment.appointmentNo,
+      appointmentDate: appointment.date,
+    };
+
+    sendAppointmentRequestEmail(doctor.email, appointmentDetails);
 
     return res.status(201).json({
       message: "Appointment request sent successfully (pending confirmation)",
@@ -156,12 +175,20 @@ module.exports.getPendingAppointments = async (req, res) => {
 module.exports.acceptAppointmentRequest = async (req, res) => {
   try {
     const appointmentId = req.params.id;
-    const appointment = await appointmentModel.findByIdAndUpdate(
-      appointmentId,
-      {
-        status: "booked",
-      }
-    );
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      status: "booked",
+    });
+
+    const appointment = await appointmentModel
+      .findById(appointmentId)
+      .populate("patient doctor");
+    console.log(appointment);
+    const appointmentDetails = {
+      doctorName: appointment.doctor.fullName,
+      appointmentNo: appointment.appointmentNo,
+      appointmentDate: appointment.date,
+    };
+    sendAppointmentAcceptedEmail(appointment.patient.email, appointmentDetails);
     res.status(200).json({ message: "Appointment Accepted" });
   } catch (error) {
     res.status(404).json({ error: error.message });
@@ -200,6 +227,15 @@ module.exports.rejectAppointmentRequest = async (req, res) => {
     }
 
     await tokenDoc.save(); // Save the changes to the token document
+    const appointment = await appointmentModel
+      .findById(appointmentId)
+      .populate("doctor patient");
+    const appointmentDetails = {
+      doctorName: appointment.doctor.fullName,
+      appointmentNo: appointment.appointmentNo,
+      appointmentDate: appointment.date,
+    };
+    sendAppointmentRejectedEmail(appointment.patient.email, appointmentDetails);
     await appointmentModel.findByIdAndDelete(appointmentId);
     return res
       .status(200)
@@ -343,7 +379,12 @@ module.exports.setAppointmentToNoShaow = async (req, res) => {
       tokenId: tokenDetails ? tokenDetails._id : null,
       doctorId: appointment.doctor,
     };
-
+    const appointmentDetails = {
+      patientName: patient.fullname,
+      appointmentDate: appointment.date,
+      appointmentNo: appointment.appointmentNo,
+    };
+    sendNoShowAppointmentEmail(patient.email, appointmentDetails);
     return res.status(200).json({ appointments: formattedAppointments });
   } catch (error) {
     res.status(404).json({ message: error.message });

@@ -8,6 +8,7 @@ const patientsRoutes = require("./Routes/patients.routes");
 const doctorRoutes = require("./Routes/doctor.routes");
 const appointmentRoutes = require("./Routes/appointment.routes");
 const medicalRecordRoutes = require("./Routes/medicalRecord.routes");
+const emailRoutes = require("./Routes/email.routes");
 const moment = require("moment-timezone");
 
 // Set Karachi timezone
@@ -31,6 +32,7 @@ app.use("/patients", patientsRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/medicalRecord", medicalRecordRoutes);
+app.use("/email", emailRoutes);
 
 app.get("/", (req, res) => {
   res.send("home");

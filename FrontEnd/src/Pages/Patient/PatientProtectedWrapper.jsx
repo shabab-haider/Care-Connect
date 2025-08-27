@@ -7,7 +7,7 @@ const PatientProtectedWrapper = ({ children }) => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [loading, setLoading] = useState(true);
-  const { patient, setpatient } = useContext(PatientDataContext);
+  const { patient, setPatient } = useContext(PatientDataContext);
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -19,6 +19,7 @@ const PatientProtectedWrapper = ({ children }) => {
           },
         })
         .then((res) => {
+          setPatient(res.data.patient);
           setLoading(false);
         })
         .catch((err) => {
