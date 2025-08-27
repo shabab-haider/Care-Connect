@@ -3,184 +3,411 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Send, Bot, User } from "lucide-react";
 
-// Enhanced symptom to doctor mapping with more comprehensive coverage
-const symptomToDoctorMap = {
-  // Cardiovascular/Heart related - Cardiologist
-  "chest pain": "Cardiologist",
-  "heart pain": "Cardiologist",
-  "shortness of breath": "Cardiologist",
-  "breathing difficulty": "Cardiologist",
-  palpitations: "Cardiologist",
-  "irregular heartbeat": "Cardiologist",
-  "heart pounding": "Cardiologist",
-  "chest tightness": "Cardiologist",
-  "chest pressure": "Cardiologist",
-  "heart racing": "Cardiologist",
-  cardiac: "Cardiologist",
-  hypertension: "Cardiologist",
-  "high blood pressure": "Cardiologist",
-  "low blood pressure": "Cardiologist",
+// Comprehensive disease to body part and doctor mapping
+const diseaseMapping = {
+  // Heart diseases
+  "heart attack": { bodyPart: "heart", doctor: "Cardiologist" },
+  angina: { bodyPart: "heart", doctor: "Cardiologist" },
+  hypertension: { bodyPart: "heart", doctor: "Cardiologist" },
+  "high blood pressure": { bodyPart: "heart", doctor: "Cardiologist" },
+  "low blood pressure": { bodyPart: "heart", doctor: "Cardiologist" },
+  cardiac: { bodyPart: "heart", doctor: "Cardiologist" },
+  palpitation: { bodyPart: "heart", doctor: "Cardiologist" },
+  arrhythmia: { bodyPart: "heart", doctor: "Cardiologist" },
+  "heart failure": { bodyPart: "heart", doctor: "Cardiologist" },
+  "coronary artery": { bodyPart: "heart", doctor: "Cardiologist" },
 
-  // Dermatology/Skin related - Dermatologist
-  rash: "Dermatologist",
-  acne: "Dermatologist",
-  pimples: "Dermatologist",
-  "skin problem": "Dermatologist",
-  "skin issue": "Dermatologist",
-  itching: "Dermatologist",
-  "skin infection": "Dermatologist",
-  eczema: "Dermatologist",
-  psoriasis: "Dermatologist",
-  "skin allergy": "Dermatologist",
-  hives: "Dermatologist",
-  moles: "Dermatologist",
-  "skin cancer": "Dermatologist",
-  wrinkles: "Dermatologist",
-  "dark spots": "Dermatologist",
-  "skin discoloration": "Dermatologist",
+  // Respiratory diseases
+  asthma: { bodyPart: "lungs", doctor: "General Physician" },
+  pneumonia: { bodyPart: "lungs", doctor: "General Physician" },
+  bronchitis: { bodyPart: "lungs", doctor: "General Physician" },
+  copd: { bodyPart: "lungs", doctor: "General Physician" },
+  tuberculosis: { bodyPart: "lungs", doctor: "General Physician" },
+  "lung cancer": { bodyPart: "lungs", doctor: "General Physician" },
+  "respiratory infection": { bodyPart: "lungs", doctor: "General Physician" },
 
-  // Orthopedic/Bone/Joint related - Orthopedist
-  "joint pain": "Orthopedist",
-  "back pain": "Orthopedist",
-  "bone pain": "Orthopedist",
-  fracture: "Orthopedist",
-  "broken bone": "Orthopedist",
-  "muscle pain": "Orthopedist",
-  "knee pain": "Orthopedist",
-  "shoulder pain": "Orthopedist",
-  "hip pain": "Orthopedist",
-  "ankle pain": "Orthopedist",
-  "wrist pain": "Orthopedist",
-  "neck pain": "Orthopedist",
-  "spine pain": "Orthopedist",
-  arthritis: "Orthopedist",
-  sprain: "Orthopedist",
-  strain: "Orthopedist",
-  "sports injury": "Orthopedist",
+  // Skin diseases
+  eczema: { bodyPart: "skin", doctor: "Dermatologist" },
+  psoriasis: { bodyPart: "skin", doctor: "Dermatologist" },
+  acne: { bodyPart: "skin", doctor: "Dermatologist" },
+  dermatitis: { bodyPart: "skin", doctor: "Dermatologist" },
+  melanoma: { bodyPart: "skin", doctor: "Dermatologist" },
+  "skin cancer": { bodyPart: "skin", doctor: "Dermatologist" },
+  vitiligo: { bodyPart: "skin", doctor: "Dermatologist" },
+  rosacea: { bodyPart: "skin", doctor: "Dermatologist" },
+  "fungal infection": { bodyPart: "skin", doctor: "Dermatologist" },
+  hives: { bodyPart: "skin", doctor: "Dermatologist" },
+  urticaria: { bodyPart: "skin", doctor: "Dermatologist" },
 
-  // Ophthalmology/Eye related - Ophthalmologist
-  "eye pain": "Ophthalmologist",
-  "vision problem": "Ophthalmologist",
-  "blurred vision": "Ophthalmologist",
-  "eye infection": "Ophthalmologist",
-  "red eyes": "Ophthalmologist",
-  "dry eyes": "Ophthalmologist",
-  "watery eyes": "Ophthalmologist",
-  "eye discharge": "Ophthalmologist",
-  "double vision": "Ophthalmologist",
-  "night blindness": "Ophthalmologist",
-  cataracts: "Ophthalmologist",
-  glaucoma: "Ophthalmologist",
-  "eye strain": "Ophthalmologist",
+  // Bone/joint diseases
+  arthritis: { bodyPart: "joints", doctor: "Orthopedist" },
+  osteoarthritis: { bodyPart: "joints", doctor: "Orthopedist" },
+  "rheumatoid arthritis": { bodyPart: "joints", doctor: "Orthopedist" },
+  rheumatoid: { bodyPart: "joints", doctor: "Orthopedist" },
+  fracture: { bodyPart: "bone", doctor: "Orthopedist" },
+  osteoporosis: { bodyPart: "bone", doctor: "Orthopedist" },
+  scoliosis: { bodyPart: "spine", doctor: "Orthopedist" },
+  "herniated disc": { bodyPart: "spine", doctor: "Orthopedist" },
+  "slipped disc": { bodyPart: "spine", doctor: "Orthopedist" },
+  tendonitis: { bodyPart: "joints", doctor: "Orthopedist" },
+  bursitis: { bodyPart: "joints", doctor: "Orthopedist" },
+  gout: { bodyPart: "joints", doctor: "Orthopedist" },
+  "carpal tunnel": { bodyPart: "wrist", doctor: "Orthopedist" },
 
-  // ENT/Ear/Nose/Throat - ENT Specialist
-  "sore throat": "ENT Specialist",
-  "throat pain": "ENT Specialist",
-  "ear pain": "ENT Specialist",
-  earache: "ENT Specialist",
-  "hearing problem": "ENT Specialist",
-  "hearing loss": "ENT Specialist",
-  "nose bleeding": "ENT Specialist",
-  nosebleed: "ENT Specialist",
+  // Eye diseases
+  cataract: { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  cataracts: { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  glaucoma: { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  conjunctivitis: { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  "pink eye": { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  "macular degeneration": { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  "diabetic retinopathy": { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  stye: { bodyPart: "eyes", doctor: "Ophthalmologist" },
+  "dry eyes": { bodyPart: "eyes", doctor: "Ophthalmologist" },
+
+  // Digestive diseases
+  gastritis: { bodyPart: "stomach", doctor: "Gastroenterologist" },
+  ulcer: { bodyPart: "stomach", doctor: "Gastroenterologist" },
+  "peptic ulcer": { bodyPart: "stomach", doctor: "Gastroenterologist" },
+  "stomach ulcer": { bodyPart: "stomach", doctor: "Gastroenterologist" },
+  ibs: { bodyPart: "intestines", doctor: "Gastroenterologist" },
+  "irritable bowel": { bodyPart: "intestines", doctor: "Gastroenterologist" },
+  crohn: { bodyPart: "intestines", doctor: "Gastroenterologist" },
+  "crohn's disease": { bodyPart: "intestines", doctor: "Gastroenterologist" },
+  colitis: { bodyPart: "intestines", doctor: "Gastroenterologist" },
+  "ulcerative colitis": {
+    bodyPart: "intestines",
+    doctor: "Gastroenterologist",
+  },
+  hepatitis: { bodyPart: "liver", doctor: "Gastroenterologist" },
+  cirrhosis: { bodyPart: "liver", doctor: "Gastroenterologist" },
+  "fatty liver": { bodyPart: "liver", doctor: "Gastroenterologist" },
+  pancreatitis: { bodyPart: "pancreas", doctor: "Gastroenterologist" },
+  "gallbladder stones": {
+    bodyPart: "gallbladder",
+    doctor: "Gastroenterologist",
+  },
+  gallstones: { bodyPart: "gallbladder", doctor: "Gastroenterologist" },
+  gerd: { bodyPart: "stomach", doctor: "Gastroenterologist" },
+  "acid reflux": { bodyPart: "stomach", doctor: "Gastroenterologist" },
+
+  // Neurological diseases
+  migraine: { bodyPart: "head", doctor: "Neurologist" },
+  migraines: { bodyPart: "head", doctor: "Neurologist" },
+  epilepsy: { bodyPart: "brain", doctor: "Neurologist" },
+  parkinson: { bodyPart: "brain", doctor: "Neurologist" },
+  "parkinson's disease": { bodyPart: "brain", doctor: "Neurologist" },
+  alzheimer: { bodyPart: "brain", doctor: "Neurologist" },
+  "alzheimer's disease": { bodyPart: "brain", doctor: "Neurologist" },
+  dementia: { bodyPart: "brain", doctor: "Neurologist" },
+  stroke: { bodyPart: "brain", doctor: "Neurologist" },
+  "brain tumor": { bodyPart: "brain", doctor: "Neurologist" },
+  "multiple sclerosis": { bodyPart: "brain", doctor: "Neurologist" },
+  "ms disease": { bodyPart: "brain", doctor: "Neurologist" },
+  neuropathy: { bodyPart: "nerves", doctor: "Neurologist" },
+  "peripheral neuropathy": { bodyPart: "nerves", doctor: "Neurologist" },
+  "bell's palsy": { bodyPart: "face", doctor: "Neurologist" },
+  "trigeminal neuralgia": { bodyPart: "face", doctor: "Neurologist" },
+
+  // Urological diseases
+  "kidney stone": { bodyPart: "kidney", doctor: "Urologist" },
+  "kidney stones": { bodyPart: "kidney", doctor: "Urologist" },
+  "kidney disease": { bodyPart: "kidney", doctor: "Urologist" },
+  "kidney failure": { bodyPart: "kidney", doctor: "Urologist" },
+  uti: { bodyPart: "bladder", doctor: "Urologist" },
+  "urinary tract infection": { bodyPart: "bladder", doctor: "Urologist" },
+  "bladder infection": { bodyPart: "bladder", doctor: "Urologist" },
+  cystitis: { bodyPart: "bladder", doctor: "Urologist" },
+  incontinence: { bodyPart: "bladder", doctor: "Urologist" },
+  "urinary incontinence": { bodyPart: "bladder", doctor: "Urologist" },
+  prostate: { bodyPart: "prostate", doctor: "Urologist" },
+  "enlarged prostate": { bodyPart: "prostate", doctor: "Urologist" },
+  "prostate cancer": { bodyPart: "prostate", doctor: "Urologist" },
+  bph: { bodyPart: "prostate", doctor: "Urologist" },
+  "erectile dysfunction": { bodyPart: "reproductive", doctor: "Urologist" },
+  "kidney infection": { bodyPart: "kidney", doctor: "Urologist" },
+
+  // ENT diseases
+  sinusitis: { bodyPart: "sinus", doctor: "ENT Specialist" },
+  "sinus infection": { bodyPart: "sinus", doctor: "ENT Specialist" },
+  tonsillitis: { bodyPart: "throat", doctor: "ENT Specialist" },
+  "strep throat": { bodyPart: "throat", doctor: "ENT Specialist" },
+  "sore throat": { bodyPart: "throat", doctor: "ENT Specialist" },
+  otitis: { bodyPart: "ear", doctor: "ENT Specialist" },
+  "ear infection": { bodyPart: "ear", doctor: "ENT Specialist" },
+  "hearing loss": { bodyPart: "ear", doctor: "ENT Specialist" },
+  tinnitus: { bodyPart: "ear", doctor: "ENT Specialist" },
+  vertigo: { bodyPart: "ear", doctor: "ENT Specialist" },
+  laryngitis: { bodyPart: "throat", doctor: "ENT Specialist" },
+  "nasal polyps": { bodyPart: "nose", doctor: "ENT Specialist" },
+  "deviated septum": { bodyPart: "nose", doctor: "ENT Specialist" },
+
+  // Mental health diseases
+  depression: { bodyPart: "mind", doctor: "Psychiatrist" },
+  anxiety: { bodyPart: "mind", doctor: "Psychiatrist" },
+  "panic disorder": { bodyPart: "mind", doctor: "Psychiatrist" },
+  "panic attacks": { bodyPart: "mind", doctor: "Psychiatrist" },
+  bipolar: { bodyPart: "mind", doctor: "Psychiatrist" },
+  "bipolar disorder": { bodyPart: "mind", doctor: "Psychiatrist" },
+  schizophrenia: { bodyPart: "mind", doctor: "Psychiatrist" },
+  ocd: { bodyPart: "mind", doctor: "Psychiatrist" },
+  "obsessive compulsive": { bodyPart: "mind", doctor: "Psychiatrist" },
+  ptsd: { bodyPart: "mind", doctor: "Psychiatrist" },
+  "post traumatic": { bodyPart: "mind", doctor: "Psychiatrist" },
+  adhd: { bodyPart: "mind", doctor: "Psychiatrist" },
+  autism: { bodyPart: "mind", doctor: "Psychiatrist" },
+  insomnia: { bodyPart: "mind", doctor: "Psychiatrist" },
+  "eating disorder": { bodyPart: "mind", doctor: "Psychiatrist" },
+  anorexia: { bodyPart: "mind", doctor: "Psychiatrist" },
+  bulimia: { bodyPart: "mind", doctor: "Psychiatrist" },
+
+  // Women's health diseases
+  endometriosis: { bodyPart: "reproductive", doctor: "Gynecologist" },
+  fibroids: { bodyPart: "uterus", doctor: "Gynecologist" },
+  "uterine fibroids": { bodyPart: "uterus", doctor: "Gynecologist" },
+  pcos: { bodyPart: "ovaries", doctor: "Gynecologist" },
+  "ovarian cysts": { bodyPart: "ovaries", doctor: "Gynecologist" },
+  "breast cancer": { bodyPart: "breast", doctor: "Gynecologist" },
+  "cervical cancer": { bodyPart: "cervix", doctor: "Gynecologist" },
+  "yeast infection": { bodyPart: "vagina", doctor: "Gynecologist" },
+  "bacterial vaginosis": { bodyPart: "vagina", doctor: "Gynecologist" },
+  menopause: { bodyPart: "reproductive", doctor: "Gynecologist" },
+  "irregular periods": { bodyPart: "reproductive", doctor: "Gynecologist" },
+
+  // General diseases
+  diabetes: { bodyPart: "pancreas", doctor: "General Physician" },
+  "type 1 diabetes": { bodyPart: "pancreas", doctor: "General Physician" },
+  "type 2 diabetes": { bodyPart: "pancreas", doctor: "General Physician" },
+  thyroid: { bodyPart: "thyroid", doctor: "General Physician" },
+  "thyroid disease": { bodyPart: "thyroid", doctor: "General Physician" },
+  hyperthyroid: { bodyPart: "thyroid", doctor: "General Physician" },
+  hypothyroid: { bodyPart: "thyroid", doctor: "General Physician" },
+  anemia: { bodyPart: "blood", doctor: "General Physician" },
+  "high cholesterol": { bodyPart: "blood", doctor: "General Physician" },
+  obesity: { bodyPart: "body", doctor: "General Physician" },
+  "food poisoning": { bodyPart: "stomach", doctor: "General Physician" },
+};
+
+// Body parts to doctor mapping (single doctor per body part)
+const bodyPartsMapping = {
+  // Head and neurological
+  head: "Neurologist",
+  brain: "Neurologist",
+  mind: "Psychiatrist",
+  nerves: "Neurologist",
+  face: "Neurologist",
+
+  // Eyes
+  eye: "Ophthalmologist",
+  eyes: "Ophthalmologist",
+  vision: "Ophthalmologist",
+
+  // ENT
+  ear: "ENT Specialist",
+  ears: "ENT Specialist",
+  nose: "ENT Specialist",
+  throat: "ENT Specialist",
   sinus: "ENT Specialist",
-  sinusitis: "ENT Specialist",
-  tonsillitis: "ENT Specialist",
-  "voice hoarse": "ENT Specialist",
-  "voice loss": "ENT Specialist",
-  "ear infection": "ENT Specialist",
-  "runny nose": "ENT Specialist",
-  "stuffy nose": "ENT Specialist",
-  snoring: "ENT Specialist",
+  voice: "ENT Specialist",
 
-  // Gastroenterology/Digestive - Gastroenterologist
-  "stomach pain": "Gastroenterologist",
-  "abdominal pain": "Gastroenterologist",
-  "belly pain": "Gastroenterologist",
-  nausea: "Gastroenterologist",
-  vomiting: "Gastroenterologist",
-  diarrhea: "Gastroenterologist",
-  constipation: "Gastroenterologist",
-  heartburn: "Gastroenterologist",
-  "acid reflux": "Gastroenterologist",
-  indigestion: "Gastroenterologist",
-  bloating: "Gastroenterologist",
-  gas: "Gastroenterologist",
-  ulcer: "Gastroenterologist",
-  "liver pain": "Gastroenterologist",
+  // Respiratory
+  lungs: "General Physician",
+  lung: "General Physician",
+  chest: "Cardiologist", // Changed to prioritize heart issues for chest
+  breathing: "General Physician",
+  respiratory: "General Physician",
+
+  // Heart and cardiovascular
+  heart: "Cardiologist",
+  cardiovascular: "Cardiologist",
+
+  // Digestive system
+  stomach: "Gastroenterologist",
+  belly: "Gastroenterologist",
+  abdomen: "Gastroenterologist",
+  liver: "Gastroenterologist",
+  intestine: "Gastroenterologist",
+  intestines: "Gastroenterologist",
+  bowel: "Gastroenterologist",
+  pancreas: "Gastroenterologist",
   gallbladder: "Gastroenterologist",
 
-  // Neurology/Neurological - Neurologist
-  headache: "Neurologist",
-  migraine: "Neurologist",
-  dizziness: "Neurologist",
-  seizure: "Neurologist",
-  numbness: "Neurologist",
-  tingling: "Neurologist",
-  "memory loss": "Neurologist",
-  confusion: "Neurologist",
-  tremor: "Neurologist",
-  weakness: "Neurologist",
-  paralysis: "Neurologist",
-  stroke: "Neurologist",
-
-  // Psychiatry/Mental health - Psychiatrist
-  depression: "Psychiatrist",
-  anxiety: "Psychiatrist",
-  stress: "Psychiatrist",
-  "panic attack": "Psychiatrist",
-  "mood swings": "Psychiatrist",
-  insomnia: "Psychiatrist",
-  "sleep problems": "Psychiatrist",
-  bipolar: "Psychiatrist",
-  schizophrenia: "Psychiatrist",
-  ptsd: "Psychiatrist",
-  ocd: "Psychiatrist",
-
-  // Gynecology/Women's health - Gynecologist
-  "period problem": "Gynecologist",
-  menstrual: "Gynecologist",
-  pregnancy: "Gynecologist",
-  "pelvic pain": "Gynecologist",
-  "vaginal discharge": "Gynecologist",
-  "breast pain": "Gynecologist",
-  ovarian: "Gynecologist",
-  uterine: "Gynecologist",
-  menopause: "Gynecologist",
-
-  // Pediatrics/Children - Pediatrician
-  "child fever": "Pediatrician",
-  baby: "Pediatrician",
-  infant: "Pediatrician",
-  toddler: "Pediatrician",
-  "child cough": "Pediatrician",
-  "child cold": "Pediatrician",
-  vaccination: "Pediatrician",
-
-  // Urology - Urologist
-  "kidney pain": "Urologist",
-  "kidney stone": "Urologist",
-  urinary: "Urologist",
+  // Urinary system
   bladder: "Urologist",
+  kidney: "Urologist",
+  kidneys: "Urologist",
   prostate: "Urologist",
-  "blood in urine": "Urologist",
+  urinary: "Urologist",
 
-  // Endocrinology - Endocrinologist
-  diabetes: "Endocrinologist",
-  thyroid: "Endocrinologist",
-  hormone: "Endocrinologist",
-  "weight gain": "Endocrinologist",
-  "weight loss": "Endocrinologist",
+  // Musculoskeletal
+  back: "Orthopedist",
+  spine: "Orthopedist",
+  neck: "Orthopedist",
+  shoulder: "Orthopedist",
+  shoulders: "Orthopedist",
+  arm: "Orthopedist",
+  arms: "Orthopedist",
+  elbow: "Orthopedist",
+  wrist: "Orthopedist",
+  hand: "Orthopedist",
+  hands: "Orthopedist",
+  finger: "Orthopedist",
+  fingers: "Orthopedist",
+  hip: "Orthopedist",
+  hips: "Orthopedist",
+  thigh: "Orthopedist",
+  knee: "Orthopedist",
+  knees: "Orthopedist",
+  leg: "Orthopedist",
+  legs: "Orthopedist",
+  ankle: "Orthopedist",
+  foot: "Orthopedist",
+  feet: "Orthopedist",
+  toe: "Orthopedist",
+  toes: "Orthopedist",
+  joint: "Orthopedist",
+  joints: "Orthopedist",
+  bone: "Orthopedist",
+  bones: "Orthopedist",
+  muscle: "Orthopedist",
+  muscles: "Orthopedist",
 
-  // General symptoms that could indicate multiple specialties
-  fever: "General Physician",
-  cold: "General Physician",
-  cough: "General Physician",
-  fatigue: "General Physician",
-  tired: "General Physician",
-  weakness: "General Physician",
-  "body ache": "General Physician",
-  flu: "General Physician",
-  infection: "General Physician",
+  // Skin
+  skin: "Dermatologist",
+  hair: "Dermatologist",
+  scalp: "Dermatologist",
+  nail: "Dermatologist",
+  nails: "Dermatologist",
+
+  // Women's health
+  breast: "Gynecologist",
+  breasts: "Gynecologist",
+  vagina: "Gynecologist",
+  uterus: "Gynecologist",
+  ovary: "Gynecologist",
+  ovaries: "Gynecologist",
+  cervix: "Gynecologist",
+  reproductive: "Gynecologist",
+
+  // General
+  blood: "General Physician",
+  thyroid: "General Physician",
+  body: "General Physician",
+};
+
+// Common symptoms to body parts
+const symptomToBodyPart = {
+  // Pain symptoms
+  headache: "head",
+  "head pain": "head",
+  migraine: "head",
+  "chest pain": "heart", // Changed to prioritize heart for chest pain
+  "stomach pain": "stomach",
+  "abdominal pain": "abdomen",
+  "back pain": "back",
+  "neck pain": "neck",
+  "knee pain": "knee",
+  "foot pain": "foot",
+  "joint pain": "joint",
+
+  // Breathing symptoms
+  "shortness of breath": "lungs",
+  "breathing difficulty": "lungs",
+  "breathing problems": "lungs",
+  breathless: "lungs",
+  wheezing: "lungs",
+  "chest tightness": "lungs",
+
+  // Urinary symptoms
+  urine: "bladder",
+  urinary: "bladder",
+  incontinence: "bladder",
+  inconsistency: "bladder",
+  leaking: "bladder",
+  "frequent urination": "bladder",
+  "painful urination": "bladder",
+  "blood in urine": "bladder",
+
+  // Digestive symptoms
+  nausea: "stomach",
+  vomiting: "stomach",
+  diarrhea: "intestines",
+  constipation: "intestines",
+  heartburn: "stomach",
+  "acid reflux": "stomach",
+  bloating: "stomach",
+
+  // Respiratory symptoms
+  cough: "lungs",
+  "dry cough": "lungs",
+  "wet cough": "lungs",
+  "persistent cough": "lungs",
+
+  // Skin symptoms
+  rash: "skin",
+  itching: "skin",
+  "burning skin": "skin",
+  "dry skin": "skin",
+  acne: "skin",
+  hives: "skin",
+
+  // Eye symptoms
+  "blurred vision": "eyes",
+  "eye pain": "eyes",
+  "red eyes": "eyes",
+  "dry eyes": "eyes",
+  "watery eyes": "eyes",
+
+  // Ear symptoms
+  "ear pain": "ears",
+  "hearing loss": "ears",
+  ringing: "ears",
+  "ear discharge": "ears",
+
+  // Mental symptoms
+  depression: "mind",
+  anxiety: "mind",
+  stress: "mind",
+  "mood swings": "mind",
+  insomnia: "mind",
+  "panic attacks": "mind",
+
+  // Heart symptoms
+  palpitations: "heart",
+  "chest pressure": "heart",
+  "irregular heartbeat": "heart",
+  "heart racing": "heart",
+
+  // General symptoms
+  fever: "body",
+  fatigue: "body",
+  weakness: "body",
+  dizziness: "head",
+  "weight loss": "body",
+  "weight gain": "body",
+};
+
+// Common misspellings
+const commonMisspellings = {
+  urin: "urine",
+  inconsistency: "incontinence",
+  stomache: "stomach",
+  cheast: "chest",
+  hart: "heart",
+  hed: "head",
+  bak: "back",
+  nee: "knee",
+  fut: "foot",
+  painfull: "painful",
+  ache: "pain",
+  fver: "fever",
+  cogh: "cough",
+  sweling: "swelling",
+  swolen: "swollen",
+  brething: "breathing",
+  breathng: "breathing",
+  difculty: "difficulty",
+  problm: "problem",
 };
 
 const FloatingChatbot = () => {
@@ -188,7 +415,7 @@ const FloatingChatbot = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm your medical assistant. Please describe your symptoms and I'll suggest which doctor you should consult. How can I help you today?",
+      text: "Hello! I'm your medical assistant. Describe your symptoms and I'll suggest the right doctor for you. How can I help?",
       sender: "bot",
       timestamp: new Date(),
     },
@@ -202,11 +429,22 @@ const FloatingChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Enhanced function to analyze symptoms and suggest doctor
-  const analyzeSymptomsAndSuggestDoctor = (userInput) => {
-    const input = userInput.toLowerCase().trim();
+  // Function to correct common misspellings
+  const correctSpelling = (text) => {
+    let correctedText = text.toLowerCase();
+    Object.entries(commonMisspellings).forEach(([misspelled, correct]) => {
+      const regex = new RegExp(`\\b${misspelled}\\b`, "gi");
+      correctedText = correctedText.replace(regex, correct);
+    });
+    return correctedText;
+  };
 
-    // Handle greetings first
+  // Enhanced function to analyze symptoms and suggest ONE doctor only
+  const analyzeSymptomsAndSuggestDoctor = (userInput) => {
+    let input = userInput.toLowerCase().trim();
+    input = correctSpelling(input);
+
+    // Handle greetings (but exclude medical terms)
     const greetings = [
       "hello",
       "hi",
@@ -214,31 +452,51 @@ const FloatingChatbot = () => {
       "good morning",
       "good afternoon",
       "good evening",
-      "greetings",
+    ];
+    const medicalTermsInGreeting = [
+      "pain",
+      "ache",
+      "problem",
+      "symptom",
+      "breathing",
+      "chest",
+      "heart",
+      "stomach",
     ];
     const isGreeting = greetings.some((greeting) => input.includes(greeting));
+    const hasMedicalTerm = medicalTermsInGreeting.some((term) =>
+      input.includes(term)
+    );
 
-    if (isGreeting) {
-      return "Hello! Welcome to Care Connect. I'm here to help you find the right doctor based on your symptoms. Please describe any symptoms you're experiencing, and I'll suggest which specialist you should consult.";
+    if (isGreeting && !hasMedicalTerm) {
+      return "Hello! I'm here to help you find the right doctor. Just tell me your symptoms like 'chest pain', 'headache', 'skin rash', or 'breathing problems' and I'll recommend the best specialist for you.";
     }
 
-    // Handle thank you messages
-    const thankYouWords = ["thank you", "thanks", "thank u", "thx"];
-    const isThankYou = thankYouWords.some((thanks) => input.includes(thanks));
-
-    if (isThankYou) {
-      return "You're welcome! I'm glad I could help. If you have any other symptoms or health concerns, feel free to ask. Take care and get well soon!";
+    // Handle capability questions
+    const capabilityQuestions = [
+      "what can you do",
+      "how can you help",
+      "what do you do",
+      "help me",
+      "capabilities",
+    ];
+    if (capabilityQuestions.some((question) => input.includes(question))) {
+      return "I can help you find the right doctor based on your symptoms! Just describe what you're feeling - like pain, discomfort, or any health issues. I'll analyze your symptoms and recommend the most suitable specialist. Try saying things like 'stomach pain', 'blurred vision', or 'joint stiffness'.";
     }
 
-    // Handle goodbye messages
-    const goodbyes = ["bye", "goodbye", "see you", "take care"];
-    const isGoodbye = goodbyes.some((goodbye) => input.includes(goodbye));
-
-    if (isGoodbye) {
-      return "Goodbye! Take care of your health. Remember to book an appointment with the recommended doctor. Feel free to come back anytime if you need medical guidance!";
+    // Handle thank you
+    const thankYou = ["thank you", "thanks", "thank u", "thx"];
+    if (thankYou.some((thanks) => input.includes(thanks))) {
+      return "You're welcome! Take care and get well soon. Feel free to ask if you have more symptoms to discuss!";
     }
 
-    // Enhanced medical keyword detection
+    // Handle goodbye
+    const goodbyes = ["bye", "goodbye", "see you"];
+    if (goodbyes.some((goodbye) => input.includes(goodbye))) {
+      return "Goodbye! Remember to book an appointment with the recommended doctor. Stay healthy!";
+    }
+
+    // Check for medical keywords
     const medicalKeywords = [
       "pain",
       "ache",
@@ -249,14 +507,6 @@ const FloatingChatbot = () => {
       "problem",
       "infection",
       "symptom",
-      "feel",
-      "doctor",
-      "treatment",
-      "medicine",
-      "health",
-      "disease",
-      "illness",
-      "condition",
       "bleeding",
       "swelling",
       "rash",
@@ -264,127 +514,202 @@ const FloatingChatbot = () => {
       "nausea",
       "vomiting",
       "diarrhea",
-      "constipation",
       "fatigue",
-      "tired",
-      "weakness",
       "dizzy",
-      "shortness",
-      "breath",
       "chest",
       "stomach",
       "back",
-      "joint",
-      "muscle",
-      "bone",
       "skin",
       "eye",
       "ear",
-      "nose",
       "throat",
       "heart",
       "burning",
       "itching",
       "sore",
-      "tender",
       "stiff",
       "cramp",
-      "spasm",
       "discharge",
-      "redness",
-      "inflammation",
       "allergy",
-      "reaction",
+      "swollen",
+      "urine",
+      "bladder",
+      "breathing",
+      "breath",
+      "shortness",
+      "difficulty",
+      "breathless",
+      "wheezing",
+      "asthma",
+      "pneumonia",
+      "bronchitis",
     ];
 
-    const containsMedicalKeyword = medicalKeywords.some((keyword) =>
+    const hasMedicalKeyword = medicalKeywords.some((keyword) =>
       input.includes(keyword)
     );
-
-    if (!containsMedicalKeyword) {
-      return "I apologize, but I can only help with medical symptoms and doctor recommendations. Please describe any symptoms you're experiencing (like pain, fever, cough, etc.), and I'll suggest the appropriate doctor to consult. For example, you can say 'I have chest pain' or 'I'm feeling dizzy'.";
+    if (!hasMedicalKeyword) {
+      return "Please describe your symptoms clearly. For example: 'chest pain', 'headache', 'skin rash', 'breathing problems'. Check your spelling and try again.";
     }
 
-    // Enhanced symptom matching with scoring system
-    const matchedDoctors = new Map();
-
-    // Check for exact matches and partial matches
-    for (const [symptom, doctor] of Object.entries(symptomToDoctorMap)) {
-      if (input.includes(symptom.toLowerCase())) {
-        const currentScore = matchedDoctors.get(doctor) || 0;
-        // Give higher score for longer/more specific symptom matches
-        const score = currentScore + symptom.length;
-        matchedDoctors.set(doctor, score);
+    // Step 1: Check for diseases first (highest priority) - RETURNS IMMEDIATELY
+    for (const [disease, info] of Object.entries(diseaseMapping)) {
+      if (input.includes(disease)) {
+        return `Based on your symptoms related to **${disease}**, I recommend consulting a **${info.doctor}**. They specialize in treating ${info.bodyPart}-related conditions. Please book an appointment for proper diagnosis.`;
       }
     }
 
-    // Also check for individual words that might indicate specific conditions
-    const words = input.split(/\s+/);
-    for (const word of words) {
-      for (const [symptom, doctor] of Object.entries(symptomToDoctorMap)) {
-        if (symptom.toLowerCase().includes(word) && word.length > 3) {
-          const currentScore = matchedDoctors.get(doctor) || 0;
-          matchedDoctors.set(doctor, currentScore + 1);
+    // Step 2: Check symptoms and map to body parts - RETURNS IMMEDIATELY
+    for (const [symptom, bodyPart] of Object.entries(symptomToBodyPart)) {
+      if (input.includes(symptom)) {
+        const doctor = bodyPartsMapping[bodyPart];
+        if (doctor) {
+          return `Based on your **${symptom}** symptoms, I recommend consulting a **${doctor}**. They specialize in treating ${bodyPart}-related conditions. Please book an appointment for proper care.`;
         }
       }
     }
 
-    if (matchedDoctors.size > 0) {
-      // Sort doctors by score (highest first)
-      const sortedDoctors = Array.from(matchedDoctors.entries())
-        .sort((a, b) => b[1] - a[1])
-        .map(([doctor]) => doctor);
-
-      if (sortedDoctors.length === 1) {
-        return `Based on your symptoms, I recommend consulting a **${sortedDoctors[0]}**. They specialize in treating conditions related to your symptoms. Please book an appointment for proper diagnosis and treatment.`;
-      } else if (sortedDoctors.length <= 3) {
-        return `Based on your symptoms, you may need to consult one of these specialists: **${sortedDoctors.join(
-          ", "
-        )}**. I recommend starting with a **${
-          sortedDoctors[0]
-        }** as they seem most relevant to your symptoms, but they can refer you to another specialist if needed.`;
-      } else {
-        // If too many matches, show top 3
-        const topDoctors = sortedDoctors.slice(0, 3);
-        return `Based on your symptoms, the most relevant specialists would be: **${topDoctors.join(
-          ", "
-        )}**. I recommend starting with a **${
-          topDoctors[0]
-        }** for initial evaluation.`;
+    // Step 3: Check for direct body parts - RETURNS IMMEDIATELY
+    for (const [bodyPart, doctor] of Object.entries(bodyPartsMapping)) {
+      if (input.includes(bodyPart)) {
+        return `For **${bodyPart}**-related symptoms, I recommend consulting a **${doctor}**. They specialize in treating conditions affecting the ${bodyPart}. Please book an appointment for evaluation.`;
       }
-    } else {
-      // Enhanced fallback with more specific guidance
-      const commonConditions = {
-        general: ["tired", "weak", "unwell", "sick", "not feeling well"],
-        respiratory: ["breathing", "breath", "lung", "respiratory"],
-        digestive: ["eating", "food", "meal", "digest"],
-        mental: ["mood", "feeling", "emotional", "mental"],
-      };
-
-      for (const [category, keywords] of Object.entries(commonConditions)) {
-        if (keywords.some((keyword) => input.includes(keyword))) {
-          switch (category) {
-            case "respiratory":
-              return "For breathing-related concerns, I recommend consulting a **Pulmonologist** or starting with a **General Physician** who can evaluate your respiratory symptoms and provide appropriate referrals.";
-            case "digestive":
-              return "For digestive or stomach-related issues, I recommend consulting a **Gastroenterologist** or starting with a **General Physician** for initial evaluation.";
-            case "mental":
-              return "For mental health or emotional concerns, I recommend consulting a **Psychiatrist** or **Psychologist**. You can also start with a **General Physician** who can provide initial support and referrals.";
-            default:
-              break;
-          }
-        }
-      }
-
-      return "Based on your description, I recommend starting with a **General Physician** for initial evaluation. They can examine you thoroughly and refer you to the appropriate specialist if needed. If you can provide more specific symptoms (like location of pain, type of discomfort, etc.), I can give you a more targeted recommendation.";
     }
+
+    // Step 4: Single keyword-based detection - RETURNS IMMEDIATELY when found
+    // Breathing/Respiratory related (high priority)
+    if (
+      input.includes("breathing") ||
+      input.includes("breath") ||
+      input.includes("shortness") ||
+      input.includes("breathless") ||
+      input.includes("wheezing") ||
+      input.includes("asthma") ||
+      input.includes("pneumonia") ||
+      input.includes("bronchitis") ||
+      input.includes("lung") ||
+      input.includes("respiratory")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **General Physician**. They are the best specialist for respiratory conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Heart/Chest related
+    if (
+      input.includes("chest") ||
+      input.includes("heart") ||
+      input.includes("cardiac") ||
+      input.includes("palpitation")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Cardiologist**. They are the best specialist for heart and chest conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Skin related
+    if (
+      input.includes("skin") ||
+      input.includes("rash") ||
+      input.includes("itch") ||
+      input.includes("acne")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Dermatologist**. They are the best specialist for skin conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Bone/Joint related
+    if (
+      input.includes("joint") ||
+      input.includes("bone") ||
+      input.includes("muscle") ||
+      input.includes("arthritis")
+    ) {
+      return `Based on your symptoms, I recommend consulting an **Orthopedist**. They are the best specialist for bone and joint conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Eye related
+    if (
+      input.includes("eye") ||
+      input.includes("vision") ||
+      input.includes("sight")
+    ) {
+      return `Based on your symptoms, I recommend consulting an **Ophthalmologist**. They are the best specialist for eye conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // ENT related
+    if (
+      input.includes("ear") ||
+      input.includes("nose") ||
+      input.includes("throat") ||
+      input.includes("sinus")
+    ) {
+      return `Based on your symptoms, I recommend consulting an **ENT Specialist**. They are the best specialist for ear, nose, and throat conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Digestive related
+    if (
+      input.includes("stomach") ||
+      input.includes("nausea") ||
+      input.includes("vomit") ||
+      input.includes("diarrhea")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Gastroenterologist**. They are the best specialist for digestive conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Neurological related
+    if (
+      input.includes("headache") ||
+      input.includes("migraine") ||
+      input.includes("dizzy") ||
+      input.includes("seizure")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Neurologist**. They are the best specialist for neurological conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Mental health related
+    if (
+      input.includes("depression") ||
+      input.includes("anxiety") ||
+      input.includes("stress") ||
+      input.includes("mood")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Psychiatrist**. They are the best specialist for mental health conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Urological related
+    if (
+      input.includes("urine") ||
+      input.includes("bladder") ||
+      input.includes("kidney") ||
+      input.includes("incontinence")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Urologist**. They are the best specialist for urinary conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Women's health related
+    if (
+      input.includes("period") ||
+      input.includes("breast") ||
+      input.includes("pregnancy") ||
+      input.includes("vaginal")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **Gynecologist**. They are the best specialist for women's health conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // General symptoms
+    if (
+      input.includes("fever") ||
+      input.includes("cough") ||
+      input.includes("fatigue") ||
+      input.includes("tired")
+    ) {
+      return `Based on your symptoms, I recommend consulting a **General Physician**. They are the best specialist for general health conditions. Please book an appointment for proper diagnosis and treatment.`;
+    }
+
+    // Fallback - always returns ONE doctor
+    return "I couldn't identify your specific symptoms. Please describe them more clearly (like 'chest pain', 'headache', 'breathing problems'). For general health concerns, I recommend consulting a **General Physician**.";
   };
 
   // Handle sending message
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
-    // Add user message
     const userMessage = {
       id: Date.now(),
       text: inputText,
@@ -396,7 +721,6 @@ const FloatingChatbot = () => {
     setInputText("");
     setIsTyping(true);
 
-    // Simulate bot thinking time
     setTimeout(() => {
       const botResponse = analyzeSymptomsAndSuggestDoctor(inputText);
 
@@ -409,10 +733,9 @@ const FloatingChatbot = () => {
 
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
-    }, 1500);
+    }, 1000);
   };
 
-  // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -533,7 +856,7 @@ const FloatingChatbot = () => {
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Describe your symptoms for doctor recommendations
+                Tell me your symptoms for doctor recommendations
               </p>
             </div>
           </div>
