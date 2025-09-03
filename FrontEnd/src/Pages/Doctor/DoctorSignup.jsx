@@ -139,7 +139,7 @@ const DoctorSignup = () => {
         formData.address.length < 10 ||
         formData.city.length < 2 ||
         formData.state.length < 2 ||
-        formData.pincode.length !== 6 ||
+        formData.pincode.length !== 5 ||
         formData.consultationFee < 100 ||
         !formData.experience ||
         !formData.qualification ||
@@ -808,7 +808,7 @@ const DoctorSignup = () => {
                   )}
                 </div>
 
-                {/* City, State, Pincode */}
+                {/* City, State, postalCode */}
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -860,26 +860,26 @@ const DoctorSignup = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Pincode
+                      postalCode
                     </label>
                     <input
                       type="text"
                       name="pincode"
                       value={formData.pincode}
                       onChange={handleInputChange}
-                      maxLength={6}
-                      minLength={6}
+                      maxLength={5}
+                      minLength={5}
                       required
                       className={`w-full py-3 px-4 border rounded-lg focus:ring-2 transition-colors ${
-                        formData.pincode && formData.pincode.length !== 6
+                        formData.pincode && formData.pincode.length !== 5
                           ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                           : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                       }`}
-                      placeholder="Pincode"
+                      placeholder="postalCode"
                     />
-                    {formData.pincode && formData.pincode.length !== 6 && (
+                    {formData.pincode && formData.pincode.length !== 5 && (
                       <p className="text-red-500 text-sm mt-1">
-                        Pincode must be exactly 6 digits
+                        postalCode must be exactly 5 digits
                       </p>
                     )}
                   </div>
