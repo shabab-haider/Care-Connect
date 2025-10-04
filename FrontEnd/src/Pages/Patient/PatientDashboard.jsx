@@ -39,54 +39,58 @@ const PatientDashboard = () => {
     return new Date(validityDate) >= new Date();
   };
 
+  // Current medications
+
+  // [
+  //   {
+  //     prescriptionId: "presc-001",
+  //     doctorName: "Dr. Ali",
+  //     validity: "2025-08-07",
+  //     medicines: [
+  //       {
+  //         name: "Amoxicillin",
+  //         dosage: "500mg",
+  //         frequency: ["Morning", "Evening"],
+  //         instructions: "Khana khanay ke baad lena",
+  //       },
+  //       {
+  //         name: "Paracetamol",
+  //         dosage: "650mg",
+  //         frequency: ["Night"],
+  //         instructions: "Bukhār mein lena",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     prescriptionId: "presc-002",
+  //     doctorName: "Dr. Fatima",
+  //     validity: "2025-08-03",
+  //     medicines: [
+  //       {
+  //         name: "Offalyne Syrup",
+  //         dosage: "2 spoons",
+  //         frequency: ["Morning", "Night"],
+  //         instructions: "Sirf khaansi ke waqt lena",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     prescriptionId: "presc-003",
+  //     doctorName: "Dr. Hamza",
+  //     validity: "2025-08-05",
+  //     medicines: [
+  //       {
+  //         name: "Cetirizine",
+  //         dosage: "10mg",
+  //         frequency: ["Night"],
+  //         instructions: "Sone se pehle lena",
+  //       },
+  //     ],
+  //   },
+  // ];
+
   // Current medicines data
-  const [prescriptions, setPrescriptions] = useState([
-    {
-      prescriptionId: "presc-001",
-      doctorName: "Dr. Ali",
-      validity: "2025-08-07",
-      medicines: [
-        {
-          name: "Amoxicillin",
-          dosage: "500mg",
-          frequency: ["Morning", "Evening"],
-          instructions: "Khana khanay ke baad lena",
-        },
-        {
-          name: "Paracetamol",
-          dosage: "650mg",
-          frequency: ["Night"],
-          instructions: "Bukhār mein lena",
-        },
-      ],
-    },
-    {
-      prescriptionId: "presc-002",
-      doctorName: "Dr. Fatima",
-      validity: "2025-08-03",
-      medicines: [
-        {
-          name: "Offalyne Syrup",
-          dosage: "2 spoons",
-          frequency: ["Morning", "Night"],
-          instructions: "Sirf khaansi ke waqt lena",
-        },
-      ],
-    },
-    {
-      prescriptionId: "presc-003",
-      doctorName: "Dr. Hamza",
-      validity: "2025-08-05",
-      medicines: [
-        {
-          name: "Cetirizine",
-          dosage: "10mg",
-          frequency: ["Night"],
-          instructions: "Sone se pehle lena",
-        },
-      ],
-    },
-  ]);
+  const [prescriptions, setPrescriptions] = useState([]);
 
   useEffect(() => {
     const getPrescriptions = async () => {

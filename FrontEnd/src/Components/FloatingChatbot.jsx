@@ -555,7 +555,7 @@ const FloatingChatbot = () => {
     // Step 1: Check for diseases first (highest priority) - RETURNS IMMEDIATELY
     for (const [disease, info] of Object.entries(diseaseMapping)) {
       if (input.includes(disease)) {
-        return `Based on your symptoms related to **${disease}**, I recommend consulting a **${info.doctor}**. They specialize in treating ${info.bodyPart}-related conditions. Please book an appointment for proper diagnosis.`;
+        return `Based on your symptoms related to **${disease}**, I recommend consulting a **${info.doctor}**. Please book an appointment for proper diagnosis.`;
       }
     }
 
@@ -564,7 +564,7 @@ const FloatingChatbot = () => {
       if (input.includes(symptom)) {
         const doctor = bodyPartsMapping[bodyPart];
         if (doctor) {
-          return `Based on your **${symptom}** symptoms, I recommend consulting a **${doctor}**. They specialize in treating ${bodyPart}-related conditions. Please book an appointment for proper care.`;
+          return `Based on your **${symptom}** symptoms, I recommend consulting a **${doctor}**. Please book an appointment for proper care.`;
         }
       }
     }
@@ -572,7 +572,7 @@ const FloatingChatbot = () => {
     // Step 3: Check for direct body parts - RETURNS IMMEDIATELY
     for (const [bodyPart, doctor] of Object.entries(bodyPartsMapping)) {
       if (input.includes(bodyPart)) {
-        return `For **${bodyPart}**-related symptoms, I recommend consulting a **${doctor}**. They specialize in treating conditions affecting the ${bodyPart}. Please book an appointment for evaluation.`;
+        return `For **${bodyPart}**-related symptoms, I recommend consulting a **${doctor}**. Please book an appointment for evaluation.`;
       }
     }
 

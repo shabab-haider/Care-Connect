@@ -38,14 +38,14 @@ const Login = () => {
           localStorage.setItem("token", token);
           const patientDetails = response.data.patient;
           setPatient(patientDetails);
-          toast.success("LoggedIn Successfully");
+          toast.success("Logged In Successfully");
           navigate("/patient-dashboard");
         } else {
           const token = response.data.token;
           localStorage.setItem("token", token);
           const doctorDetails = response.data.doctor;
           setDoctor(doctorDetails);
-          toast.success("LoggedIn Successfully");
+          toast.success("Logged In Successfully");
           navigate("/doctor-dashboard");
         }
       }

@@ -19,8 +19,14 @@ const {
 
 module.exports.requestAppointment = async (req, res) => {
   try {
-    const { doctorId, patientId, selectedDate, selectedToken, appointmentNo } =
-      req.body;
+    const {
+      doctorId,
+      patientId,
+      selectedDate,
+      selectedToken,
+      appointmentNo,
+      status,
+    } = req.body;
 
     // Validate input
     if (!doctorId || !patientId || !selectedDate || !selectedToken) {
@@ -79,7 +85,7 @@ module.exports.requestAppointment = async (req, res) => {
       token: selectedToken,
       date: selectedDate, // Store date in UTC
       appointmentNo,
-      status: "pending", // doctor will confirm later
+      status: status ? status : "pending", // doctor will confirm later
     });
 
     // Update token as booked
