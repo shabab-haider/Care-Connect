@@ -1,7 +1,7 @@
-import { transporter } from "./transporter.js"; // Import the transporter
+const { transporter } = require("./transporter.js"); // Import the transporter
 
 // Function to send a verification email
-export const sendVerificationEmail = async (email, verificationCode) => {
+const sendVerificationEmail = async (email, verificationCode) => {
   const mailOptions = {
     from: process.env.SMTP_USER, // sender address
     to: email, // list of receivers
@@ -23,3 +23,5 @@ export const sendVerificationEmail = async (email, verificationCode) => {
     throw error; // Optionally re-throw the error for further handling
   }
 };
+
+module.exports = { sendVerificationEmail };

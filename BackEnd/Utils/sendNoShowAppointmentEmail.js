@@ -1,6 +1,6 @@
-import { transporter } from "./transporter.js"; // Import the transporter
+const { transporter } = require("./transporter.js"); // Import the transporter
 
-export const sendNoShowAppointmentEmail = async (email, appointmentDetails) => {
+const sendNoShowAppointmentEmail = async (email, appointmentDetails) => {
   const { patientName, appointmentDate, appointmentNo } = appointmentDetails;
 
   const mailOptions = {
@@ -27,3 +27,5 @@ export const sendNoShowAppointmentEmail = async (email, appointmentDetails) => {
     throw error;
   }
 };
+
+module.exports = { sendNoShowAppointmentEmail };

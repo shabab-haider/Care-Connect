@@ -1,5 +1,4 @@
-import { transporter } from "./transporter.js"; // Import the transporter
-
+const { transporter } = require("./transporter.js"); // Import the transporter
 
 //Number 1
 
@@ -54,7 +53,7 @@ import { transporter } from "./transporter.js"; // Import the transporter
 //   }
 // };
 
-export const sendAppointmentCompletionEmail = async (email, medicalRecord) => {
+const sendAppointmentCompletionEmail = async (email, medicalRecord) => {
   const { patientName, doctorName, date, appointmentDetails, prescription } =
     medicalRecord;
 
@@ -105,6 +104,8 @@ export const sendAppointmentCompletionEmail = async (email, medicalRecord) => {
     throw error;
   }
 };
+
+module.exports = { sendAppointmentCompletionEmail };
 
 //Number 2
 

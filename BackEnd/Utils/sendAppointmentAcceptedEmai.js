@@ -1,6 +1,6 @@
-import { transporter } from "./transporter.js"; // Import the transporter
+const { transporter } = require("./transporter.js"); // Import the transporter
 
-export const sendAppointmentAcceptedEmail = async (
+const sendAppointmentAcceptedEmail = async (
   email,
   appointmentDetails
 ) => {
@@ -30,3 +30,5 @@ export const sendAppointmentAcceptedEmail = async (
     throw error;
   }
 };
+
+module.exports = { sendAppointmentAcceptedEmail };
